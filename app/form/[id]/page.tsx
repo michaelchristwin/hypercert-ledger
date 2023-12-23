@@ -1,6 +1,6 @@
 function Page() {
   return (
-    <div className={`flex justify-center h-fit w-full items-center `}>
+    <div className={`flex justify-center h-fit w-full relative`}>
       <div className={`block p-[40px] w-[37%] space-y-3`}>
         <hr />
         <p className={`text-[23px]`}>General Fields</p>
@@ -154,6 +154,29 @@ function Page() {
             className={`w-[100%] h-[45px] ps-2 rounded-[6px] focus:outline-none text-black`}
           />
         </fieldset>
+        <fieldset className={`w-[100%]`}>
+          <label
+            htmlFor="distribution"
+            className={`text-slate-400 font-bold text-[16px] block mb-1`}
+          >
+            Percentage distributed via allow List
+          </label>
+          <input
+            type="range"
+            min={1}
+            max={100}
+            name="distribution"
+            id="distribution"
+            className={`w-[100%] border-0 bg-white outline-none`}
+          />
+        </fieldset>
+      </div>
+      <div
+        className={`w-[43%] block h-[100vh] borde sticky top-[100px] p-[40px]`}
+      >
+        <div
+          className={`block w-[300px] h-[390px] border rounded-[12px] mx-auto `}
+        ></div>
       </div>
     </div>
   );
