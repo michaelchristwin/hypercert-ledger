@@ -1,6 +1,6 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Navbar from "../components/Navbar";
+import Navbar from "@/components/Navbar";
 import { Metadata } from "next";
 import WalletProvider from "../providers/Walletprovider";
 
