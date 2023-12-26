@@ -1,45 +1,82 @@
 "use client";
 
-import { MyMetadata } from "@/actions/hypercerts";
-import { useState } from "react";
+import { MintHypercert, MyMetadata } from "@/actions/hypercerts";
+import { useState, useRef } from "react";
 
-const initialState: MyMetadata = {
-  name: "",
-  description: "",
-  external_url: undefined,
-  image: "",
-  version: "",
-  properties: undefined,
-  impactScope: [],
-  excludedImpactScope: [],
-  workScope: [],
-  excludedWorkScope: [],
-  workTimeframeStart: 0,
-  workTimeframeEnd: 0,
-  impactTimeframeStart: 0,
-  impactTimeframeEnd: 0,
-  contributors: [],
-  rights: ["Public Display"],
-  excludedRights: [],
-};
+let currentYear = new Date();
+let cY = currentYear.getFullYear();
 
 function Page() {
-  const [formValues, setFormValues] = useState<MyMetadata>(initialState);
-  const [isOpen, setIsOpen] = useState(false);
   const [formDates, setFormDates] = useState({
-    workTimeframeStart: "",
-    workTimeframeEnd: "",
+    workTimeframeStart: `${cY}-01-01`,
+    workTimeframeEnd: currentYear.toISOString().slice(0, 10),
+    impactTimeframeStart: `${cY}-01-01`,
+    impactTimeframeEnd: currentYear.toISOString().slice(0, 10),
   });
+  const initialState: MyMetadata = {
+    name: "",
+    description: "",
+    external_url: "",
+    image: "",
+    version: "1.0",
+    properties: undefined,
+    impactScope: ["All"],
+    excludedImpactScope: [],
+    workScope: [],
+    excludedWorkScope: [],
+    workTimeframeStart: Date.parse(formDates.workTimeframeStart),
+    workTimeframeEnd: Date.parse(formDates.workTimeframeEnd),
+    impactTimeframeStart: Date.parse(formDates.impactTimeframeStart),
+    impactTimeframeEnd: Date.parse(formDates.impactTimeframeEnd),
+    contributors: [],
+    rights: ["Public Display"],
+    excludedRights: [],
+  };
+  const [formValues, setFormValues] = useState<MyMetadata>(initialState);
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [showProgress, setShowProgress] = useState(false);
   const {
     name,
     image,
     description,
     external_url,
     workScope,
-    workTimeframeEnd,
-    workTimeframeStart,
+    impactScope,
+    rights,
     contributors,
   } = formValues;
+  const isValid = (formValue: MyMetadata) => {
+    const {
+      name,
+      image,
+      description,
+      external_url,
+      workScope,
+      impactScope,
+      rights,
+      contributors,
+      workTimeframeEnd,
+      workTimeframeStart,
+      impactTimeframeEnd,
+      impactTimeframeStart,
+      version,
+    } = formValue;
+    return (
+      name !== "" &&
+      description !== "" &&
+      workScope.length &&
+      contributors.length &&
+      rights.length &&
+      workTimeframeEnd &&
+      workTimeframeStart &&
+      image !== "" &&
+      impactScope.length &&
+      impactTimeframeEnd &&
+      impactTimeframeStart &&
+      version !== ""
+    );
+  };
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -63,15 +100,23 @@ function Page() {
   const collector = (data: MyMetadata) => {
     console.log(data);
   };
-  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const newCont = contributors.map((person) => person.trim());
     const nwrds = workScope.map((wrd) => wrd.trim());
-    collector({
+    setFormValues({
       ...formValues,
       workScope: nwrds,
       contributors: newCont,
     });
+    if (isValid(formValues)) {
+      diaRef.current?.showModal();
+      //await MintHypercert(formValues);
+      setTimeout(() => {
+        diaRef.current?.close();
+      }, 9000);
+    }
+    console.log(isValid(formValues));
   };
 
   const handleDates = (
@@ -88,9 +133,11 @@ function Page() {
       [name]: newDate,
     });
   };
+  const diaRef = useRef<HTMLDialogElement | null>(null);
+
   return (
     <div className={`flex justify-center h-fit w-full relative`}>
-      <form className={`block p-[40px] w-[50%] space-y-3`} onSubmit={onSubmit}>
+      <form className={`block p-[40px] w-[43%] space-y-3`} onSubmit={onSubmit}>
         <hr />
         <p className={`text-[23px]`}>General Fields</p>
         <fieldset className={`w-[100%]`}>
@@ -100,15 +147,20 @@ function Page() {
           >
             Hypercert Name
           </label>
+
           <input
             type="text"
             id="name"
             name="name"
             value={name}
+            required
             onChange={handleChange}
             placeholder="The name of your hypercert"
-            className={`w-[100%] h-[45px] ps-2 rounded-[6px] focus:outline-none text-black`}
+            className={`w-[100%] h-[45px] ps-2 peer rounded-[6px] focus:outline-none text-black`}
           />
+          <p className={`text-red-600 italic invisible peer-required:visible`}>
+            *
+          </p>
         </fieldset>
         <fieldset className={`w-[100%]`}>
           <label
@@ -120,12 +172,16 @@ function Page() {
           <input
             type="text"
             id="image"
+            required
             name="image"
             value={image}
             onChange={handleChange}
             placeholder="Image URL"
-            className={`w-[100%] h-[45px] ps-2 rounded-[6px] focus:outline-none text-black`}
+            className={`w-[100%] h-[45px] peer ps-2 rounded-[6px] focus:outline-none text-black`}
           />
+          <p className={`text-red-600 italic invisible peer-required:visible`}>
+            *
+          </p>
         </fieldset>
         <fieldset className={`w-[100%]`}>
           <label
@@ -153,9 +209,13 @@ function Page() {
             name="description"
             id="description"
             value={description}
+            required
             onChange={handleChange}
-            className={`w-[100%] p-2 h-[150px] rounded-[6px] focus:outline-none text-black`}
+            className={`w-[100%] p-2 peer h-[150px] rounded-[6px] focus:outline-none text-black`}
           ></textarea>
+          <p className={`text-red-600 italic invisible peer-required:visible`}>
+            *
+          </p>
         </fieldset>
         <fieldset className={`w-[100%]`}>
           <label
@@ -188,8 +248,13 @@ function Page() {
             id="workScope"
             value={workScope}
             onChange={handleScopes}
-            className={`w-[100%] p-2 h-[150px] rounded-[6px] focus:outline-none text-black`}
+            required
+            placeholder="WorkScope1, WorkScope2"
+            className={`w-[100%] p-2 h-[150px] peer rounded-[6px] focus:outline-none text-black`}
           ></textarea>
+          <p className={`text-red-600 italic invisible peer-required:visible`}>
+            *
+          </p>
         </fieldset>
         <div
           className={`w-[100%] flex justify-center items-center space-x-2 h-[130px]`}
@@ -239,12 +304,17 @@ function Page() {
             id="contributors"
             value={contributors}
             onChange={handleScopes}
-            className={`w-[100%] p-2 h-[150px] rounded-[6px] focus:outline-none text-black`}
+            required
+            placeholder="0xWalletAddress1, 0xWalletAddress2"
+            className={`w-[100%] p-2 h-[150px] peer rounded-[6px] focus:outline-none text-black`}
           ></textarea>
+          <p className={`text-red-600 italic invisible peer-required:visible`}>
+            *
+          </p>
         </fieldset>
         <div className={`w-[100%] rounded-[6px] bg-white text-black p-3`}>
           <div
-            className={`flex justify-between`}
+            className={`flex justify-between hover:cursor-pointer`}
             onClick={() => setIsOpen((prevOpen) => !prevOpen)}
           >
             <p className={`text-[23px]`}>Advanced Fields</p>
@@ -283,22 +353,88 @@ function Page() {
             <p className={`text-[13px] italic text-slate-400`}>
               Advanced fields are currently not available for editing.
             </p>
-            <fieldset className={`w-[100%]`}>
-              <label
-                htmlFor="external_url"
-                className={`text-slate-400 font-bold text-[16px] block mb-1`}
+            <div className={`w-[100%]`}>
+              <fieldset className={`w-[100%]`}>
+                <label
+                  htmlFor="impactScope"
+                  className={`text-slate-400 font-bold text-[16px] block mb-1`}
+                >
+                  Impact Scope
+                </label>
+                <select
+                  name="impactScope"
+                  id="impactScope"
+                  disabled
+                  multiple
+                  value={impactScope}
+                  className={`w-[100%] h-[45px] px-3 rounded-[6px] focus:outline-none border text-black`}
+                >
+                  <option value="all">All</option>
+                </select>
+              </fieldset>
+
+              <div
+                className={`w-[100%] flex justify-center items-center space-x-2 h-[130px]`}
               >
-                Link
-              </label>
-              <select
-                name="all"
-                id="all"
-                disabled
-                className={`w-[100%] h-[45px] px-3 rounded-[6px] focus:outline-none border text-black`}
-              >
-                <option value="all">All</option>
-              </select>
-            </fieldset>
+                <fieldset className={`w-[48%]`}>
+                  <label
+                    htmlFor="workTimeframeStart"
+                    className={`text-slate-400 font-bold text-[16px] block mb-1`}
+                  >
+                    Impact Start Date
+                  </label>
+                  <input
+                    type="date"
+                    name="workTimeframeStart"
+                    id="workTimeframeStart"
+                    value={formDates.impactTimeframeStart}
+                    disabled
+                    onChange={handleDates}
+                    className={`w-[100%] h-[45px] border ps-2 rounded-[6px] focus:outline-none text-black`}
+                  />
+                </fieldset>
+                <fieldset className={`w-[48%]`}>
+                  <label
+                    htmlFor="workTimeframeEnd"
+                    className={`text-slate-400 font-bold text-[16px] block mb-1`}
+                  >
+                    Impact End Date
+                  </label>
+                  <input
+                    type="date"
+                    name="workTimeframeEnd"
+                    id="workTimeframeEnd"
+                    value={formDates.impactTimeframeEnd}
+                    onChange={handleDates}
+                    disabled
+                    className={`w-[100%] h-[45px] border ps-2 rounded-[6px] focus:outline-none text-black`}
+                  />
+                </fieldset>
+              </div>
+              <fieldset className={`w-[100%]`}>
+                <label
+                  htmlFor="rights"
+                  className={`text-slate-400 font-bold text-[16px] block mb-1`}
+                >
+                  Usage Rights
+                </label>
+                <select
+                  name="all"
+                  multiple
+                  id="rights"
+                  disabled
+                  value={rights}
+                  className={`w-[100%] peer h-[45px] px-3 rounded-[6px] focus:outline-none border text-black`}
+                >
+                  <option value="Public Display">Public Display</option>
+                </select>
+                <p
+                  className={`text-red-600 italic invisible peer-required:visible`}
+                >
+                  *
+                </p>
+              </fieldset>
+            </div>
           </div>
         </div>
         <hr />
@@ -329,16 +465,18 @@ function Page() {
             type="range"
             min={1}
             max={100}
+            disabled
             name="distribution"
             id="distribution"
             className={`w-[100%] border-0 bg-white outline-none`}
           />
         </fieldset>
+
         <button
           type="submit"
-          className={`px-1 border rounded-lg mx-auto h-[37px] block`}
+          className={`px-1 border w-[100px] bg-white text-black hover:opacity-75 active:opacity-60 rounded-lg mx-auto h-[35px] block`}
         >
-          Submit
+          Create
         </button>
       </form>
       <div
@@ -348,6 +486,12 @@ function Page() {
           className={`block w-[300px] h-[390px] border rounded-[12px] mx-auto `}
         ></div>
       </div>
+      <dialog
+        ref={diaRef}
+        className={`backdrop:bg-neutral-900/90 w-[50%] fixed translate-y-[-50%] top-[50%] h-[50%] border-0 rounded-[6px] p-[20px] inset-0 backdrop-blur z-[30]`}
+      >
+        <div className={`bg-white text-black`}>999shit</div>
+      </dialog>
     </div>
   );
 }
