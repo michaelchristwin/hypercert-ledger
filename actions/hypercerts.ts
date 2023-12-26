@@ -4,7 +4,7 @@ import { mainnet } from "viem/chains";
 import { TransferRestrictions, formatHypercertData } from "@hypercerts-org/sdk";
 declare let window: any;
 
-interface MyMetadata {
+export interface MyMetadata {
   name: string;
   description: string;
   external_url?: string | undefined;
