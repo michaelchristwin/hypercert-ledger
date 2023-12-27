@@ -5,7 +5,7 @@ interface MultiSelectProps {
   placeholder: string;
   multi?: boolean;
   id: string;
-
+  disabled: boolean;
   handleChange: (inputId: any) => void;
 }
 function DSelect({
@@ -14,11 +14,13 @@ function DSelect({
   multi,
   handleChange,
   id,
+  disabled,
 }: MultiSelectProps) {
   return (
     <Select
       inputId={id}
       name={id}
+      isDisabled={disabled}
       options={options}
       isSearchable={false}
       onChange={handleChange}

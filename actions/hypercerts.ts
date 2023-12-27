@@ -1,10 +1,10 @@
 import { HypercertClient, HypercertMetadata } from "@hypercerts-org/sdk";
 import { createWalletClient, custom } from "viem";
-import { mainnet } from "viem/chains";
+import { goerli } from "viem/chains";
 import { TransferRestrictions, formatHypercertData } from "@hypercerts-org/sdk";
-declare let window: any;
+import { Provider } from "ethers";
 
-export interface MyMetadata {
+interface MyMetadata {
   name: string;
   description: string;
   external_url?: string | undefined;
@@ -28,27 +28,26 @@ export interface MyMetadata {
   rights: string[];
   excludedRights: string[];
 }
-const nftStorageToken = process.env.NEXT_PUBLIC_NFTSTORAGE;
 
-const walletClient = createWalletClient({
-  chain: mainnet,
-  transport: custom(window.ethereum),
-});
-export const client = new HypercertClient({
-  chainId: BigInt(5), // goerli testnet
-  walletClient,
-  nftStorageToken,
-});
-//@ts-ignore
-
-export async function MintHypercert(props: MyMetadata) {
+async function MintHypercert(props: MyMetadata, client: HypercertClient) {
   const { data } = formatHypercertData(props);
   const totalUnits = BigInt(10000);
 
-  const txHash = await client.mintClaim(
-    data as HypercertMetadata,
-    totalUnits,
-    TransferRestrictions.FromCreatorOnly
-  );
+  let txHash;
+  if (client !== undefined) {
+    try {
+      txHash = await client.mintClaim(
+        data as HypercertMetadata,
+        totalUnits,
+        TransferRestrictions.FromCreatorOnly
+      );
+    } catch (err) {
+      console.error("Mint Process Failed:", err);
+    }
+  } else {
+    console.error("Client is undefined");
+  }
   return txHash;
 }
+
+export { MintHypercert, type MyMetadata };

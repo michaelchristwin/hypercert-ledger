@@ -1,41 +1,75 @@
 "use client";
 
-import { MintHypercert, MyMetadata } from "@/actions/hypercerts";
-import { useState, useRef } from "react";
+import { MyMetadata } from "@/actions/hypercerts";
+import { HypercertClient } from "@hypercerts-org/sdk";
+import { useWeb3ModalAccount } from "@web3modal/ethers/react";
+import { useState, useRef, useEffect } from "react";
+import { goerli } from "viem/chains";
+import { createWalletClient, custom, http } from "viem";
+declare let window: any;
 
 let currentYear = new Date();
 let cY = currentYear.getFullYear();
 
 function Page() {
+  const nftStorageToken = process.env.NEXT_PUBLIC_NFTSTORAGE;
+  console.log(nftStorageToken);
+  const [hyperCertModule, setHyperCertModule] = useState<
+    typeof import("@/actions/hypercerts") | undefined
+  >(undefined);
+  const [client, setClient] = useState<HypercertClient | undefined>(undefined);
+  const { address } = useWeb3ModalAccount();
+
+  useEffect(() => {
+    (async () => {
+      const Hypercerts = await import("@/actions/hypercerts");
+      setHyperCertModule(Hypercerts);
+      if (address && window.ethereum) {
+        const walletClient = createWalletClient({
+          account: address,
+          chain: goerli,
+          transport: custom(window.ethereum),
+        });
+        let myClient = new HypercertClient({
+          chain: goerli,
+          walletClient: walletClient,
+          nftStorageToken,
+          web3StorageToken: nftStorageToken,
+        });
+        setClient(myClient);
+      }
+    })();
+  }, [address, nftStorageToken]);
+
   const [formDates, setFormDates] = useState({
     workTimeframeStart: `${cY}-01-01`,
     workTimeframeEnd: currentYear.toISOString().slice(0, 10),
     impactTimeframeStart: `${cY}-01-01`,
     impactTimeframeEnd: currentYear.toISOString().slice(0, 10),
   });
+
   const initialState: MyMetadata = {
-    name: "",
-    description: "",
-    external_url: "",
-    image: "",
+    name: "HyperCert 1",
+    description: "This is a test",
+    external_url: "https://999.com",
+    image: "https://999.com",
     version: "1.0",
     properties: undefined,
     impactScope: ["All"],
     excludedImpactScope: [],
-    workScope: [],
+    workScope: ["Defi", "Test"],
     excludedWorkScope: [],
     workTimeframeStart: Date.parse(formDates.workTimeframeStart),
     workTimeframeEnd: Date.parse(formDates.workTimeframeEnd),
     impactTimeframeStart: Date.parse(formDates.impactTimeframeStart),
     impactTimeframeEnd: Date.parse(formDates.impactTimeframeEnd),
-    contributors: [],
+    contributors: ["0xb2403f83C23748b26B06173db7527383482E8c5a"],
     rights: ["Public Display"],
     excludedRights: [],
   };
   const [formValues, setFormValues] = useState<MyMetadata>(initialState);
-
   const [isOpen, setIsOpen] = useState(false);
-  const [showProgress, setShowProgress] = useState(false);
+  const [hash, setHash] = useState<`0x${string}` | string>("");
   const {
     name,
     image,
@@ -85,7 +119,6 @@ function Page() {
       ...formValues,
       [name]: value,
     });
-    //console.log(formValues);
   };
   const handleScopes = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -97,9 +130,7 @@ function Page() {
       [name]: wrds,
     });
   };
-  const collector = (data: MyMetadata) => {
-    console.log(data);
-  };
+
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const newCont = contributors.map((person) => person.trim());
@@ -109,14 +140,15 @@ function Page() {
       workScope: nwrds,
       contributors: newCont,
     });
-    if (isValid(formValues)) {
-      diaRef.current?.showModal();
-      //await MintHypercert(formValues);
+    if (isValid(formValues) && diaRef.current && hyperCertModule && client) {
+      diaRef.current.showModal();
+      const res = await hyperCertModule.MintHypercert(formValues, client);
+      setHash(res as `0x${string}`);
       setTimeout(() => {
         diaRef.current?.close();
-      }, 9000);
+      }, 10000);
+      setHash("");
     }
-    console.log(isValid(formValues));
   };
 
   const handleDates = (
@@ -367,7 +399,7 @@ function Page() {
                   disabled
                   multiple
                   value={impactScope}
-                  className={`w-[100%] h-[45px] px-3 rounded-[6px] focus:outline-none border text-black`}
+                  className={`w-[100%] h-[45px] p-2 rounded-[6px] focus:outline-none border text-black`}
                 >
                   <option value="all">All</option>
                 </select>
@@ -419,12 +451,12 @@ function Page() {
                   Usage Rights
                 </label>
                 <select
-                  name="all"
-                  multiple
+                  name="rights"
                   id="rights"
                   disabled
-                  value={rights}
-                  className={`w-[100%] peer h-[45px] px-3 rounded-[6px] focus:outline-none border text-black`}
+                  multiple
+                  value={impactScope}
+                  className={`w-[100%] h-[45px] p-2 rounded-[6px] focus:outline-none border text-black`}
                 >
                   <option value="Public Display">Public Display</option>
                 </select>
@@ -490,7 +522,9 @@ function Page() {
         ref={diaRef}
         className={`backdrop:bg-neutral-900/90 w-[50%] fixed translate-y-[-50%] top-[50%] h-[50%] border-0 rounded-[6px] p-[20px] inset-0 backdrop-blur z-[30]`}
       >
-        <div className={`bg-white text-black`}>999shit</div>
+        <div className={`bg-white text-black`}>
+          <p>The transaction hash: {hash}</p>
+        </div>
       </dialog>
     </div>
   );

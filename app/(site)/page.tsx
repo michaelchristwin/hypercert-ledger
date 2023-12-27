@@ -1,10 +1,16 @@
 "use client";
 import Select from "@/components/Select";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useWeb3ModalAccount } from "@web3modal/ethers/react";
 
 function Home() {
   const [value, setValue] = useState("");
+  const { isConnected } = useWeb3ModalAccount();
+  useEffect(() => {
+    setIsDisabled(!isConnected);
+  }, [isConnected]);
+  const [disabled, setIsDisabled] = useState<boolean>(false);
   const rounds = [
     { value: "1", label: "Round 1" },
     { value: "2", label: "Round 2" },
@@ -13,13 +19,20 @@ function Home() {
   ];
   const handleChange = (selectedOption: any) => {
     setValue(selectedOption.value);
-    console.log(value);
   };
   const router = useRouter();
   return (
-    <main className={`flex h-[100vh] p-[50px] justify-center`}>
+    <main className={`block h-[100vh] w-full relative`}>
+      {isConnected === false && (
+        <div className={`block w-full z-10 fixed bg-sky-500 p-2`}>
+          <p className={`text-white text-[18px] text-center`}>
+            Please, connect your wallet
+          </p>
+        </div>
+      )}
+      <div className={`flex w-full mx-auto p-[50px] justify-center`}></div>
       <div
-        className={`flex w-[650px] justify-center relative space-x-3 px-2 h-fit`}
+        className={`flex w-[650px] mx-auto justify-center relative space-x-3 px-2 h-fit`}
       >
         <fieldset className={`w-[70%]`}>
           <label
@@ -33,6 +46,7 @@ function Home() {
             handleChange={handleChange}
             placeholder={`Select...`}
             options={rounds}
+            disabled={disabled}
           />
         </fieldset>
         <button
