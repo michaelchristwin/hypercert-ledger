@@ -1,10 +1,10 @@
-import { Inter } from "next/font/google";
+import { Inter, Raleway } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { Metadata } from "next";
 import WalletProvider from "../providers/Walletprovider";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Raleway({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -18,7 +18,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} relative`}>
+      <body
+        className={`${inter.className} relative bg-gradient-to-r from-[#0052D4] via-[#4364F7] to-[#6FB1FC]`}
+      >
         <WalletProvider>
           <Navbar />
           <div className={`mt-[100px]`}>{children}</div>

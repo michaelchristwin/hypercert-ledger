@@ -1,11 +1,11 @@
 "use client";
 
-import { MyMetadata } from "@/actions/hypercerts";
+import { MyMetadata, MintHypercert } from "@/actions/hypercerts";
 import { HypercertClient } from "@hypercerts-org/sdk";
 import { useWeb3ModalAccount } from "@web3modal/ethers/react";
 import { useState, useRef, useEffect } from "react";
 import { goerli } from "viem/chains";
-import { createWalletClient, custom, http } from "viem";
+import { createWalletClient, custom } from "viem";
 declare let window: any;
 
 let currentYear = new Date();
@@ -13,17 +13,11 @@ let cY = currentYear.getFullYear();
 
 function Page() {
   const nftStorageToken = process.env.NEXT_PUBLIC_NFTSTORAGE;
-  console.log(nftStorageToken);
-  const [hyperCertModule, setHyperCertModule] = useState<
-    typeof import("@/actions/hypercerts") | undefined
-  >(undefined);
+
   const [client, setClient] = useState<HypercertClient | undefined>(undefined);
   const { address } = useWeb3ModalAccount();
-
   useEffect(() => {
     (async () => {
-      const Hypercerts = await import("@/actions/hypercerts");
-      setHyperCertModule(Hypercerts);
       if (address && window.ethereum) {
         const walletClient = createWalletClient({
           account: address,
@@ -49,21 +43,21 @@ function Page() {
   });
 
   const initialState: MyMetadata = {
-    name: "HyperCert 1",
-    description: "This is a test",
-    external_url: "https://999.com",
-    image: "https://999.com",
+    name: "",
+    description: "",
+    external_url: "",
+    image: "",
     version: "1.0",
     properties: undefined,
     impactScope: ["All"],
     excludedImpactScope: [],
-    workScope: ["Defi", "Test"],
+    workScope: [],
     excludedWorkScope: [],
     workTimeframeStart: Date.parse(formDates.workTimeframeStart),
     workTimeframeEnd: Date.parse(formDates.workTimeframeEnd),
     impactTimeframeStart: Date.parse(formDates.impactTimeframeStart),
     impactTimeframeEnd: Date.parse(formDates.impactTimeframeEnd),
-    contributors: ["0xb2403f83C23748b26B06173db7527383482E8c5a"],
+    contributors: [],
     rights: ["Public Display"],
     excludedRights: [],
   };
@@ -79,6 +73,10 @@ function Page() {
     impactScope,
     rights,
     contributors,
+    impactTimeframeEnd,
+    impactTimeframeStart,
+    workTimeframeEnd,
+    workTimeframeStart,
   } = formValues;
   const isValid = (formValue: MyMetadata) => {
     const {
@@ -135,14 +133,19 @@ function Page() {
     event.preventDefault();
     const newCont = contributors.map((person) => person.trim());
     const nwrds = workScope.map((wrd) => wrd.trim());
+
     setFormValues({
       ...formValues,
       workScope: nwrds,
       contributors: newCont,
+      impactTimeframeEnd: impactTimeframeEnd / 1000,
+      impactTimeframeStart: impactTimeframeStart / 1000,
+      workTimeframeEnd: workTimeframeEnd / 1000,
+      workTimeframeStart: workTimeframeStart / 1000,
     });
-    if (isValid(formValues) && diaRef.current && hyperCertModule && client) {
+    if (isValid(formValues) && diaRef.current && client) {
       diaRef.current.showModal();
-      const res = await hyperCertModule.MintHypercert(formValues, client);
+      const res = await MintHypercert(formValues, client);
       setHash(res as `0x${string}`);
       setTimeout(() => {
         diaRef.current?.close();
@@ -522,7 +525,7 @@ function Page() {
         ref={diaRef}
         className={`backdrop:bg-neutral-900/90 w-[50%] fixed translate-y-[-50%] top-[50%] h-[50%] border-0 rounded-[6px] p-[20px] inset-0 backdrop-blur z-[30]`}
       >
-        <div className={`bg-white text-black`}>
+        <div className={`bg-white text-black text-center`}>
           <p>The transaction hash: {hash}</p>
         </div>
       </dialog>

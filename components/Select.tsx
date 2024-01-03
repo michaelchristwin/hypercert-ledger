@@ -41,7 +41,7 @@ function DSelect({
         //@ts-ignore
         control: (baseStyles, state) => ({
           ...baseStyles,
-          backgroundColor: "black",
+          backgroundColor: "white",
           ":focus": {
             outline: "hidden",
           },
@@ -49,7 +49,7 @@ function DSelect({
         //@ts-ignore
         singleValue: (baseStyles, state) => ({
           ...baseStyles,
-          color: "white",
+          color: "black",
         }),
       }}
       placeholder={placeholder}
