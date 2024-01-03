@@ -4,6 +4,7 @@ import Select from "@/components/Select";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useWeb3ModalAccount } from "@web3modal/ethers/react";
+import Image from "next/image";
 
 function Hero() {
   const [value, setValue] = useState("");
@@ -36,11 +37,16 @@ function Hero() {
 
   return (
     <div className={`flex w-full items-center justify-around`}>
-      <div
-        className={`w-[30%] h-[500px] rounded-[15px] bg-[#63abfedf] shadow`}
-      ></div>
+      <Image
+        className={`w-[30%] h-[500px] rounded-[30px] shadow`}
+        width={300}
+        height={390}
+        src={`/hyper.webp`}
+        alt="hyper"
+      />
+
       <div className={`flex flex-col w-[50%]`}>
-        <p className={`text-[#ffd9cd] text-center text-[60px] font-extrabold `}>
+        <p className={`text-white text-center text-[60px] font-extrabold `}>
           {currentText}
         </p>
         <div
@@ -64,7 +70,7 @@ function Hero() {
           <button
             onClick={() => router.push(`/form/${value}`)}
             disabled={!value}
-            className={`px-2 bg-[#3a59ef] text-white disabled:bg-slate-500 disabled:hover:opacity-100 hover:active:opacity-100 absolute bottom-0 right-0 rounded-[6px] h-[40px]`}
+            className={`px-2 bg-[#3a59ef] text-white disabled:hover:opacity-100 hover:active:opacity-100 absolute bottom-0 right-0 rounded-[6px] h-[40px]`}
           >
             Proceed
           </button>

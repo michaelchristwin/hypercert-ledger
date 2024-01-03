@@ -6,6 +6,7 @@ import { useWeb3ModalAccount } from "@web3modal/ethers/react";
 import { useState, useRef, useEffect } from "react";
 import { goerli } from "viem/chains";
 import { createWalletClient, custom } from "viem";
+import Image from "next/image";
 declare let window: any;
 
 let currentYear = new Date();
@@ -171,8 +172,11 @@ function Page() {
   const diaRef = useRef<HTMLDialogElement | null>(null);
 
   return (
-    <div className={`flex justify-center h-fit w-full relative`}>
-      <form className={`block p-[40px] w-[43%] space-y-3`} onSubmit={onSubmit}>
+    <div className={`flex justify-center h-fit py-[20px] w-full relative`}>
+      <form
+        className={`block p-[40px] w-[43%] space-y-3 rounded-[15px] bg-white/5 shadow-black/10 shadow-md backdrop-filter backdrop-blur-lg bg-opacity-10 bg-clip-padding`}
+        onSubmit={onSubmit}
+      >
         <hr />
         <p className={`text-[23px]`}>General Fields</p>
         <fieldset className={`w-[100%]`}>
@@ -517,9 +521,13 @@ function Page() {
       <div
         className={`w-[40%] block h-[100vh] borde sticky top-[100px] p-[40px]`}
       >
-        <div
-          className={`block w-[300px] h-[390px] border rounded-[12px] mx-auto `}
-        ></div>
+        <Image
+          className={`block w-[300px] h-[390px] rounded-[12px] mx-auto `}
+          width={300}
+          height={390}
+          src={`/hyper.webp`}
+          alt="hyper"
+        />
       </div>
       <dialog
         ref={diaRef}
