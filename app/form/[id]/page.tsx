@@ -174,15 +174,17 @@ function Page() {
   return (
     <div className={`flex justify-center h-fit py-[20px] w-full relative`}>
       <form
-        className={`block p-[40px] w-[43%] space-y-3 rounded-[15px] bg-white/5 shadow-black/10 shadow-md backdrop-filter backdrop-blur-lg bg-opacity-10 bg-clip-padding`}
+        className={`block p-[40px] w-[43%] space-y-3 rounded-[15px] shadow-black/10 shadow-md morph bg-opacity-10 bg-clip-padding`}
         onSubmit={onSubmit}
       >
         <hr />
-        <p className={`text-[23px]`}>General Fields</p>
+        <p className={`text-[23px] text-violet-800 font-semibold`}>
+          General Fields
+        </p>
         <fieldset className={`w-[100%]`}>
           <label
             htmlFor="name"
-            className={`text-slate-400 font-bold text-[16px] block mb-1`}
+            className={`text-white font-bold text-[16px] block mb-1`}
           >
             Hypercert Name
           </label>
@@ -195,7 +197,7 @@ function Page() {
             required
             onChange={handleChange}
             placeholder="The name of your hypercert"
-            className={`w-[100%] h-[45px] ps-2 peer rounded-[6px] focus:outline-none text-black`}
+            className={`w-[100%] h-[45px] ps-2 peer bg-white/70 placeholder:text-black/80 rounded-[6px] focus:outline-none text-black`}
           />
           <p className={`text-red-600 italic invisible peer-required:visible`}>
             *
@@ -204,7 +206,7 @@ function Page() {
         <fieldset className={`w-[100%]`}>
           <label
             htmlFor="image"
-            className={`text-slate-400 font-bold text-[16px] block mb-1`}
+            className={`text-white font-bold text-[16px] block mb-1`}
           >
             Logo Image
           </label>
@@ -216,7 +218,7 @@ function Page() {
             value={image}
             onChange={handleChange}
             placeholder="Image URL"
-            className={`w-[100%] h-[45px] peer ps-2 rounded-[6px] focus:outline-none text-black`}
+            className={`w-[100%] h-[45px] peer ps-2 bg-white/70 placeholder:text-black/80 rounded-[6px] focus:outline-none text-black`}
           />
           <p className={`text-red-600 italic invisible peer-required:visible`}>
             *
@@ -225,7 +227,7 @@ function Page() {
         <fieldset className={`w-[100%]`}>
           <label
             htmlFor="banner"
-            className={`text-slate-400 font-bold text-[16px] block mb-1`}
+            className={`text-white font-bold text-[16px] block mb-1`}
           >
             Banner Image
           </label>
@@ -234,13 +236,13 @@ function Page() {
             id="banner"
             name="banner"
             placeholder="Banner Image URL"
-            className={`w-[100%] h-[45px] ps-2 rounded-[6px] focus:outline-none text-black`}
+            className={`w-[100%] h-[45px] ps-2 bg-white/70 placeholder:text-black/80 rounded-[6px] focus:outline-none text-black`}
           />
         </fieldset>
         <fieldset className={`w-[100%]`}>
           <label
             htmlFor="description"
-            className={`text-slate-400 font-bold text-[16px] block mb-1`}
+            className={`text-white font-bold text-[16px] block mb-1`}
           >
             Description
           </label>
@@ -250,7 +252,7 @@ function Page() {
             value={description}
             required
             onChange={handleChange}
-            className={`w-[100%] p-2 peer h-[150px] rounded-[6px] focus:outline-none text-black`}
+            className={`w-[100%] p-2 peer h-[150px] bg-white/70 placeholder:text-black/80 rounded-[6px] focus:outline-none text-black`}
           ></textarea>
           <p className={`text-red-600 italic invisible peer-required:visible`}>
             *
@@ -259,7 +261,7 @@ function Page() {
         <fieldset className={`w-[100%]`}>
           <label
             htmlFor="external_url"
-            className={`text-slate-400 font-bold text-[16px] block mb-1`}
+            className={`text-white font-bold text-[16px] block mb-1`}
           >
             Link
           </label>
@@ -270,15 +272,17 @@ function Page() {
             value={external_url}
             onChange={handleChange}
             placeholder="https://project.org"
-            className={`w-[100%] h-[45px] ps-2 rounded-[6px] focus:outline-none text-black`}
+            className={`w-[100%] h-[45px] ps-2 bg-white/70 placeholder:text-black/80 rounded-[6px] focus:outline-none text-black`}
           />
         </fieldset>
         <hr />
-        <p className={`text-[23px]`}>Hypercert Fields</p>
+        <p className={`text-[23px] text-violet-800 font-semibold`}>
+          Hypercert Fields
+        </p>
         <fieldset className={`w-[100%]`}>
           <label
             htmlFor="workScope"
-            className={`text-slate-400 font-bold text-[16px] block mb-1`}
+            className={`text-white font-bold text-[16px] block mb-1`}
           >
             Work Scope
           </label>
@@ -289,7 +293,7 @@ function Page() {
             onChange={handleScopes}
             required
             placeholder="WorkScope1, WorkScope2"
-            className={`w-[100%] p-2 h-[150px] peer rounded-[6px] focus:outline-none text-black`}
+            className={`w-[100%] p-2 h-[150px] bg-white/70 placeholder:text-black/80 peer rounded-[6px] focus:outline-none text-black`}
           ></textarea>
           <p className={`text-red-600 italic invisible peer-required:visible`}>
             *
@@ -301,7 +305,7 @@ function Page() {
           <fieldset className={`w-[48%]`}>
             <label
               htmlFor="workTimeframeStart"
-              className={`text-slate-400 font-bold text-[16px] block mb-1`}
+              className={`text-white font-bold text-[16px] block mb-1`}
             >
               Work Start Date
             </label>
@@ -311,13 +315,13 @@ function Page() {
               id="workTimeframeStart"
               value={formDates.workTimeframeStart}
               onChange={handleDates}
-              className={`w-[100%] h-[45px] ps-2 rounded-[6px] focus:outline-none text-black`}
+              className={`w-[100%] h-[45px] ps-2 bg-white/70 placeholder:text-black/80 rounded-[6px] focus:outline-none text-black`}
             />
           </fieldset>
           <fieldset className={`w-[48%]`}>
             <label
               htmlFor="workTimeframeEnd"
-              className={`text-slate-400 font-bold text-[16px] block mb-1`}
+              className={`text-white font-bold text-[16px] block mb-1`}
             >
               Work End Date
             </label>
@@ -327,14 +331,14 @@ function Page() {
               id="workTimeframeEnd"
               value={formDates.workTimeframeEnd}
               onChange={handleDates}
-              className={`w-[100%] h-[45px] ps-2 rounded-[6px] focus:outline-none text-black`}
+              className={`w-[100%] h-[45px] ps-2 bg-white/70 placeholder:text-black/80 rounded-[6px] focus:outline-none text-black`}
             />
           </fieldset>
         </div>
         <fieldset className={`w-[100%]`}>
           <label
             htmlFor="contributors"
-            className={`text-slate-400 font-bold text-[16px] block mb-1`}
+            className={`text-white font-bold text-[16px] block mb-1`}
           >
             List of contributors
           </label>
@@ -345,18 +349,20 @@ function Page() {
             onChange={handleScopes}
             required
             placeholder="0xWalletAddress1, 0xWalletAddress2"
-            className={`w-[100%] p-2 h-[150px] peer rounded-[6px] focus:outline-none text-black`}
+            className={`w-[100%] p-2 h-[150px] bg-white/70 placeholder:text-black/80 peer rounded-[6px] focus:outline-none text-black`}
           ></textarea>
           <p className={`text-red-600 italic invisible peer-required:visible`}>
             *
           </p>
         </fieldset>
-        <div className={`w-[100%] rounded-[6px] bg-white text-black p-3`}>
+        <div className={`w-[100%] rounded-[6px] bg-white/70 text-black p-3`}>
           <div
             className={`flex justify-between hover:cursor-pointer`}
             onClick={() => setIsOpen((prevOpen) => !prevOpen)}
           >
-            <p className={`text-[23px]`}>Advanced Fields</p>
+            <p className={`text-[23px] text-violet-800 font-semibold`}>
+              Advanced Fields
+            </p>
 
             {isOpen ? (
               <svg
@@ -389,14 +395,14 @@ function Page() {
             )}
           </div>
           <div className={`${isOpen ? "block space-y-2" : "hidden"}`}>
-            <p className={`text-[13px] italic text-slate-400`}>
+            <p className={`text-[13px] italic text-black`}>
               Advanced fields are currently not available for editing.
             </p>
             <div className={`w-[100%]`}>
               <fieldset className={`w-[100%]`}>
                 <label
                   htmlFor="impactScope"
-                  className={`text-slate-400 font-bold text-[16px] block mb-1`}
+                  className={`text-white font-bold text-[16px] block mb-1`}
                 >
                   Impact Scope
                 </label>
@@ -406,7 +412,7 @@ function Page() {
                   disabled
                   multiple
                   value={impactScope}
-                  className={`w-[100%] h-[45px] p-2 rounded-[6px] focus:outline-none border text-black`}
+                  className={`w-[100%] h-[45px] p-2 bg-white/70 placeholder:text-black/80 rounded-[6px] focus:outline-none border text-black`}
                 >
                   <option value="all">All</option>
                 </select>
@@ -418,7 +424,7 @@ function Page() {
                 <fieldset className={`w-[48%]`}>
                   <label
                     htmlFor="workTimeframeStart"
-                    className={`text-slate-400 font-bold text-[16px] block mb-1`}
+                    className={`text-white font-bold text-[16px] block mb-1`}
                   >
                     Impact Start Date
                   </label>
@@ -429,13 +435,13 @@ function Page() {
                     value={formDates.impactTimeframeStart}
                     disabled
                     onChange={handleDates}
-                    className={`w-[100%] h-[45px] border ps-2 rounded-[6px] focus:outline-none text-black`}
+                    className={`w-[100%] h-[45px] border ps-2 bg-white/70 placeholder:text-black/80 rounded-[6px] focus:outline-none text-black`}
                   />
                 </fieldset>
                 <fieldset className={`w-[48%]`}>
                   <label
                     htmlFor="workTimeframeEnd"
-                    className={`text-slate-400 font-bold text-[16px] block mb-1`}
+                    className={`text-white font-bold text-[16px] block mb-1`}
                   >
                     Impact End Date
                   </label>
@@ -446,14 +452,14 @@ function Page() {
                     value={formDates.impactTimeframeEnd}
                     onChange={handleDates}
                     disabled
-                    className={`w-[100%] h-[45px] border ps-2 rounded-[6px] focus:outline-none text-black`}
+                    className={`w-[100%] h-[45px] border ps-2 bg-white/70 placeholder:text-black/80 rounded-[6px] focus:outline-none text-black`}
                   />
                 </fieldset>
               </div>
               <fieldset className={`w-[100%]`}>
                 <label
                   htmlFor="rights"
-                  className={`text-slate-400 font-bold text-[16px] block mb-1`}
+                  className={`text-white font-bold text-[16px] block mb-1`}
                 >
                   Usage Rights
                 </label>
@@ -463,7 +469,7 @@ function Page() {
                   disabled
                   multiple
                   value={impactScope}
-                  className={`w-[100%] h-[45px] p-2 rounded-[6px] focus:outline-none border text-black`}
+                  className={`w-[100%] h-[45px] p-2 rounded-[6px] bg-white/70 placeholder:text-black/80 focus:outline-none border text-black`}
                 >
                   <option value="Public Display">Public Display</option>
                 </select>
@@ -477,11 +483,13 @@ function Page() {
           </div>
         </div>
         <hr />
-        <p className={`text-[23px]`}>Distribution</p>
+        <p className={`text-[23px] text-violet-800 font-semibold`}>
+          Distribution
+        </p>
         <fieldset className={`w-[100%]`}>
           <label
             htmlFor="allowList"
-            className={`text-slate-400 font-bold text-[16px] block mb-1`}
+            className={`text-white font-bold text-[16px] block mb-1`}
           >
             Allow List
           </label>
@@ -490,13 +498,13 @@ function Page() {
             id="allowList"
             name="allowList"
             placeholder="https://project.org/allowlist.csv"
-            className={`w-[100%] h-[45px] ps-2 rounded-[6px] focus:outline-none text-black`}
+            className={`w-[100%] h-[45px] ps-2 rounded-[6px] bg-white/70 placeholder:text-black/80 focus:outline-none text-black`}
           />
         </fieldset>
         <fieldset className={`w-[100%]`}>
           <label
             htmlFor="distribution"
-            className={`text-slate-400 font-bold text-[16px] block mb-1`}
+            className={`text-white font-bold text-[16px] block mb-1`}
           >
             Percentage distributed via allow List
           </label>
