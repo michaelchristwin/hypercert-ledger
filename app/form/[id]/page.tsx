@@ -525,7 +525,7 @@ function Page() {
           className={`block w-[300px] h-[390px] rounded-[12px] mx-auto `}
           width={300}
           height={390}
-          src={`/hyper.webp`}
+          src={`/ipfs.png`}
           alt="hyper"
         />
       </div>
