@@ -39,9 +39,9 @@ function Hero() {
     <div className={`flex w-full items-center justify-around`}>
       <Image
         className={`w-[320px] lg:h-[450px] md:h-[420px] h-[400px] rounded-[30px] shadow`}
-        width={300}
-        height={390}
-        src={`/ipfs.png`}
+        width={320}
+        height={450}
+        src={`/hyper.webp`}
         alt="hyper"
       />
 
