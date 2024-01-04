@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.className} relative bg-gradient-to-r from-[#0052D4] via-[#4364F7] to-[#6FB1FC]`}
+        className={`${inter.className} relative bg-[url("https://assets-global.website-files.com/6433c5d029c6bb75f3f00bd5/64479243051b3339c7b8a81c_Group%201000002141.svg")] bg-center`}
       >
         <WalletProvider>
           <Navbar />
