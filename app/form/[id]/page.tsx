@@ -174,7 +174,7 @@ function Page() {
   return (
     <div className={`flex justify-center h-fit py-[20px] w-full relative`}>
       <form
-        className={`block p-[40px] w-[43%] space-y-3 rounded-[15px] shadow-black/10 shadow-md morph bg-opacity-10 bg-clip-padding`}
+        className={`block p-[40px] bg-[#CBDCCB] backdrop-filter backdrop-blur-[20px] bg-opacity-10 w-[43%] space-y-3 rounded-[15px] shadow-black/30 shadow-md bg-clip-padding`}
         onSubmit={onSubmit}
       >
         <hr />
