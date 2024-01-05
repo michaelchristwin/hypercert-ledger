@@ -1,4 +1,4 @@
-import { Inter, Raleway } from "next/font/google";
+import { Raleway } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { Metadata } from "next";
@@ -18,9 +18,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body
-        className={`${inter.className} relative bg-[url("https://assets-global.website-files.com/6433c5d029c6bb75f3f00bd5/64479243051b3339c7b8a81c_Group%201000002141.svg")] bg-center bg-fixed`}
-      >
+      <body className={`${inter.className} relative nico bg-cover`}>
         <WalletProvider>
           <Navbar />
           <div className={`mt-[100px]`}>{children}</div>

@@ -46,7 +46,9 @@ function Hero() {
       />
 
       <div className={`flex flex-col w-[50%]`}>
-        <p className={`text-white text-center text-[60px] font-extrabold `}>
+        <p
+          className={`bg-gradient-to-r from-black via-slate-700 to-gray-500 text-transparent inline-block bg-clip-text text-center text-[60px] font-extrabold `}
+        >
           {currentText}
         </p>
         <div

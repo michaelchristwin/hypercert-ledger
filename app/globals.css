@@ -26,3 +26,13 @@ body {
   border-radius: 12px;
   border: 1px solid rgba(209, 213, 219, 0.3);
 }
+.nico {
+  background: linear-gradient(
+      to right,
+      rgba(3, 169, 80, 0.608),
+      rgba(44, 212, 159, 0.508),
+      rgba(3, 231, 113, 0.368)
+    ),
+    url("https://assets-global.website-files.com/6433c5d029c6bb75f3f00bd5/6554b2475d33143b29a1b732_GG19-donate-bg.svg");
+  background-attachment: fixed;
+}
