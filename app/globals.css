@@ -29,9 +29,8 @@ body {
 .nico {
   background: linear-gradient(
       to right,
-      rgba(3, 169, 80, 0.608),
-      rgba(44, 212, 159, 0.508),
-      rgba(3, 231, 113, 0.368)
+      rgba(252, 0, 255, 0.608),
+      rgba(0, 219, 222, 0.508)
     ),
     url("https://assets-global.website-files.com/6433c5d029c6bb75f3f00bd5/6554b2475d33143b29a1b732_GG19-donate-bg.svg");
   background-attachment: fixed;
