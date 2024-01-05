@@ -144,6 +144,7 @@ function Page() {
       workTimeframeEnd: workTimeframeEnd / 1000,
       workTimeframeStart: workTimeframeStart / 1000,
     });
+
     if (isValid(formValues) && diaRef.current && client) {
       diaRef.current.showModal();
       const res = await MintHypercert(formValues, client);
@@ -541,8 +542,17 @@ function Page() {
         ref={diaRef}
         className={`backdrop:bg-neutral-900/90 w-[50%] fixed translate-y-[-50%] top-[50%] h-[50%] border-0 rounded-[6px] p-[20px] inset-0 backdrop-blur z-[30]`}
       >
-        <div className={`bg-white text-black text-center`}>
-          <p>The transaction hash: {hash}</p>
+        <div
+          className={`bg-white text-black text-center flex w-full items-center h-full`}
+        >
+          <div className={`loading-container`}>
+            <div className={`loading`}></div>
+            <div
+              className={`loading-text translate-y-[-50%] left-[50%] translate-x-[-50%]`}
+            >
+              Minting
+            </div>
+          </div>
         </div>
       </dialog>
     </div>
