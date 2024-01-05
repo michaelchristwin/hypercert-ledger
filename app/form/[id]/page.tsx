@@ -197,7 +197,7 @@ function Page() {
             required
             onChange={handleChange}
             placeholder="The name of your hypercert"
-            className={`w-[100%] h-[45px] ps-2 peer bg-white/70 placeholder:text-black/80 rounded-[6px] focus:outline-none text-black`}
+            className={`w-[100%] h-[45px] ps-2 peer bg-white/50 placeholder:text-black/60 rounded-[6px] focus:outline-none text-black`}
           />
           <p className={`text-red-600 italic invisible peer-required:visible`}>
             *
@@ -218,7 +218,7 @@ function Page() {
             value={image}
             onChange={handleChange}
             placeholder="Image URL"
-            className={`w-[100%] h-[45px] peer ps-2 bg-white/70 placeholder:text-black/80 rounded-[6px] focus:outline-none text-black`}
+            className={`w-[100%] h-[45px] peer ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
           />
           <p className={`text-red-600 italic invisible peer-required:visible`}>
             *
@@ -236,7 +236,7 @@ function Page() {
             id="banner"
             name="banner"
             placeholder="Banner Image URL"
-            className={`w-[100%] h-[45px] ps-2 bg-white/70 placeholder:text-black/80 rounded-[6px] focus:outline-none text-black`}
+            className={`w-[100%] h-[45px] ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
           />
         </fieldset>
         <fieldset className={`w-[100%]`}>
@@ -252,7 +252,7 @@ function Page() {
             value={description}
             required
             onChange={handleChange}
-            className={`w-[100%] p-2 peer h-[150px] bg-white/70 placeholder:text-black/80 rounded-[6px] focus:outline-none text-black`}
+            className={`w-[100%] p-2 peer h-[150px] bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
           ></textarea>
           <p className={`text-red-600 italic invisible peer-required:visible`}>
             *
@@ -272,7 +272,7 @@ function Page() {
             value={external_url}
             onChange={handleChange}
             placeholder="https://project.org"
-            className={`w-[100%] h-[45px] ps-2 bg-white/70 placeholder:text-black/80 rounded-[6px] focus:outline-none text-black`}
+            className={`w-[100%] h-[45px] ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
           />
         </fieldset>
         <hr />
@@ -293,7 +293,7 @@ function Page() {
             onChange={handleScopes}
             required
             placeholder="WorkScope1, WorkScope2"
-            className={`w-[100%] p-2 h-[150px] bg-white/70 placeholder:text-black/80 peer rounded-[6px] focus:outline-none text-black`}
+            className={`w-[100%] p-2 h-[150px] bg-white/50 placeholder:text-black/60  peer rounded-[6px] focus:outline-none text-black`}
           ></textarea>
           <p className={`text-red-600 italic invisible peer-required:visible`}>
             *
@@ -315,7 +315,7 @@ function Page() {
               id="workTimeframeStart"
               value={formDates.workTimeframeStart}
               onChange={handleDates}
-              className={`w-[100%] h-[45px] ps-2 bg-white/70 placeholder:text-black/80 rounded-[6px] focus:outline-none text-black`}
+              className={`w-[100%] h-[45px] ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
             />
           </fieldset>
           <fieldset className={`w-[48%]`}>
@@ -331,7 +331,7 @@ function Page() {
               id="workTimeframeEnd"
               value={formDates.workTimeframeEnd}
               onChange={handleDates}
-              className={`w-[100%] h-[45px] ps-2 bg-white/70 placeholder:text-black/80 rounded-[6px] focus:outline-none text-black`}
+              className={`w-[100%] h-[45px] ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
             />
           </fieldset>
         </div>
@@ -349,13 +349,13 @@ function Page() {
             onChange={handleScopes}
             required
             placeholder="0xWalletAddress1, 0xWalletAddress2"
-            className={`w-[100%] p-2 h-[150px] bg-white/70 placeholder:text-black/80 peer rounded-[6px] focus:outline-none text-black`}
+            className={`w-[100%] p-2 h-[150px] bg-white/50 placeholder:text-black/60  peer rounded-[6px] focus:outline-none text-black`}
           ></textarea>
           <p className={`text-red-600 italic invisible peer-required:visible`}>
             *
           </p>
         </fieldset>
-        <div className={`w-[100%] rounded-[6px] bg-white/70 text-black p-3`}>
+        <div className={`w-[100%] rounded-[6px] bg-white/50 text-black p-3`}>
           <div
             className={`flex justify-between hover:cursor-pointer`}
             onClick={() => setIsOpen((prevOpen) => !prevOpen)}
@@ -412,7 +412,7 @@ function Page() {
                   disabled
                   multiple
                   value={impactScope}
-                  className={`w-[100%] h-[45px] p-2 bg-white/70 placeholder:text-black/80 rounded-[6px] focus:outline-none border text-black`}
+                  className={`w-[100%] h-[45px] p-2 bg-white/40 placeholder:text-black/60  rounded-[6px] focus:outline-none border text-black`}
                 >
                   <option value="all">All</option>
                 </select>
@@ -435,7 +435,7 @@ function Page() {
                     value={formDates.impactTimeframeStart}
                     disabled
                     onChange={handleDates}
-                    className={`w-[100%] h-[45px] border ps-2 bg-white/70 placeholder:text-black/80 rounded-[6px] focus:outline-none text-black`}
+                    className={`w-[100%] h-[45px] border ps-2 bg-white/40 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
                   />
                 </fieldset>
                 <fieldset className={`w-[48%]`}>
@@ -452,7 +452,7 @@ function Page() {
                     value={formDates.impactTimeframeEnd}
                     onChange={handleDates}
                     disabled
-                    className={`w-[100%] h-[45px] border ps-2 bg-white/70 placeholder:text-black/80 rounded-[6px] focus:outline-none text-black`}
+                    className={`w-[100%] h-[45px] border ps-2 bg-white/40 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
                   />
                 </fieldset>
               </div>
@@ -469,7 +469,7 @@ function Page() {
                   disabled
                   multiple
                   value={impactScope}
-                  className={`w-[100%] h-[45px] p-2 rounded-[6px] bg-white/70 placeholder:text-black/80 focus:outline-none border text-black`}
+                  className={`w-[100%] h-[45px] p-2 rounded-[6px] bg-white/40 placeholder:text-black/60  focus:outline-none border text-black`}
                 >
                   <option value="Public Display">Public Display</option>
                 </select>
@@ -498,7 +498,7 @@ function Page() {
             id="allowList"
             name="allowList"
             placeholder="https://project.org/allowlist.csv"
-            className={`w-[100%] h-[45px] ps-2 rounded-[6px] bg-white/70 placeholder:text-black/80 focus:outline-none text-black`}
+            className={`w-[100%] h-[45px] ps-2 rounded-[6px] bg-white/50 placeholder:text-black/60  focus:outline-none text-black`}
           />
         </fieldset>
         <fieldset className={`w-[100%]`}>
