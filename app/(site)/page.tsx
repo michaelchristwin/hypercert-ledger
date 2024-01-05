@@ -1,5 +1,4 @@
 import Hero from "@/components/Hero";
-import Rounds from "@/components/Rounds";
 
 function Home() {
   return (

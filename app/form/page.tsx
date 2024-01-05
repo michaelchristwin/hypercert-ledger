@@ -16,6 +16,7 @@ function Page() {
   const nftStorageToken = process.env.NEXT_PUBLIC_NFTSTORAGE;
 
   const [client, setClient] = useState<HypercertClient | undefined>(undefined);
+  const [isSuccess, setIsSuccess] = useState<boolean | undefined>(undefined);
   const { address } = useWeb3ModalAccount();
   useEffect(() => {
     (async () => {
@@ -65,6 +66,7 @@ function Page() {
   const [formValues, setFormValues] = useState<MyMetadata>(initialState);
   const [isOpen, setIsOpen] = useState(false);
   const [hash, setHash] = useState<`0x${string}` | string>("");
+  const [isMinting, setIsMinting] = useState(false);
   const {
     name,
     image,
@@ -131,6 +133,8 @@ function Page() {
   };
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    setHash("");
+    setIsSuccess(undefined);
     event.preventDefault();
     const newCont = contributors.map((person) => person.trim());
     const nwrds = workScope.map((wrd) => wrd.trim());
@@ -146,13 +150,17 @@ function Page() {
     });
 
     if (isValid(formValues) && diaRef.current && client) {
-      diaRef.current.showModal();
-      const res = await MintHypercert(formValues, client);
-      setHash(res as `0x${string}`);
-      setTimeout(() => {
-        diaRef.current?.close();
-      }, 10000);
-      setHash("");
+      setIsMinting(true);
+      try {
+        diaRef.current.showModal();
+        const res = await MintHypercert(formValues, client);
+        setIsSuccess(true);
+        setHash(res as `0x${string}`);
+        setIsMinting(false);
+      } catch (err) {
+        setIsSuccess(false);
+        console.error("Mint Failed:", err);
+      }
     }
   };
 
@@ -543,16 +551,63 @@ function Page() {
         className={`backdrop:bg-neutral-900/90 w-[50%] fixed translate-y-[-50%] top-[50%] h-[50%] border-0 rounded-[6px] p-[20px] inset-0 backdrop-blur z-[30]`}
       >
         <div
-          className={`bg-white text-black text-center flex w-full items-center h-full`}
+          className={`bg-white text-black text-center relative flex w-full justify-center items-center h-full`}
         >
-          <div className={`loading-container`}>
-            <div className={`loading`}></div>
-            <div
+          <p className={`text-[20px] absolute top-[6px] font-bold`}>
+            Processing Hypercert...
+          </p>
+          {!isMinting && (
+            <button
+              className={`absolute top-[6px] right-[6px]`}
+              onClick={() => diaRef.current?.close()}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#000000"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          )}
+          {isMinting ? (
+            <div className={`loading-container`}>
+              <div className={`loading`}></div>
+              {/* <div
               className={`loading-text translate-y-[-50%] left-[50%] translate-x-[-50%]`}
             >
               Minting
+            </div> */}
             </div>
-          </div>
+          ) : (
+            <div
+              className={`w-[150px] h-[150px] rounded-full bg-green-500 flex justify-center cali scale-[0.84] items-center animate-animateContainer`}
+            >
+              <svg
+                viewBox="0 0 65 51"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                height={80}
+                width={80}
+                className={`animate-animateCheck cali`}
+              >
+                <path
+                  d="M7 25L27.3077 44L58.5 7"
+                  stroke="white"
+                  strokeWidth="11"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+          )}
         </div>
       </dialog>
     </div>

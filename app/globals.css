@@ -306,3 +306,8 @@ body {
   text-align: center;
   width: 100px;
 }
+.cali {
+  transform: translateY(0.25rem);
+  stroke-dasharray: 80;
+  stroke-dashoffset: 80;
+}

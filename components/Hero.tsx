@@ -70,7 +70,9 @@ function Hero() {
             />
           </fieldset>
           <button
-            onClick={() => router.push(`/form/${value}`)}
+            onClick={() =>
+              router.push(`/form?roundId=${value}&projectId=${value}`)
+            }
             disabled={!value}
             className={`px-2 bg-[#3a59ef] text-white disabled:hover:opacity-100 hover:active:opacity-100 absolute bottom-0 right-0 rounded-[6px] h-[40px]`}
           >
