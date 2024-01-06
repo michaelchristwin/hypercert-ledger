@@ -2,11 +2,16 @@
 
 import { MyMetadata, MintHypercert } from "@/actions/hypercerts";
 import { HypercertClient } from "@hypercerts-org/sdk";
-import { useWeb3ModalAccount } from "@web3modal/ethers/react";
+import {
+  useWeb3ModalAccount,
+  useWeb3ModalProvider,
+} from "@web3modal/ethers/react";
 import { useState, useRef, useEffect } from "react";
 import { goerli } from "viem/chains";
-import { createWalletClient, custom } from "viem";
+import { createWalletClient, custom, WalletClient } from "viem";
+import chains from "viem/chains";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 declare let window: any;
 
 let currentYear = new Date();
@@ -14,10 +19,17 @@ let cY = currentYear.getFullYear();
 
 function Page() {
   const nftStorageToken = process.env.NEXT_PUBLIC_NFTSTORAGE;
-
+  const searchParams = useSearchParams();
   const [client, setClient] = useState<HypercertClient | undefined>(undefined);
+  const [walletCli, setWalletCli] = useState<WalletClient | undefined>(
+    undefined
+  );
+  const { walletProvider } = useWeb3ModalProvider();
   const [isSuccess, setIsSuccess] = useState<boolean | undefined>(undefined);
   const { address } = useWeb3ModalAccount();
+  const chainId = searchParams.get("chainId");
+  const roundId = searchParams.get("roundId");
+  const projectId = searchParams.get("projectId");
   useEffect(() => {
     (async () => {
       if (address && window.ethereum) {
@@ -26,6 +38,7 @@ function Page() {
           chain: goerli,
           transport: custom(window.ethereum),
         });
+        setWalletCli(walletClient);
         let myClient = new HypercertClient({
           chain: goerli,
           walletClient: walletClient,
@@ -36,6 +49,15 @@ function Page() {
       }
     })();
   }, [address, nftStorageToken]);
+
+  useEffect(() => {
+    (async () => {
+      const res = await fetch(
+        `https://grants-stack-indexer.gitcoin.co/data/%7B${chainId}%7D/rounds/%7B${roundId}%7D/applications.json`
+      );
+      const data = await res.json();
+    })();
+  }, [chainId, roundId]);
 
   const [formDates, setFormDates] = useState({
     workTimeframeStart: `${cY}-01-01`,
@@ -143,10 +165,10 @@ function Page() {
       ...formValues,
       workScope: nwrds,
       contributors: newCont,
-      impactTimeframeEnd: impactTimeframeEnd / 1000,
-      impactTimeframeStart: impactTimeframeStart / 1000,
-      workTimeframeEnd: workTimeframeEnd / 1000,
-      workTimeframeStart: workTimeframeStart / 1000,
+      impactTimeframeEnd: impactTimeframeEnd,
+      impactTimeframeStart: impactTimeframeStart,
+      workTimeframeEnd: workTimeframeEnd,
+      workTimeframeStart: workTimeframeStart,
     });
 
     if (isValid(formValues) && diaRef.current && client) {

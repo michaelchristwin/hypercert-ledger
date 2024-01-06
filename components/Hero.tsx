@@ -4,17 +4,63 @@ import Select from "@/components/Select";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useWeb3ModalAccount } from "@web3modal/ethers/react";
+import { useWeb3Modal } from "@web3modal/ethers/react";
 import Image from "next/image";
+type RoundValue = {
+  roundId: string;
+  projectId: string;
+};
 
 function Hero() {
-  const [value, setValue] = useState("");
-  const { isConnected } = useWeb3ModalAccount();
+  const [value, setValue] = useState<RoundValue>({
+    roundId: "",
+    projectId: "",
+  });
+  const { isConnected, chainId } = useWeb3ModalAccount();
+  const { open } = useWeb3Modal();
 
+  const handleClick = () => {
+    if (!isConnected) {
+      open();
+    } else {
+      router.push(
+        `/form?chainId=${chainId}&roundId=${value.roundId}&projectId=${value.projectId}`
+      );
+    }
+  };
   const rounds = [
-    { value: "1", label: "Round 1" },
-    { value: "2", label: "Round 2" },
-    { value: "3", label: "Round 3" },
-    { value: "4", label: "Round 4" },
+    {
+      value: {
+        roundId: "0x859FaeAa266BA13bd1E72eB6dd7A223902d1adFE",
+        projectId:
+          "0x128a79c5f52d33bc49f5677dd0fcd695e44f22916b920dc3490c18f10099db66",
+      },
+      label: "Round 1",
+    },
+    {
+      value: {
+        roundId: "0x859FaeAa266BA13bd1E72eB6dd7A223902d1adFE",
+        projectId:
+          "0x128a79c5f52d33bc49f5677dd0fcd695e44f22916b920dc3490c18f10099db66",
+      },
+      label: "Round 2",
+    },
+    {
+      value: {
+        roundId: "0x859FaeAa266BA13bd1E72eB6dd7A223902d1adFE",
+        projectId:
+          "0x128a79c5f52d33bc49f5677dd0fcd695e44f22916b920dc3490c18f10099db66",
+      },
+      label: "Round 3",
+    },
+    {
+      value: {
+        roundId: "0x859FaeAa266BA13bd1E72eB6dd7A223902d1adFE",
+        projectId:
+          "0x128a79c5f52d33bc49f5677dd0fcd695e44f22916b920dc3490c18f10099db66",
+      },
+      label: "Round 4",
+    },
   ];
   const handleChange = (selectedOption: any) => {
     setValue(selectedOption.value);
@@ -70,10 +116,8 @@ function Hero() {
             />
           </fieldset>
           <button
-            onClick={() =>
-              router.push(`/form?roundId=${value}&projectId=${value}`)
-            }
-            disabled={!value}
+            onClick={handleClick}
+            disabled={!value.projectId}
             className={`px-2 bg-[#3a59ef] text-white disabled:hover:opacity-100 hover:active:opacity-100 absolute bottom-0 right-0 rounded-[6px] h-[40px]`}
           >
             Proceed
