@@ -1,8 +1,6 @@
 import { HypercertClient, HypercertMetadata } from "@hypercerts-org/sdk";
-import { createWalletClient, custom } from "viem";
-import { goerli } from "viem/chains";
 import { TransferRestrictions, formatHypercertData } from "@hypercerts-org/sdk";
-import { Provider } from "ethers";
+import { myChains } from "@/providers/Walletprovider";
 
 interface MyMetadata {
   name: string;
@@ -51,3 +49,18 @@ async function MintHypercert(props: MyMetadata, client: HypercertClient) {
 }
 
 export { MintHypercert, type MyMetadata };
+
+/**
+ * Gets the chain object for the given chain id.
+ * @param chainId - Chain id of the target EVM chain.
+ * @returns Viem's chain object.
+ */
+export function getChain(chainId: number) {
+  for (const chain of Object.values(myChains)) {
+    if (chain.id === chainId) {
+      return chain;
+    }
+  }
+
+  throw new Error(`Chain with id ${chainId} not found`);
+}

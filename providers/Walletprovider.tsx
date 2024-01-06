@@ -2,7 +2,7 @@
 
 import { createWeb3Modal, defaultConfig } from "@web3modal/ethers/react";
 import { iotex, arbitrum, fantom, pgn, mainnet } from "viem/chains";
-
+export const myChains = { iotex, arbitrum, fantom, pgn, mainnet };
 const projectId = process.env.NEXT_PUBLIC_PROJECT_ID as string;
 const metadata = {
   name: "My Website",
@@ -28,7 +28,7 @@ const optimism = {
 createWeb3Modal({
   ethersConfig: defaultConfig({
     metadata,
-    defaultChainId: 5,
+    defaultChainId: 42161,
     enableEIP6963: true,
     enableInjected: true,
     enableCoinbase: true,

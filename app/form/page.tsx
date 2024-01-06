@@ -1,17 +1,13 @@
 "use client";
 
-import { MyMetadata, MintHypercert } from "@/actions/hypercerts";
+import { MyMetadata, MintHypercert, getChain } from "@/actions/hypercerts";
 import { HypercertClient } from "@hypercerts-org/sdk";
-import {
-  useWeb3ModalAccount,
-  useWeb3ModalProvider,
-} from "@web3modal/ethers/react";
+import { useWeb3ModalAccount } from "@web3modal/ethers/react";
 import { useState, useRef, useEffect } from "react";
-import { goerli } from "viem/chains";
 import { createWalletClient, custom, WalletClient } from "viem";
-import chains from "viem/chains";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
+import { goerli } from "viem/chains";
 declare let window: any;
 
 let currentYear = new Date();
@@ -20,12 +16,22 @@ let cY = currentYear.getFullYear();
 function Page() {
   const nftStorageToken = process.env.NEXT_PUBLIC_NFTSTORAGE;
   const searchParams = useSearchParams();
+
   const [client, setClient] = useState<HypercertClient | undefined>(undefined);
   const [walletCli, setWalletCli] = useState<WalletClient | undefined>(
     undefined
   );
-  const { walletProvider } = useWeb3ModalProvider();
   const [isSuccess, setIsSuccess] = useState<boolean | undefined>(undefined);
+  const [formDates, setFormDates] = useState({
+    workTimeframeStart: `${cY}-01-01`,
+    workTimeframeEnd: currentYear.toISOString().slice(0, 10),
+    impactTimeframeStart: `${cY}-01-01`,
+    impactTimeframeEnd: currentYear.toISOString().slice(0, 10),
+  });
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [hash, setHash] = useState<`0x${string}` | string>("");
+  const [isMinting, setIsMinting] = useState(false);
   const { address } = useWeb3ModalAccount();
   const chainId = searchParams.get("chainId");
   const roundId = searchParams.get("roundId");
@@ -50,21 +56,14 @@ function Page() {
     })();
   }, [address, nftStorageToken]);
 
-  useEffect(() => {
-    (async () => {
-      const res = await fetch(
-        `https://grants-stack-indexer.gitcoin.co/data/%7B${chainId}%7D/rounds/%7B${roundId}%7D/applications.json`
-      );
-      const data = await res.json();
-    })();
-  }, [chainId, roundId]);
-
-  const [formDates, setFormDates] = useState({
-    workTimeframeStart: `${cY}-01-01`,
-    workTimeframeEnd: currentYear.toISOString().slice(0, 10),
-    impactTimeframeStart: `${cY}-01-01`,
-    impactTimeframeEnd: currentYear.toISOString().slice(0, 10),
-  });
+  // useEffect(() => {
+  //   if (walletCli && walletCli.chain?.id !== Number(chainId)) {
+  //     const theChain = getChain(Number(chainId));
+  //     walletCli.addChain({
+  //       chain: theChain,
+  //     });
+  //   }
+  // }, [chainId, walletCli]);
 
   const initialState: MyMetadata = {
     name: "",
@@ -86,9 +85,6 @@ function Page() {
     excludedRights: [],
   };
   const [formValues, setFormValues] = useState<MyMetadata>(initialState);
-  const [isOpen, setIsOpen] = useState(false);
-  const [hash, setHash] = useState<`0x${string}` | string>("");
-  const [isMinting, setIsMinting] = useState(false);
   const {
     name,
     image,
@@ -104,36 +100,40 @@ function Page() {
     workTimeframeStart,
   } = formValues;
   const isValid = (formValue: MyMetadata) => {
-    const {
-      name,
-      image,
-      description,
-      external_url,
-      workScope,
-      impactScope,
-      rights,
-      contributors,
-      workTimeframeEnd,
-      workTimeframeStart,
-      impactTimeframeEnd,
-      impactTimeframeStart,
-      version,
-    } = formValue;
     return (
-      name !== "" &&
-      description !== "" &&
-      workScope.length &&
-      contributors.length &&
-      rights.length &&
-      workTimeframeEnd &&
-      workTimeframeStart &&
-      image !== "" &&
-      impactScope.length &&
-      impactTimeframeEnd &&
-      impactTimeframeStart &&
-      version !== ""
+      formValue.name !== "" &&
+      formValue.description !== "" &&
+      formValue.workScope.length &&
+      formValue.contributors.length &&
+      formValue.rights.length &&
+      formValue.workTimeframeEnd &&
+      formValue.workTimeframeStart &&
+      formValue.image !== "" &&
+      formValue.impactScope.length &&
+      formValue.impactTimeframeEnd &&
+      formValue.impactTimeframeStart &&
+      formValue.version !== ""
     );
   };
+  useEffect(() => {
+    if (chainId && roundId && projectId) {
+      (async () => {
+        const res = await fetch(
+          `https://grants-stack-indexer.gitcoin.co/data/${chainId}/rounds/${roundId}/applications.json`
+        );
+        const data = await res.json();
+        const myItem = data.find((item: any) => item.projectId === projectId);
+        setFormValues({
+          ...formValues,
+          name: myItem.metadata.application.project.title,
+          external_url: myItem.metadata.application.project.website,
+          description: myItem.metadata.application.project.description,
+          image: `https://ipfs.io/ipfs${myItem.metadata.application.project.logoImg}`,
+        });
+      })();
+    }
+  }, [chainId, roundId, projectId, formValues]);
+
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
