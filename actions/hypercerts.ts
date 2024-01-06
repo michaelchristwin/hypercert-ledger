@@ -64,3 +64,11 @@ export function getChain(chainId: number) {
 
   throw new Error(`Chain with id ${chainId} not found`);
 }
+
+export const ISOToUNIX = (date: Date) => {
+  const isoDateString = date.toISOString();
+  const unixTimeInSeconds = Math.floor(
+    new Date(isoDateString).getTime() / 1000
+  );
+  return unixTimeInSeconds;
+};

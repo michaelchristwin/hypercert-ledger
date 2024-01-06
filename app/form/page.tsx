@@ -1,6 +1,6 @@
 "use client";
 
-import { MyMetadata, MintHypercert, getChain } from "@/actions/hypercerts";
+import { MyMetadata, MintHypercert, ISOToUNIX } from "@/actions/hypercerts";
 import { HypercertClient } from "@hypercerts-org/sdk";
 import { useWeb3ModalAccount } from "@web3modal/ethers/react";
 import { useState, useRef, useEffect } from "react";
@@ -76,10 +76,10 @@ function Page() {
     excludedImpactScope: [],
     workScope: [],
     excludedWorkScope: [],
-    workTimeframeStart: Date.parse(formDates.workTimeframeStart),
-    workTimeframeEnd: Date.parse(formDates.workTimeframeEnd),
-    impactTimeframeStart: Date.parse(formDates.impactTimeframeStart),
-    impactTimeframeEnd: Date.parse(formDates.impactTimeframeEnd),
+    workTimeframeStart: ISOToUNIX(new Date(formDates.workTimeframeStart)),
+    workTimeframeEnd: ISOToUNIX(new Date(formDates.workTimeframeEnd)),
+    impactTimeframeStart: ISOToUNIX(new Date(formDates.impactTimeframeStart)),
+    impactTimeframeEnd: ISOToUNIX(new Date(formDates.impactTimeframeEnd)),
     contributors: [],
     rights: ["Public Display"],
     excludedRights: [],
@@ -92,12 +92,8 @@ function Page() {
     external_url,
     workScope,
     impactScope,
-    rights,
+
     contributors,
-    impactTimeframeEnd,
-    impactTimeframeStart,
-    workTimeframeEnd,
-    workTimeframeStart,
   } = formValues;
   const isValid = (formValue: MyMetadata) => {
     return (
@@ -165,10 +161,6 @@ function Page() {
       ...formValues,
       workScope: nwrds,
       contributors: newCont,
-      impactTimeframeEnd: impactTimeframeEnd,
-      impactTimeframeStart: impactTimeframeStart,
-      workTimeframeEnd: workTimeframeEnd,
-      workTimeframeStart: workTimeframeStart,
     });
 
     if (isValid(formValues) && diaRef.current && client) {
