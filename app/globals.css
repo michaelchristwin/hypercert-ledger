@@ -311,3 +311,14 @@ body {
   stroke-dasharray: 80;
   stroke-dashoffset: 80;
 }
+
+.hyper-card {
+  background: linear-gradient(
+      to bottom,
+      rgb(88, 28, 135, 0.9) 0%,
+      rgb(147, 51, 234, 0.9) 35%,
+      rgb(216, 180, 254, 0.9) 100%
+    ),
+    url("/svg/black.png");
+  background-size: cover;
+}

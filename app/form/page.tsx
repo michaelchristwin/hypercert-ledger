@@ -124,7 +124,7 @@ function Page() {
           name: myItem.metadata.application.project.title,
           external_url: myItem.metadata.application.project.website,
           description: myItem.metadata.application.project.description,
-          image: `https://ipfs.io/ipfs${myItem.metadata.application.project.logoImg}`,
+          image: `https://ipfs.io/ipfs/${myItem.metadata.application.project.logoImg}`,
         });
       })();
     }
@@ -552,13 +552,19 @@ function Page() {
       <div
         className={`w-[40%] block h-[100vh] borde sticky top-[100px] p-[40px]`}
       >
-        <Image
-          className={`block w-[300px] h-[390px] rounded-[12px] mx-auto `}
-          width={300}
-          height={390}
-          src={`/hyper.webp`}
-          alt="hyper"
-        />
+        <div
+          className={`block w-[300px] h-[390px] hyper-card rounded-[12px] p-3 mx-auto`}
+        >
+          <div
+            className={`w-[40px] h-[40px] bg-cover rounded-full bg-white`}
+            style={{ backgroundImage: `url("${image}")` }}
+          ></div>
+          <div className={`mt-[30%] w-full space-y-4`}>
+            <hr className={`h-[2px] border-0 rounded-[6px] bg-white`} />
+            <p className={`text-[18px] text-gray-700 font-bold`}>{name}</p>
+            <hr className={`h-[1px] border-0 rounded-[6px] bg-white`} />
+          </div>
+        </div>
       </div>
       <dialog
         ref={diaRef}
