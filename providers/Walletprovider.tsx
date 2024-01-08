@@ -80,11 +80,12 @@ createWeb3Modal({
     },
   ],
   projectId,
-  themeMode: "dark",
+  themeMode: "light",
   themeVariables: {
     "--w3m-accent": "#3a59ef",
     "--w3m-font-size-master": "18",
-    "--w3m-color-mix": "#000000",
+    // "--w3m-color-mix": "#000000",
+    // "--w3m-color-mix-strength": 40,
   },
 });
 
