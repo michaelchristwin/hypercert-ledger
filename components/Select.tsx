@@ -30,7 +30,7 @@ function DSelect({
           width: "100%",
           position: "relative",
         }),
-        menuList: (styles, state) => ({
+        menuList: () => ({
           width: "100%",
           position: "absolute",
           backgroundColor: "white",

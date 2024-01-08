@@ -14,9 +14,10 @@ import { myChains } from "@/providers/Walletprovider";
 import { useSearchParams } from "next/navigation";
 import { goerli } from "viem/chains";
 import dynamic from "next/dynamic";
-const CreateSelect = dynamic(import("@/components/CreateableSelect"), {
-  ssr: false,
-});
+// const CreateSelect = dynamic(import("@/components/CreateableSelect"), {
+//   ssr: false,
+// });
+import CreateSelect from "@/components/CreateableSelect";
 import toast from "react-hot-toast";
 declare let window: any;
 
