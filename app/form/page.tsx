@@ -1,13 +1,23 @@
 "use client";
 
-import { MyMetadata, MintHypercert, ISOToUNIX } from "@/actions/hypercerts";
+import {
+  MyMetadata,
+  MintHypercert,
+  ISOToUNIX,
+  isValid,
+} from "@/actions/hypercerts";
 import { HypercertClient } from "@hypercerts-org/sdk";
 import { useWeb3ModalAccount } from "@web3modal/ethers/react";
 import { useState, useRef, useEffect } from "react";
 import { createWalletClient, custom, WalletClient } from "viem";
-import Image from "next/image";
+import { myChains } from "@/providers/Walletprovider";
 import { useSearchParams } from "next/navigation";
 import { goerli } from "viem/chains";
+import dynamic from "next/dynamic";
+const CreateSelect = dynamic(import("@/components/CreateableSelect"), {
+  ssr: false,
+});
+import toast from "react-hot-toast";
 declare let window: any;
 
 let currentYear = new Date();
@@ -21,6 +31,9 @@ function Page() {
   const [walletCli, setWalletCli] = useState<WalletClient | undefined>(
     undefined
   );
+  const [myworkScope, setWorkScopes] = useState("");
+  const [myContributors, setContributors] = useState("");
+
   const [isSuccess, setIsSuccess] = useState<boolean | undefined>(undefined);
   const [formDates, setFormDates] = useState({
     workTimeframeStart: `${cY}-01-01`,
@@ -30,7 +43,7 @@ function Page() {
   });
 
   const [isOpen, setIsOpen] = useState(false);
-  const [hash, setHash] = useState<`0x${string}` | string>("");
+
   const [isMinting, setIsMinting] = useState(false);
   const { address } = useWeb3ModalAccount();
   const chainId = searchParams.get("chainId");
@@ -38,7 +51,7 @@ function Page() {
   const projectId = searchParams.get("projectId");
   useEffect(() => {
     (async () => {
-      if (address && window.ethereum) {
+      if (address && window.ethereum && chainId) {
         const walletClient = createWalletClient({
           account: address,
           chain: goerli,
@@ -52,18 +65,10 @@ function Page() {
           web3StorageToken: nftStorageToken,
         });
         setClient(myClient);
+        console.log("i fire first");
       }
     })();
-  }, [address, nftStorageToken]);
-
-  // useEffect(() => {
-  //   if (walletCli && walletCli.chain?.id !== Number(chainId)) {
-  //     const theChain = getChain(Number(chainId));
-  //     walletCli.addChain({
-  //       chain: theChain,
-  //     });
-  //   }
-  // }, [chainId, walletCli]);
+  }, [address, nftStorageToken, chainId]);
 
   const initialState: MyMetadata = {
     name: "",
@@ -92,43 +97,35 @@ function Page() {
     external_url,
     workScope,
     impactScope,
-
     contributors,
   } = formValues;
-  const isValid = (formValue: MyMetadata) => {
-    return (
-      formValue.name !== "" &&
-      formValue.description !== "" &&
-      formValue.workScope.length &&
-      formValue.contributors.length &&
-      formValue.rights.length &&
-      formValue.workTimeframeEnd &&
-      formValue.workTimeframeStart &&
-      formValue.image !== "" &&
-      formValue.impactScope.length &&
-      formValue.impactTimeframeEnd &&
-      formValue.impactTimeframeStart &&
-      formValue.version !== ""
-    );
-  };
+
   useEffect(() => {
     if (chainId && roundId && projectId) {
-      (async () => {
-        const res = await fetch(
-          `https://grants-stack-indexer.gitcoin.co/data/${chainId}/rounds/${roundId}/applications.json`
-        );
-        const data = await res.json();
-        const myItem = data.find((item: any) => item.projectId === projectId);
-        setFormValues({
-          ...formValues,
-          name: myItem.metadata.application.project.title,
-          external_url: myItem.metadata.application.project.website,
-          description: myItem.metadata.application.project.description,
-          image: `https://ipfs.io/ipfs/${myItem.metadata.application.project.logoImg}`,
-        });
-      })();
+      toast.promise(
+        (async () => {
+          const res = await fetch(
+            `https://grants-stack-indexer.gitcoin.co/data/${chainId}/rounds/${roundId}/applications.json`
+          );
+          const data = await res.json();
+          const myItem = data.find((item: any) => item.projectId === projectId);
+          setFormValues({
+            ...formValues,
+            name: myItem.metadata.application.project.title,
+            external_url: myItem.metadata.application.project.website,
+            description: myItem.metadata.application.project.description,
+            image: `https://ipfs.io/ipfs/${myItem.metadata.application.project.logoImg}`,
+          });
+        })(),
+        {
+          loading: "hypercert is being pre-filled.....",
+          success: "Pre-fill Successful",
+          error: "Error when fetching data",
+        }
+      );
+      console.log("i fire next");
     }
-  }, [chainId, roundId, projectId, formValues]);
+  }, [chainId, roundId, projectId]);
 
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -139,10 +136,20 @@ function Page() {
       [name]: value,
     });
   };
-  const handleScopes = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  const handleContributors = (
+    event: React.ChangeEvent<HTMLTextAreaElement>
   ) => {
     const { name, value } = event.target;
+    setContributors(value);
+    const wrds = value.split(",");
+    setFormValues({
+      ...formValues,
+      [name]: wrds,
+    });
+  };
+  const handleWorkScope = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const { name, value } = event.target;
+    setWorkScopes(value);
     const wrds = value.split(",");
     setFormValues({
       ...formValues,
@@ -151,7 +158,6 @@ function Page() {
   };
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    setHash("");
     setIsSuccess(undefined);
     event.preventDefault();
     const newCont = contributors.map((person) => person.trim());
@@ -169,7 +175,6 @@ function Page() {
         diaRef.current.showModal();
         const res = await MintHypercert(formValues, client);
         setIsSuccess(true);
-        setHash(res as `0x${string}`);
         setIsMinting(false);
       } catch (err) {
         setIsSuccess(false);
@@ -312,8 +317,8 @@ function Page() {
           <textarea
             name="workScope"
             id="workScope"
-            value={workScope}
-            onChange={handleScopes}
+            value={myworkScope}
+            onChange={handleWorkScope}
             required
             placeholder="WorkScope1, WorkScope2"
             className={`w-[100%] p-2 h-[150px] bg-white/50 placeholder:text-black/60  peer rounded-[6px] focus:outline-none text-black`}
@@ -332,6 +337,7 @@ function Page() {
             >
               Work Start Date
             </label>
+
             <input
               type="date"
               name="workTimeframeStart"
@@ -365,15 +371,16 @@ function Page() {
           >
             List of contributors
           </label>
-          <textarea
+          <CreateSelect placeholder="0xWalletAddress1" />
+          {/* <textarea
             name="contributors"
             id="contributors"
-            value={contributors}
-            onChange={handleScopes}
+            value={myContributors}
+            onChange={handleContributors}
             required
             placeholder="0xWalletAddress1, 0xWalletAddress2"
             className={`w-[100%] p-2 h-[150px] bg-white/50 placeholder:text-black/60  peer rounded-[6px] focus:outline-none text-black`}
-          ></textarea>
+          ></textarea> */}
           <p className={`text-red-600 italic invisible peer-required:visible`}>
             *
           </p>
@@ -549,9 +556,7 @@ function Page() {
           Create
         </button>
       </form>
-      <div
-        className={`w-[40%] block h-[100vh] borde sticky top-[100px] p-[40px]`}
-      >
+      <div className={`w-[40%] block h-[100vh] sticky top-[100px] p-[40px]`}>
         <div
           className={`block w-[300px] h-[390px] hyper-card rounded-[12px] p-3 mx-auto`}
         >
@@ -559,10 +564,25 @@ function Page() {
             className={`w-[40px] h-[40px] bg-cover rounded-full bg-white`}
             style={{ backgroundImage: `url("${image}")` }}
           ></div>
-          <div className={`mt-[30%] w-full space-y-4`}>
-            <hr className={`h-[2px] border-0 rounded-[6px] bg-white`} />
+          <div
+            className={`mt-[30%] w-full space-y-4 min-h-[90px] flex items-center border-t-[2px] border-b`}
+          >
             <p className={`text-[18px] text-gray-700 font-bold`}>{name}</p>
-            <hr className={`h-[1px] border-0 rounded-[6px] bg-white`} />
+          </div>
+          <div className={`flex justify-between py-2`}>
+            <div className={`block`}>
+              <p className={`font-bold text-[11px] text-gray-700`}>IMPACT</p>
+              <div className={`grid grid-cols-3`}>
+                {workScope.map((item, index) => (
+                  <div
+                    key={index}
+                    className={`border-[2px] border-gray-600 flex justify-around rounded-[4px] min-w-[20px] h-[20px] px-1`}
+                  >
+                    <p className={`text-[12px] text-center`}>{item}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>

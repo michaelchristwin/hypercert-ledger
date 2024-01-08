@@ -3,6 +3,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { Metadata } from "next";
 import WalletProvider from "../providers/Walletprovider";
+import { Toaster } from "react-hot-toast";
 
 const inter = Raleway({ subsets: ["latin"] });
 
@@ -20,6 +21,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} relative nico bg-cover`}>
         <WalletProvider>
+          <Toaster />
           <Navbar />
           <div className={`mt-[100px]`}>{children}</div>
         </WalletProvider>

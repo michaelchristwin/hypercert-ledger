@@ -1,8 +1,16 @@
 "use client";
 
 import { createWeb3Modal, defaultConfig } from "@web3modal/ethers/react";
-import { iotex, arbitrum, fantom, pgn, mainnet } from "viem/chains";
-export const myChains = { iotex, arbitrum, fantom, pgn, mainnet };
+import {
+  iotex,
+  arbitrum,
+  fantom,
+  pgn,
+  mainnet,
+  optimism,
+  goerli,
+} from "viem/chains";
+
 const projectId = process.env.NEXT_PUBLIC_PROJECT_ID as string;
 const metadata = {
   name: "My Website",
@@ -11,20 +19,6 @@ const metadata = {
   icons: ["https://avatars.mywebsite.com/"],
 };
 
-const goerli = {
-  name: "Goerli",
-  chainId: 5,
-  currency: "ETH",
-  explorerUrl: "https://goerli.etherscan.io",
-  rpcUrl: "https://rpc.ankr.com/eth_goerli",
-};
-const optimism = {
-  name: "Optimism",
-  chainId: 10, // The chain ID for Optimism may vary, please verify the correct chain ID
-  currency: "ETH",
-  explorerUrl: "https://optimistic.etherscan.io", // Note: The explorer URL for Optimism may vary, please check the official explorer for Optimism
-  rpcUrl: "https://mainnet.optimism.io", // Note: The RPC URL for Optimism may vary, please check the official documentation for Optimism
-};
 createWeb3Modal({
   ethersConfig: defaultConfig({
     metadata,
@@ -35,8 +29,20 @@ createWeb3Modal({
     rpcUrl: "...", // used for the Coinbase SDK
   }),
   chains: [
-    goerli,
-    optimism,
+    {
+      ...goerli,
+      rpcUrl: goerli.rpcUrls.default.http[0],
+      explorerUrl: goerli.blockExplorers.default.url,
+      chainId: goerli.id,
+      currency: goerli.nativeCurrency.symbol,
+    },
+    {
+      ...optimism,
+      rpcUrl: optimism.rpcUrls.default.http[0],
+      explorerUrl: optimism.blockExplorers.default.url,
+      chainId: optimism.id,
+      currency: optimism.nativeCurrency.symbol,
+    },
     {
       ...iotex,
       rpcUrl: iotex.rpcUrls.default.http[0],
@@ -78,6 +84,7 @@ createWeb3Modal({
   themeVariables: {
     "--w3m-accent": "#3a59ef",
     "--w3m-font-size-master": "18",
+    "--w3m-color-mix": "#000000",
   },
 });
 
@@ -86,3 +93,12 @@ function WalletProvider({ children }: { children: React.ReactNode }) {
 }
 
 export default WalletProvider;
+export const myChains = {
+  iotex,
+  arbitrum,
+  fantom,
+  pgn,
+  mainnet,
+  goerli,
+  optimism,
+};

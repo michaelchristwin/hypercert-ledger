@@ -72,3 +72,20 @@ export const ISOToUNIX = (date: Date) => {
   );
   return unixTimeInSeconds;
 };
+
+export const isValid = (formValue: MyMetadata) => {
+  return (
+    formValue.name !== "" &&
+    formValue.description !== "" &&
+    formValue.workScope.length &&
+    formValue.contributors.length &&
+    formValue.rights.length &&
+    formValue.workTimeframeEnd &&
+    formValue.workTimeframeStart &&
+    formValue.image !== "" &&
+    formValue.impactScope.length &&
+    formValue.impactTimeframeEnd &&
+    formValue.impactTimeframeStart &&
+    formValue.version !== ""
+  );
+};
