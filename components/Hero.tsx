@@ -103,7 +103,7 @@ function Hero() {
           <fieldset className={`w-[70%]`}>
             <label
               htmlFor="rounds"
-              className={`font-bold text-[18px] block mb-1 text-gray-500`}
+              className={`font-bold text-[18px] block mb-1 text-gray-800`}
             >
               Name of the round
             </label>
