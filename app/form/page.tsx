@@ -10,14 +10,9 @@ import { HypercertClient } from "@hypercerts-org/sdk";
 import { useWeb3ModalAccount } from "@web3modal/ethers/react";
 import { useState, useRef, useEffect } from "react";
 import { createWalletClient, custom, WalletClient } from "viem";
-import { myChains } from "@/providers/Walletprovider";
 import { useSearchParams } from "next/navigation";
 import { goerli } from "viem/chains";
-import dynamic from "next/dynamic";
-// const CreateSelect = dynamic(import("@/components/CreateableSelect"), {
-//   ssr: false,
-// });
-import CreateSelect from "@/components/CreateableSelect";
+import CreateSelect, { Option } from "@/components/CreateableSelect";
 import toast from "react-hot-toast";
 declare let window: any;
 
@@ -32,8 +27,8 @@ function Page() {
   const [walletCli, setWalletCli] = useState<WalletClient | undefined>(
     undefined
   );
-  const [myworkScope, setWorkScopes] = useState("");
-  const [myContributors, setContributors] = useState("");
+  const [myworkScope, setWorkScopes] = useState<readonly Option[]>([]);
+  const [myContributors, setContributors] = useState<readonly Option[]>([]);
 
   const [isSuccess, setIsSuccess] = useState<boolean | undefined>(undefined);
   const [formDates, setFormDates] = useState({
@@ -66,7 +61,6 @@ function Page() {
           web3StorageToken: nftStorageToken,
         });
         setClient(myClient);
-        console.log("i fire first");
       }
     })();
   }, [address, nftStorageToken, chainId]);
@@ -124,9 +118,9 @@ function Page() {
           error: "Error when fetching data",
         }
       );
-      console.log("i fire next");
     }
-  }, [chainId, roundId, projectId]);
+    //@ts-ignore
+  }, []);
 
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -137,37 +131,17 @@ function Page() {
       [name]: value,
     });
   };
-  const handleContributors = (
-    event: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    const { name, value } = event.target;
-    setContributors(value);
-    const wrds = value.split(",");
-    setFormValues({
-      ...formValues,
-      [name]: wrds,
-    });
-  };
-  const handleWorkScope = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const { name, value } = event.target;
-    setWorkScopes(value);
-    const wrds = value.split(",");
-    setFormValues({
-      ...formValues,
-      [name]: wrds,
-    });
-  };
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     setIsSuccess(undefined);
     event.preventDefault();
-    const newCont = contributors.map((person) => person.trim());
-    const nwrds = workScope.map((wrd) => wrd.trim());
+    const Contributors = myContributors.map((item) => item.value);
+    const WorkScopes = myworkScope.map((item) => item.value);
 
     setFormValues({
       ...formValues,
-      workScope: nwrds,
-      contributors: newCont,
+      workScope: WorkScopes,
+      contributors: Contributors,
     });
 
     if (isValid(formValues) && diaRef.current && client) {
@@ -199,7 +173,6 @@ function Page() {
     });
   };
   const diaRef = useRef<HTMLDialogElement | null>(null);
-
   return (
     <div className={`flex justify-center h-fit py-[20px] w-full relative`}>
       <form
@@ -315,15 +288,11 @@ function Page() {
           >
             Work Scope
           </label>
-          <textarea
-            name="workScope"
-            id="workScope"
+          <CreateSelect
+            placeholder={`Type something and press enter . . . . . .`}
             value={myworkScope}
-            onChange={handleWorkScope}
-            required
-            placeholder="WorkScope1, WorkScope2"
-            className={`w-[100%] p-2 h-[150px] bg-white/50 placeholder:text-black/60  peer rounded-[6px] focus:outline-none text-black`}
-          ></textarea>
+            setValue={setWorkScopes}
+          />
           <p className={`text-red-600 italic invisible peer-required:visible`}>
             *
           </p>
@@ -372,16 +341,12 @@ function Page() {
           >
             List of contributors
           </label>
-          <CreateSelect placeholder="0xWalletAddress1" />
-          {/* <textarea
-            name="contributors"
-            id="contributors"
+          <CreateSelect
+            placeholder={`Type something and press enter . . . . . .`}
             value={myContributors}
-            onChange={handleContributors}
-            required
-            placeholder="0xWalletAddress1, 0xWalletAddress2"
-            className={`w-[100%] p-2 h-[150px] bg-white/50 placeholder:text-black/60  peer rounded-[6px] focus:outline-none text-black`}
-          ></textarea> */}
+            setValue={setContributors}
+          />
+
           <p className={`text-red-600 italic invisible peer-required:visible`}>
             *
           </p>
@@ -573,13 +538,13 @@ function Page() {
           <div className={`flex justify-between py-2`}>
             <div className={`block`}>
               <p className={`font-bold text-[11px] text-gray-700`}>IMPACT</p>
-              <div className={`grid grid-cols-3`}>
-                {workScope.map((item, index) => (
+              <div className={`grid grid-cols-3 space-x-1`}>
+                {myworkScope.map((item, index) => (
                   <div
                     key={index}
-                    className={`border-[2px] border-gray-600 flex justify-around rounded-[4px] min-w-[20px] h-[20px] px-1`}
+                    className={`border-[2px] border-gray-600 flex justify-around rounded-[4px] min-w-[10px] h-[20px] px-1`}
                   >
-                    <p className={`text-[12px] text-center`}>{item}</p>
+                    <p className={`text-[12px] text-center`}>{item.value}</p>
                   </div>
                 ))}
               </div>
