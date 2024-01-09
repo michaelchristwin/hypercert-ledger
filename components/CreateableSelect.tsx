@@ -6,6 +6,8 @@ interface CreateSelectProps {
   placeholder: string;
   value: readonly Option[];
   setValue: React.Dispatch<React.SetStateAction<readonly Option[]>>;
+  required: boolean;
+  name: string;
 }
 export interface Option {
   readonly label: string;
@@ -17,7 +19,13 @@ const createOption = (label: string) => ({
   value: label,
 });
 
-function CreateSelect({ placeholder, value, setValue }: CreateSelectProps) {
+function CreateSelect({
+  placeholder,
+  value,
+  setValue,
+  required,
+  name,
+}: CreateSelectProps) {
   const [inputValue, setInputValue] = useState("");
   const handleKeyDown: React.KeyboardEventHandler = (event) => {
     if (!inputValue) return;
@@ -33,7 +41,10 @@ function CreateSelect({ placeholder, value, setValue }: CreateSelectProps) {
   return (
     <CreatableSelect
       value={value}
+      id={name}
+      name={name}
       isMulti
+      required={required}
       placeholder={placeholder}
       inputValue={inputValue}
       menuIsOpen={false}

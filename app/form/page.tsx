@@ -14,6 +14,8 @@ import { useSearchParams } from "next/navigation";
 import { goerli } from "viem/chains";
 import CreateSelect, { Option } from "@/components/CreateableSelect";
 import toast from "react-hot-toast";
+import { useScreenshot } from "use-react-screenshot";
+import Image from "next/image";
 declare let window: any;
 
 let currentYear = new Date();
@@ -22,14 +24,20 @@ let cY = currentYear.getFullYear();
 function Page() {
   const nftStorageToken = process.env.NEXT_PUBLIC_NFTSTORAGE;
   const searchParams = useSearchParams();
-
+  const hypercertRef = useRef<HTMLDivElement | null>(null);
+  const [img, takeScreenshot] = useScreenshot();
+  const getImage = () => takeScreenshot(hypercertRef.current);
   const [client, setClient] = useState<HypercertClient | undefined>(undefined);
   const [walletCli, setWalletCli] = useState<WalletClient | undefined>(
     undefined
   );
   const [myworkScope, setWorkScopes] = useState<readonly Option[]>([]);
   const [myContributors, setContributors] = useState<readonly Option[]>([]);
-
+  const [formImages, setFormImages] = useState({
+    logoImage: "",
+    bannerImage: "",
+  });
+  const { logoImage, bannerImage } = formImages;
   const [isSuccess, setIsSuccess] = useState<boolean | undefined>(undefined);
   const [formDates, setFormDates] = useState({
     workTimeframeStart: `${cY}-01-01`,
@@ -39,7 +47,6 @@ function Page() {
   });
 
   const [isOpen, setIsOpen] = useState(false);
-
   const [isMinting, setIsMinting] = useState(false);
   const { address } = useWeb3ModalAccount();
   const chainId = searchParams.get("chainId");
@@ -85,15 +92,7 @@ function Page() {
     excludedRights: [],
   };
   const [formValues, setFormValues] = useState<MyMetadata>(initialState);
-  const {
-    name,
-    image,
-    description,
-    external_url,
-    workScope,
-    impactScope,
-    contributors,
-  } = formValues;
+  const { name, image, description, external_url, impactScope } = formValues;
 
   useEffect(() => {
     if (chainId && roundId && projectId) {
@@ -109,7 +108,10 @@ function Page() {
             name: myItem.metadata.application.project.title,
             external_url: myItem.metadata.application.project.website,
             description: myItem.metadata.application.project.description,
-            image: `https://ipfs.io/ipfs/${myItem.metadata.application.project.logoImg}`,
+          });
+          setFormImages({
+            logoImage: `https://ipfs.io/ipfs/${myItem.metadata.application.project.logoImg}`,
+            bannerImage: ``,
           });
         })(),
         {
@@ -131,7 +133,13 @@ function Page() {
       [name]: value,
     });
   };
-
+  const handleImages = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setFormImages({
+      ...formImages,
+      [name]: value,
+    });
+  };
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     setIsSuccess(undefined);
     event.preventDefault();
@@ -173,6 +181,7 @@ function Page() {
     });
   };
   const diaRef = useRef<HTMLDialogElement | null>(null);
+  console.log(img);
   return (
     <div className={`flex justify-center h-fit py-[20px] w-full relative`}>
       <form
@@ -207,18 +216,18 @@ function Page() {
         </fieldset>
         <fieldset className={`w-[100%]`}>
           <label
-            htmlFor="image"
+            htmlFor="logoImage"
             className={`text-white font-bold text-[16px] block mb-1`}
           >
             Logo Image
           </label>
           <input
             type="text"
-            id="image"
+            id="logoImage"
             required
-            name="image"
-            value={image}
-            onChange={handleChange}
+            name="logoImage"
+            value={logoImage}
+            onChange={handleImages}
             placeholder="Image URL"
             className={`w-[100%] h-[45px] peer ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
           />
@@ -228,15 +237,17 @@ function Page() {
         </fieldset>
         <fieldset className={`w-[100%]`}>
           <label
-            htmlFor="banner"
+            htmlFor="bannerImage"
             className={`text-white font-bold text-[16px] block mb-1`}
           >
             Banner Image
           </label>
           <input
             type="text"
-            id="banner"
-            name="banner"
+            id="bannerImage"
+            name="bannerImage"
+            value={bannerImage}
+            onChange={handleImages}
             placeholder="Banner Image URL"
             className={`w-[100%] h-[45px] ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
           />
@@ -289,6 +300,8 @@ function Page() {
             Work Scope
           </label>
           <CreateSelect
+            name="workScope"
+            required
             placeholder={`Type something and press enter . . . . . .`}
             value={myworkScope}
             setValue={setWorkScopes}
@@ -342,6 +355,8 @@ function Page() {
             List of contributors
           </label>
           <CreateSelect
+            name="contributors"
+            required
             placeholder={`Type something and press enter . . . . . .`}
             value={myContributors}
             setValue={setContributors}
@@ -524,33 +539,52 @@ function Page() {
       </form>
       <div className={`w-[40%] block h-[100vh] sticky top-[100px] p-[40px]`}>
         <div
-          className={`block w-[300px] h-[390px] hyper-card rounded-[12px] p-3 mx-auto`}
+          className={`block w-[290px] h-[370px] rounded-[12px] p-3 mx-auto`}
+          ref={hypercertRef}
+          style={{
+            background: `linear-gradient(
+              to bottom,
+              rgba(88, 28, 135, 0.9) 0%,
+              rgba(147, 51, 234, 0.9) 35%,
+              rgba(216, 180, 254, 0.9) 100%
+            ),
+            url("/svg/black.png") center/cover repeat, url("${bannerImage}") center/contain no-repeat`,
+          }}
         >
           <div
             className={`w-[40px] h-[40px] bg-cover rounded-full bg-white`}
-            style={{ backgroundImage: `url("${image}")` }}
+            style={{ backgroundImage: `url("${logoImage}")` }}
           ></div>
           <div
-            className={`mt-[30%] w-full space-y-4 min-h-[90px] flex items-center border-t-[2px] border-b`}
+            className={`mt-[30%] w-full space-y-4 min-h-[130px] flex items-center border-t-[2px] border-b`}
           >
-            <p className={`text-[18px] text-gray-700 font-bold`}>{name}</p>
+            <p className={`text-[20px] text-gray-700 font-bold`}>{name}</p>
           </div>
-          <div className={`flex justify-between py-2`}>
+          <div className={`flex justify-between w-full pt-2`}>
             <div className={`block`}>
-              <p className={`font-bold text-[11px] text-gray-700`}>IMPACT</p>
-              <div className={`grid grid-cols-3 space-x-1`}>
+              <p className={`font-bold text-[13px] text-gray-700`}>IMPACT</p>
+              <div className={`grid grid-cols-2 gap-2`}>
                 {myworkScope.map((item, index) => (
                   <div
                     key={index}
-                    className={`border-[2px] border-gray-600 flex justify-around rounded-[4px] min-w-[10px] h-[20px] px-1`}
+                    className={`border-[2px] border-gray-600 flex justify-around rounded-[4px] min-w-[10px] h-[20px] px-2`}
                   >
                     <p className={`text-[12px] text-center`}>{item.value}</p>
                   </div>
                 ))}
               </div>
             </div>
+            <div className={`flex items-cente`}>
+              <p className={`text-[14px]`}>{formDates.impactTimeframeStart}</p>
+              <p className={`text-[13px] space-x-1`}>&rarr;</p>
+              <p className={`text-[14px]`}>{formDates.workTimeframeEnd}</p>
+            </div>
           </div>
         </div>
+        {/* <button className={`bg-white rounded`} onClick={getImage} type="button">
+          Capture
+        </button>
+        <Image alt="capture" width={40} height={60} src={img} /> */}
       </div>
       <dialog
         ref={diaRef}
