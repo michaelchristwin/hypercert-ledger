@@ -16,16 +16,14 @@ function Hero() {
     roundId: "",
     projectId: "",
   });
-  const { isConnected, chainId } = useWeb3ModalAccount();
+  const { isConnected, chainId, address } = useWeb3ModalAccount();
   const { open } = useWeb3Modal();
 
   const handleClick = () => {
     if (!isConnected) {
       open();
     } else {
-      router.push(
-        `/form?chainId=${chainId}&roundId=${value.roundId}&projectId=${value.projectId}`
-      );
+      router.push(`/form?chainId=${chainId}&address=${address}`);
     }
   };
   const rounds = [

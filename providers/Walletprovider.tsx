@@ -8,7 +8,7 @@ import {
   pgn,
   mainnet,
   optimism,
-  goerli,
+  sepolia,
 } from "viem/chains";
 
 const projectId = process.env.NEXT_PUBLIC_PROJECT_ID as string;
@@ -22,7 +22,7 @@ const metadata = {
 createWeb3Modal({
   ethersConfig: defaultConfig({
     metadata,
-    defaultChainId: 42161,
+    defaultChainId: 11155111,
     enableEIP6963: true,
     enableInjected: true,
     enableCoinbase: true,
@@ -30,11 +30,11 @@ createWeb3Modal({
   }),
   chains: [
     {
-      ...goerli,
-      rpcUrl: goerli.rpcUrls.default.http[0],
-      explorerUrl: goerli.blockExplorers.default.url,
-      chainId: goerli.id,
-      currency: goerli.nativeCurrency.symbol,
+      ...sepolia,
+      rpcUrl: sepolia.rpcUrls.default.http[0],
+      explorerUrl: sepolia.blockExplorers.default.url,
+      chainId: sepolia.id,
+      currency: sepolia.nativeCurrency.symbol,
     },
     {
       ...optimism,
@@ -100,6 +100,6 @@ export const myChains = {
   fantom,
   pgn,
   mainnet,
-  goerli,
+  sepolia,
   optimism,
 };

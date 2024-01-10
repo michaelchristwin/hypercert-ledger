@@ -11,11 +11,15 @@ import { useWeb3ModalAccount } from "@web3modal/ethers/react";
 import { useState, useRef, useEffect } from "react";
 import { createWalletClient, custom, WalletClient } from "viem";
 import { useSearchParams } from "next/navigation";
-import { goerli } from "viem/chains";
+import { sepolia } from "viem/chains";
 import CreateSelect, { Option } from "@/components/CreateableSelect";
 import toast from "react-hot-toast";
-import { useScreenshot } from "use-react-screenshot";
+import domtoimage from "dom-to-image";
+import axios from "axios";
+import * as cheerio from "cheerio";
 import Image from "next/image";
+import { decodeImage, uploadImage } from "@/actions/upload";
+
 declare let window: any;
 
 let currentYear = new Date();
@@ -24,9 +28,6 @@ let cY = currentYear.getFullYear();
 function Page() {
   const nftStorageToken = process.env.NEXT_PUBLIC_NFTSTORAGE;
   const searchParams = useSearchParams();
-  const hypercertRef = useRef<HTMLDivElement | null>(null);
-  const [img, takeScreenshot] = useScreenshot();
-  const getImage = () => takeScreenshot(hypercertRef.current);
   const [client, setClient] = useState<HypercertClient | undefined>(undefined);
   const [walletCli, setWalletCli] = useState<WalletClient | undefined>(
     undefined
@@ -57,15 +58,14 @@ function Page() {
       if (address && window.ethereum && chainId) {
         const walletClient = createWalletClient({
           account: address,
-          chain: goerli,
+          chain: sepolia,
           transport: custom(window.ethereum),
         });
         setWalletCli(walletClient);
         let myClient = new HypercertClient({
-          chain: goerli,
+          chain: sepolia,
           walletClient: walletClient,
           nftStorageToken,
-          web3StorageToken: nftStorageToken,
         });
         setClient(myClient);
       }
@@ -91,28 +91,35 @@ function Page() {
     rights: ["Public Display"],
     excludedRights: [],
   };
+  const myRef = useRef<HTMLDivElement | null>(null);
   const [formValues, setFormValues] = useState<MyMetadata>(initialState);
   const { name, image, description, external_url, impactScope } = formValues;
 
   useEffect(() => {
-    if (chainId && roundId && projectId) {
+    if (chainId) {
       toast.promise(
         (async () => {
-          const res = await fetch(
-            `https://grants-stack-indexer.gitcoin.co/data/${chainId}/rounds/${roundId}/applications.json`
+          const res = await axios.get(
+            `https://grants-stack-indexer.gitcoin.co/data/${chainId}/rounds/`
           );
-          const data = await res.json();
-          const myItem = data.find((item: any) => item.projectId === projectId);
-          setFormValues({
-            ...formValues,
-            name: myItem.metadata.application.project.title,
-            external_url: myItem.metadata.application.project.website,
-            description: myItem.metadata.application.project.description,
-          });
-          setFormImages({
-            logoImage: `https://ipfs.io/ipfs/${myItem.metadata.application.project.logoImg}`,
-            bannerImage: ``,
-          });
+          const $ = cheerio.load(res.data);
+          const folderNames = $("a")
+            .map((_, element) => $(element).text())
+            .get();
+
+          console.log("res body:", folderNames);
+          // const data = await res.json();
+          // const myItem = data.find((item: any) => item.projectId === projectId);
+          // setFormValues({
+          //   ...formValues,
+          //   name: myItem.metadata.application.project.title,
+          //   external_url: myItem.metadata.application.project.website,
+          //   description: myItem.metadata.application.project.description,
+          // });
+          // setFormImages({
+          //   logoImage: `https://ipfs.io/ipfs/${myItem.metadata.application.project.logoImg}`,
+          //   bannerImage: `https://ipfs.io/ipfs/${myItem.metadata.application.project.bannerImg}`,
+          // });
         })(),
         {
           loading: "hypercert is being pre-filled.....",
@@ -140,6 +147,15 @@ function Page() {
       [name]: value,
     });
   };
+  const covertToBlob = async () => {
+    const imgBlob = await domtoimage.toBlob(myRef.current as HTMLDivElement);
+    return imgBlob;
+  };
+  const covertToJpeg = async () => {
+    const imgBlob = await domtoimage.toJpeg(myRef.current as HTMLDivElement);
+    return imgBlob;
+  };
+
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     setIsSuccess(undefined);
     event.preventDefault();
@@ -155,10 +171,30 @@ function Page() {
     if (isValid(formValues) && diaRef.current && client) {
       setIsMinting(true);
       try {
-        diaRef.current.showModal();
-        const res = await MintHypercert(formValues, client);
-        setIsSuccess(true);
-        setIsMinting(false);
+        console.log("get image ran");
+        const hyperImage = await covertToBlob();
+        const hyperJpeg = await covertToJpeg();
+        if (!hyperImage) {
+          return;
+        }
+        // const imgHash = await uploadImage(hyperImage);
+        // if (!imgHash) {
+        //   return;
+        // }
+        let fileName = "screenshot-hypercert.jpg";
+        let dl = document.createElement("a");
+        //let blobUrl = URL.createObjectURL(hyperImage);
+        dl.download = fileName;
+        dl.href = hyperJpeg;
+        dl.click();
+        // setFormValues({
+        //   ...formValues,
+        //   image: imgHash,
+        // });
+        // diaRef.current.showModal();
+        // const res = await MintHypercert(formValues, client);
+        // setIsSuccess(true);
+        // setIsMinting(false);
       } catch (err) {
         setIsSuccess(false);
         console.error("Mint Failed:", err);
@@ -174,16 +210,18 @@ function Page() {
       ...formDates,
       [name]: value,
     });
-    let newDate = Date.parse(value);
+    let newDate = ISOToUNIX(new Date(value));
     setFormValues({
       ...formValues,
       [name]: newDate,
     });
   };
   const diaRef = useRef<HTMLDialogElement | null>(null);
-  console.log(img);
+
   return (
-    <div className={`flex justify-center h-fit py-[20px] w-full relative`}>
+    <div
+      className={`flex justify-start space-x-[10%] mx-[10%] h-fit py-[20px] w-full relative`}
+    >
       <form
         className={`block p-[40px] w-[43%] space-y-3 rounded-[15px] morph`}
         onSubmit={onSubmit}
@@ -537,18 +575,20 @@ function Page() {
           Create
         </button>
       </form>
-      <div className={`w-[40%] block h-[100vh] sticky top-[100px] p-[40px]`}>
+
+      <div className={`w-[290px] block h-[100vh] sticky top-[100px] p-[40px]`}>
         <div
           className={`block w-[290px] h-[370px] rounded-[12px] p-3 mx-auto`}
-          ref={hypercertRef}
+          id="hypercert"
+          ref={myRef}
           style={{
             background: `linear-gradient(
               to bottom,
-              rgba(88, 28, 135, 0.9) 0%,
-              rgba(147, 51, 234, 0.9) 35%,
-              rgba(216, 180, 254, 0.9) 100%
+              rgba(88, 28, 135, 0.6) 0%,
+              rgba(147, 51, 234, 0.7) 35%,
+              rgba(216, 180, 254, 1) 100%
             ),
-            url("/svg/black.png") center/cover repeat, url("${bannerImage}") center/contain no-repeat`,
+            url("/svg/black.png") center/cover repeat, url("${bannerImage}") center/290px 370px no-repeat`,
           }}
         >
           <div

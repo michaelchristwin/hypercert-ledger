@@ -44,6 +44,7 @@ function CreateSelect({
       id={name}
       name={name}
       isMulti
+      className={`peer`}
       required={required}
       placeholder={placeholder}
       inputValue={inputValue}

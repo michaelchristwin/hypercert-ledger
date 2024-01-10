@@ -9,17 +9,21 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@hypercerts-org/sdk": "^1.0.3",
+    "@hypercerts-org/sdk": "^1.2.0",
+    "@types/dom-to-image": "^2.6.7",
     "@web3modal/ethers": "^3.5.1",
     "@web3modal/wallet": "^3.5.1",
+    "axios": "^1.6.5",
+    "cheerio": "^1.0.0-rc.12",
+    "dom-to-image": "^2.6.0",
     "ethers": "^6.9.1",
     "html2canvas": "^1.4.1",
     "next": "14.0.4",
+    "nft.storage": "^7.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hot-toast": "^2.4.1",
-    "react-select": "^5.8.0",
-    "use-react-screenshot": "^3.0.0"
+    "react-select": "^5.8.0"
   },
   "devDependencies": {
     "typescript": "^5",

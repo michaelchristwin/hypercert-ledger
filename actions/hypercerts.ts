@@ -82,7 +82,7 @@ export const isValid = (formValue: MyMetadata) => {
     formValue.rights.length &&
     formValue.workTimeframeEnd &&
     formValue.workTimeframeStart &&
-    formValue.image !== "" &&
+    // formValue.image !== "" &&
     formValue.impactScope.length &&
     formValue.impactTimeframeEnd &&
     formValue.impactTimeframeStart &&
