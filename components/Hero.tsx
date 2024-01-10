@@ -23,7 +23,7 @@ function Hero() {
     if (!isConnected) {
       open();
     } else {
-      router.push(`/form?chainId=${chainId}&address=${address}`);
+      router.push(`/form?chainId=${chainId}&roundId=${value.roundId}`);
     }
   };
   const rounds = [
@@ -116,7 +116,7 @@ function Hero() {
           <button
             onClick={handleClick}
             disabled={!value.projectId}
-            className={`px-2 bg-[#3a59ef] text-white disabled:hover:opacity-100 hover:active:opacity-100 absolute bottom-0 right-0 rounded-[6px] h-[40px]`}
+            className={`px-2 bg-[#3a59ef] hover:opacity-75 active:opacity-60 text-white disabled:hover:opacity-100 hover:active:opacity-100 absolute bottom-0 right-0 rounded-[6px] h-[40px]`}
           >
             Proceed
           </button>

@@ -16,10 +16,7 @@ import CreateSelect, { Option } from "@/components/CreateableSelect";
 import toast from "react-hot-toast";
 import domtoimage from "dom-to-image";
 import axios from "axios";
-import * as cheerio from "cheerio";
-import Image from "next/image";
-import { decodeImage, uploadImage } from "@/actions/upload";
-
+import { uploadImage } from "@/actions/upload";
 declare let window: any;
 
 let currentYear = new Date();
@@ -29,6 +26,7 @@ function Page() {
   const nftStorageToken = process.env.NEXT_PUBLIC_NFTSTORAGE;
   const searchParams = useSearchParams();
   const [client, setClient] = useState<HypercertClient | undefined>(undefined);
+  const [allow, setAllow] = useState(false);
   const [walletCli, setWalletCli] = useState<WalletClient | undefined>(
     undefined
   );
@@ -52,7 +50,6 @@ function Page() {
   const { address } = useWeb3ModalAccount();
   const chainId = searchParams.get("chainId");
   const roundId = searchParams.get("roundId");
-  const projectId = searchParams.get("projectId");
   useEffect(() => {
     (async () => {
       if (address && window.ethereum && chainId) {
@@ -96,35 +93,41 @@ function Page() {
   const { name, image, description, external_url, impactScope } = formValues;
 
   useEffect(() => {
-    if (chainId) {
+    setAllow(false);
+    if (chainId && roundId) {
       toast.promise(
         (async () => {
-          const res = await axios.get(
-            `https://grants-stack-indexer.gitcoin.co/data/${chainId}/rounds/`
-          );
-          const $ = cheerio.load(res.data);
-          const folderNames = $("a")
-            .map((_, element) => $(element).text())
-            .get();
-
-          console.log("res body:", folderNames);
-          // const data = await res.json();
-          // const myItem = data.find((item: any) => item.projectId === projectId);
-          // setFormValues({
-          //   ...formValues,
-          //   name: myItem.metadata.application.project.title,
-          //   external_url: myItem.metadata.application.project.website,
-          //   description: myItem.metadata.application.project.description,
-          // });
-          // setFormImages({
-          //   logoImage: `https://ipfs.io/ipfs/${myItem.metadata.application.project.logoImg}`,
-          //   bannerImage: `https://ipfs.io/ipfs/${myItem.metadata.application.project.bannerImg}`,
-          // });
+          try {
+            const res = await axios.get(
+              `https://grants-stack-indexer.gitcoin.co/data/${chainId}/rounds/${roundId}/applications.json`
+            );
+            const data = await res.data;
+            const myItem = [...data].find(
+              (item) => item.metadata.application.recipient === address
+            );
+            if (myItem === undefined) {
+              throw new Error("Item not found");
+            }
+            setFormValues({
+              ...formValues,
+              name: myItem.metadata.application.project.title,
+              external_url: myItem.metadata.application.project.website,
+              description: myItem.metadata.application.project.description,
+            });
+            setFormImages({
+              logoImage: `https://ipfs.io/ipfs/${myItem.metadata.application.project.logoImg}`,
+              bannerImage: `https://ipfs.io/ipfs/${myItem.metadata.application.project.bannerImg}`,
+            });
+            setAllow(true);
+          } catch (err) {
+            console.error("Failed to fetch data:", err);
+            throw err;
+          }
         })(),
         {
           loading: "hypercert is being pre-filled.....",
           success: "Pre-fill Successful",
-          error: "Error when fetching data",
+          error: "You don't have a grant application",
         }
       );
     }
@@ -151,17 +154,12 @@ function Page() {
     const imgBlob = await domtoimage.toBlob(myRef.current as HTMLDivElement);
     return imgBlob;
   };
-  const covertToJpeg = async () => {
-    const imgBlob = await domtoimage.toJpeg(myRef.current as HTMLDivElement);
-    return imgBlob;
-  };
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     setIsSuccess(undefined);
     event.preventDefault();
     const Contributors = myContributors.map((item) => item.value);
     const WorkScopes = myworkScope.map((item) => item.value);
-
     setFormValues({
       ...formValues,
       workScope: WorkScopes,
@@ -171,33 +169,26 @@ function Page() {
     if (isValid(formValues) && diaRef.current && client) {
       setIsMinting(true);
       try {
-        console.log("get image ran");
         const hyperImage = await covertToBlob();
-        const hyperJpeg = await covertToJpeg();
         if (!hyperImage) {
-          return;
+          throw new Error("Hypercert image is invalid");
         }
-        // const imgHash = await uploadImage(hyperImage);
-        // if (!imgHash) {
-        //   return;
-        // }
-        let fileName = "screenshot-hypercert.jpg";
-        let dl = document.createElement("a");
-        //let blobUrl = URL.createObjectURL(hyperImage);
-        dl.download = fileName;
-        dl.href = hyperJpeg;
-        dl.click();
-        // setFormValues({
-        //   ...formValues,
-        //   image: imgHash,
-        // });
-        // diaRef.current.showModal();
-        // const res = await MintHypercert(formValues, client);
-        // setIsSuccess(true);
-        // setIsMinting(false);
+        const imgHash = await uploadImage(hyperImage);
+        if (!imgHash) {
+          throw new Error("Image hash is undefined");
+        }
+        setFormValues({
+          ...formValues,
+          image: `https://ipfs.io/ipfs/${imgHash}`,
+        });
+        diaRef.current.showModal();
+        const res = await MintHypercert(formValues, client);
+        setIsSuccess(true);
+        setIsMinting(false);
       } catch (err) {
         setIsSuccess(false);
-        console.error("Mint Failed:", err);
+        console.error(err);
+        throw err;
       }
     }
   };
@@ -220,10 +211,14 @@ function Page() {
 
   return (
     <div
-      className={`flex justify-start space-x-[10%] mx-[10%] h-fit py-[20px] w-full relative`}
+      className={`flex ${
+        allow ? "justify-start space-x-[10%] mx-[10%]" : "justify-center"
+      }  h-fit py-[20px] w-full relative`}
     >
       <form
-        className={`block p-[40px] w-[43%] space-y-3 rounded-[15px] morph`}
+        className={`${
+          allow ? "block" : "hidden"
+        } p-[40px] w-[43%] space-y-3 rounded-[15px] morph`}
         onSubmit={onSubmit}
       >
         <hr />
@@ -575,8 +570,20 @@ function Page() {
           Create
         </button>
       </form>
-
-      <div className={`w-[290px] block h-[100vh] sticky top-[100px] p-[40px]`}>
+      {/* <div
+        className={`bg-white w-[90%] text-center h-[70px] rounded-lg ${
+          !allow ? "flex items-center justify-center" : "hidden"
+        }`}
+      >
+        <p className={`text-[18px] font-semibold`}>
+          You don`t have a grant application, Apply for a grant.
+        </p>
+      </div> */}
+      <div
+        className={`w-[290px] ${
+          allow ? "block" : "hidden"
+        } h-[100vh] sticky top-[100px] p-[40px]`}
+      >
         <div
           className={`block w-[290px] h-[370px] rounded-[12px] p-3 mx-auto`}
           id="hypercert"
@@ -628,7 +635,9 @@ function Page() {
       </div>
       <dialog
         ref={diaRef}
-        className={`backdrop:bg-neutral-900/90 w-[50%] fixed translate-y-[-50%] top-[50%] h-[50%] border-0 rounded-[6px] p-[20px] inset-0 backdrop-blur z-[30]`}
+        className={`backdrop:bg-neutral-900/90 w-[50%] ${
+          allow ? "block" : "hidden"
+        } fixed translate-y-[-50%] top-[50%] h-[50%] border-0 rounded-[6px] p-[20px] inset-0 backdrop-blur z-[30]`}
       >
         <div
           className={`bg-white text-black text-center relative flex w-full justify-center items-center h-full`}
