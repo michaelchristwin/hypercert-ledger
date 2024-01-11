@@ -80,7 +80,7 @@ function Hero() {
   }, [currentIndex, delay, text]);
 
   return (
-    <div className={`flex w-full items-center justify-around`}>
+    <div className={`flex w-full h-[80vh] items-center justify-around`}>
       <Image
         className={`w-[320px] lg:h-[450px] md:h-[420px] h-[400px] rounded-[30px] shadow`}
         width={320}
