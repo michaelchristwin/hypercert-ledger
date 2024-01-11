@@ -3,9 +3,7 @@ import Rounds from "@/components/Rounds";
 
 function Home() {
   return (
-    <main
-      className={`block h-fit w-full px-[30px] pt-[20px] relative lg:px-[40px] lg:pt-[20px]`}
-    >
+    <main className={`block h-fit w-full pt-[20px] relative lg:pt-[20px]`}>
       <Hero />
       <Rounds />
     </main>
