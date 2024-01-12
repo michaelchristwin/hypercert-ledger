@@ -8,29 +8,29 @@ function Rounds() {
       className={`w-full flex justify-center items-center h-fit py-[90px] mt-[100px]`}
     >
       <div
-        className={`grid lg:grid-cols-3 md:grid-cols-3 grid-cols-2 gap-[20px]`}
+        className={`grid lg:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-[20px]`}
       >
         <Round
-          roundId="0x0F0b9d9F72C1660905C57864e79CeB409ADa0C9e"
-          chainId="42161"
+          roundId="0x5eb890e41c8d2cff75ea942085e406bb90016561"
+          chainId="10"
           name="Round W"
           image="bg-top.jpg"
         />
         <Round
-          roundId="0x0F0b9d9F72C1660905C57864e79CeB409ADa0C9e"
-          chainId="42161"
+          roundId="0xa1d52f9b5339792651861329a046dd912761e9a9"
+          chainId="10"
           name="Round X"
           image="edited.jpg"
         />
         <Round
-          roundId="0x0F0b9d9F72C1660905C57864e79CeB409ADa0C9e"
-          chainId="42161"
+          roundId="0xd4cc0dd193c7dc1d665ae244ce12d7fab337a008"
+          chainId="10"
           image="sky.jpg"
           name="Round Y"
         />
         <Round
-          roundId="0x0F0b9d9F72C1660905C57864e79CeB409ADa0C9e"
-          chainId="42161"
+          roundId="0x98720dd1925d34a2453ebc1f91c9d48e7e89ec29"
+          chainId="10"
           name="Round Z"
           image="sun.jpg"
         />

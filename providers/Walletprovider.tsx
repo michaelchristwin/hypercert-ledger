@@ -22,7 +22,7 @@ const metadata = {
 createWeb3Modal({
   ethersConfig: defaultConfig({
     metadata,
-    defaultChainId: 11155111,
+    defaultChainId: 10,
     enableEIP6963: true,
     enableInjected: true,
     enableCoinbase: true,

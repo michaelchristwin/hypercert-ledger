@@ -1,5 +1,6 @@
 import { useWeb3Modal, useWeb3ModalAccount } from "@web3modal/ethers/react";
 import { useRouter } from "next/navigation";
+import { myChains } from "@/providers/Walletprovider";
 
 interface RoundProps {
   name: string;
@@ -21,7 +22,7 @@ function Round({ name, image, roundId, chainId }: RoundProps) {
   };
 
   return (
-    <div className={`rounded-[12px] mx-auto shadow h-[380px] w-[380px]`}>
+    <div className={`rounded-[12px] mx-auto shadow h-[380px] w-[350px]`}>
       <div
         className={`h-[40%] p-4 rounded-t-[12px] bg-cover bg-center object-cover backdrop-brightness-[40%] backdrop-blur-md backdrop-filter`}
         style={{
@@ -33,9 +34,9 @@ function Round({ name, image, roundId, chainId }: RoundProps) {
           <p className={`font-bold text-[23px] text-white`}>{name}</p>
           <button
             onClick={handleClick}
-            className={`text-black bg-white hover:opacity-75 active:opacity-60 text-[11px] rounded-[7px] h-[21px] w-[50px]`}
+            className={`text-black bg-white hover:opacity-75 active:opacity-60 text-[11px] rounded-[7px] h-[21px] w-fit px-2`}
           >
-            Apply
+            Mint HyperCert
           </button>
         </div>
       </div>

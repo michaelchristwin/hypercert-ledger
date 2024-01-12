@@ -39,8 +39,8 @@ function Hero() {
         <Round
           name="Round GG19"
           image="edited.jpg"
-          roundId="0x0F0b9d9F72C1660905C57864e79CeB409ADa0C9e"
-          chainId="42161"
+          roundId="0x5eB890e41c8D2cFF75ea942085E406bB90016561"
+          chainId="10"
         />
       </div>
     </div>

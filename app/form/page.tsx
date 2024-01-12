@@ -20,6 +20,7 @@ import toast from "react-hot-toast";
 import domtoimage from "dom-to-image";
 import axios from "axios";
 import { uploadImage } from "@/actions/upload";
+import TextArea, { convertArrayToDisplayText } from "@/components/TextArea";
 declare let window: any;
 
 let currentYear = new Date();
@@ -33,8 +34,10 @@ function Page() {
   const [walletCli, setWalletCli] = useState<WalletClient | undefined>(
     undefined
   );
-  const [myworkScope, setWorkScopes] = useState<readonly Option[]>([]);
-  const [myContributors, setContributors] = useState<readonly Option[]>([]);
+  const [myworkScope, setWorkScopes] = useState<string>("");
+  const [myContributors, setContributors] = useState<string>("");
+  const [workScopeStored, setWorkScopeStored] = useState<string[]>([]);
+  const [contributorsStored, setContributorsStored] = useState<string[]>([]);
   const [formImages, setFormImages] = useState({
     logoImage: "",
     bannerImage: "",
@@ -112,12 +115,12 @@ function Page() {
             const contributors = [...projectData].map(
               (contributor) => contributor.id
             );
-            const options = contributors.map((person) => createOption(person));
+            const options = convertArrayToDisplayText(contributors);
             setContributors(options);
             const myItem = [...metaData].find(
               (item) =>
                 item.metadata.application.recipient ===
-                "0x8110d1D04ac316fdCACe8f24fD60C86b810AB15A"
+                "0x84E420915147625c11c265FA61AEC826347204D1"
             );
             if (myItem === undefined) {
               throw new Error("Item not found");
@@ -172,13 +175,13 @@ function Page() {
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     setIsSuccess(undefined);
     event.preventDefault();
-    const Contributors = myContributors.map((item) => item.value);
-    const WorkScopes = myworkScope.map((item) => item.value);
-    setFormValues({
-      ...formValues,
-      workScope: WorkScopes,
-      contributors: Contributors,
-    });
+    // const Contributors = myContributors.map((item) => item.value);
+    // const WorkScopes = myworkScope.map((item) => item.value);
+    // setFormValues({
+    //   ...formValues,
+    //   workScope: WorkScopes,
+    //   contributors: Contributors,
+    // });
 
     if (isValid(formValues) && client) {
       setIsMinting(true);
@@ -222,7 +225,7 @@ function Page() {
     });
   };
   const diaRef = useRef<HTMLDialogElement | null>(null);
-
+  console.log("WorkScope Stores:", workScopeStored);
   return (
     <div
       className={`flex ${
@@ -346,12 +349,18 @@ function Page() {
           >
             Work Scope
           </label>
-          <CreateSelect
+          {/* <CreateSelect
             name="workScope"
             required
             placeholder={`Type something and press enter . . . . . .`}
             value={myworkScope}
             setValue={setWorkScopes}
+          /> */}
+          <TextArea
+            name="workScope"
+            displayText={myworkScope}
+            setDisplayText={setWorkScopes}
+            setStoredValues={setWorkScopeStored}
           />
           <p className={`text-red-600 italic invisible peer-required:visible`}>
             *
@@ -401,14 +410,19 @@ function Page() {
           >
             List of contributors
           </label>
-          <CreateSelect
+          {/* <CreateSelect
             name="contributors"
             required
             placeholder={`Type something and press enter . . . . . .`}
             value={myContributors}
             setValue={setContributors}
+          /> */}
+          <TextArea
+            name="contributors"
+            displayText={myContributors}
+            setDisplayText={setContributors}
+            setStoredValues={setContributorsStored}
           />
-
           <p className={`text-red-600 italic invisible peer-required:visible`}>
             *
           </p>
@@ -617,14 +631,14 @@ function Page() {
             <div className={`block`}>
               <p className={`font-bold text-[13px] text-gray-700`}>IMPACT</p>
               <div className={`grid grid-cols-2 gap-2`}>
-                {myworkScope.map((item, index) => (
+                {/* {myworkScope.map((item, index) => (
                   <div
                     key={index}
                     className={`border-[2px] border-gray-600 flex justify-around rounded-[4px] min-w-[10px] h-[20px] px-2`}
                   >
                     <p className={`text-[12px] text-center`}>{item.value}</p>
                   </div>
-                ))}
+                ))} */}
               </div>
             </div>
             <div className={`flex items-cente`}>
