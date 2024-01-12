@@ -12,7 +12,10 @@ import { useState, useRef, useEffect } from "react";
 import { createWalletClient, custom, WalletClient } from "viem";
 import { useSearchParams } from "next/navigation";
 import { sepolia } from "viem/chains";
-import CreateSelect, { Option } from "@/components/CreateableSelect";
+import CreateSelect, {
+  Option,
+  createOption,
+} from "@/components/CreateableSelect";
 import toast from "react-hot-toast";
 import domtoimage from "dom-to-image";
 import axios from "axios";
@@ -101,9 +104,20 @@ function Page() {
             const res = await axios.get(
               `https://grants-stack-indexer.gitcoin.co/data/${chainId}/rounds/${roundId}/applications.json`
             );
-            const data = await res.data;
-            const myItem = [...data].find(
-              (item) => item.metadata.application.recipient === address
+            const res2 = await axios.get(
+              `https://grants-stack-indexer.gitcoin.co/data/${chainId}/rounds/${roundId}/contributors.json`
+            );
+            const metaData = res.data;
+            const projectData = res2.data;
+            const contributors = [...projectData].map(
+              (contributor) => contributor.id
+            );
+            const options = contributors.map((person) => createOption(person));
+            setContributors(options);
+            const myItem = [...metaData].find(
+              (item) =>
+                item.metadata.application.recipient ===
+                "0x8110d1D04ac316fdCACe8f24fD60C86b810AB15A"
             );
             if (myItem === undefined) {
               throw new Error("Item not found");
@@ -166,7 +180,7 @@ function Page() {
       contributors: Contributors,
     });
 
-    if (isValid(formValues) && diaRef.current && client) {
+    if (isValid(formValues) && client) {
       setIsMinting(true);
       try {
         const hyperImage = await covertToBlob();
@@ -181,7 +195,7 @@ function Page() {
           ...formValues,
           image: `https://ipfs.io/ipfs/${imgHash}`,
         });
-        diaRef.current.showModal();
+
         const res = await MintHypercert(formValues, client);
         setIsSuccess(true);
         setIsMinting(false);
@@ -212,7 +226,7 @@ function Page() {
   return (
     <div
       className={`flex ${
-        allow ? "justify-start space-x-[10%] mx-[10%]" : "justify-center"
+        allow ? "justify-center space-x-[10%] mx-auto" : "justify-center"
       }  h-fit py-[20px] w-full relative`}
     >
       <form
@@ -570,15 +584,7 @@ function Page() {
           Create
         </button>
       </form>
-      {/* <div
-        className={`bg-white w-[90%] text-center h-[70px] rounded-lg ${
-          !allow ? "flex items-center justify-center" : "hidden"
-        }`}
-      >
-        <p className={`text-[18px] font-semibold`}>
-          You don`t have a grant application, Apply for a grant.
-        </p>
-      </div> */}
+
       <div
         className={`w-[290px] ${
           allow ? "block" : "hidden"
@@ -628,77 +634,7 @@ function Page() {
             </div>
           </div>
         </div>
-        {/* <button className={`bg-white rounded`} onClick={getImage} type="button">
-          Capture
-        </button>
-        <Image alt="capture" width={40} height={60} src={img} /> */}
       </div>
-      <dialog
-        ref={diaRef}
-        className={`backdrop:bg-neutral-900/90 w-[50%] ${
-          allow ? "block" : "hidden"
-        } fixed translate-y-[-50%] top-[50%] h-[50%] border-0 rounded-[6px] p-[20px] inset-0 backdrop-blur z-[30]`}
-      >
-        <div
-          className={`bg-white text-black text-center relative flex w-full justify-center items-center h-full`}
-        >
-          <p className={`text-[20px] absolute top-[6px] font-bold`}>
-            Processing Hypercert...
-          </p>
-          {!isMinting && (
-            <button
-              className={`absolute top-[6px] right-[6px]`}
-              onClick={() => diaRef.current?.close()}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#000000"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
-          )}
-          {isMinting ? (
-            <div className={`loading-container`}>
-              <div className={`loading`}></div>
-              {/* <div
-              className={`loading-text translate-y-[-50%] left-[50%] translate-x-[-50%]`}
-            >
-              Minting
-            </div> */}
-            </div>
-          ) : (
-            <div
-              className={`w-[150px] h-[150px] rounded-full bg-green-500 flex justify-center cali scale-[0.84] items-center animate-animateContainer`}
-            >
-              <svg
-                viewBox="0 0 65 51"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                height={80}
-                width={80}
-                className={`animate-animateCheck cali`}
-              >
-                <path
-                  d="M7 25L27.3077 44L58.5 7"
-                  stroke="white"
-                  strokeWidth="11"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-          )}
-        </div>
-      </dialog>
     </div>
   );
 }

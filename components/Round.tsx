@@ -1,8 +1,25 @@
+import { useWeb3Modal, useWeb3ModalAccount } from "@web3modal/ethers/react";
+import { useRouter } from "next/navigation";
+
 interface RoundProps {
   name: string;
   image: string;
+  details?: string;
+  chainId?: string;
+  roundId?: string;
 }
-function Round({ name, image }: RoundProps) {
+function Round({ name, image, roundId, chainId }: RoundProps) {
+  const { isConnected, address } = useWeb3ModalAccount();
+  const { open } = useWeb3Modal();
+  const router = useRouter();
+  const handleClick = () => {
+    if (!isConnected) {
+      open();
+    } else {
+      router.push(`/form?chainId=${chainId}&roundId=${roundId}`);
+    }
+  };
+
   return (
     <div className={`rounded-[12px] mx-auto shadow h-[380px] w-[380px]`}>
       <div
@@ -15,7 +32,8 @@ function Round({ name, image }: RoundProps) {
         <div className={`flex w-full justify-between`}>
           <p className={`font-bold text-[23px] text-white`}>{name}</p>
           <button
-            className={`text-black bg-white hover:opacity-75 active:opacity-60 text-[11px] rounded-[7px] h-[19px] w-[50px]`}
+            onClick={handleClick}
+            className={`text-black bg-white hover:opacity-75 active:opacity-60 text-[11px] rounded-[7px] h-[21px] w-[50px]`}
           >
             Apply
           </button>

@@ -14,7 +14,7 @@ export interface Option {
   readonly value: string;
 }
 
-const createOption = (label: string) => ({
+export const createOption = (label: string) => ({
   label,
   value: label,
 });
@@ -44,6 +44,7 @@ function CreateSelect({
       id={name}
       name={name}
       isMulti
+      isClearable={true}
       className={`peer`}
       required={required}
       placeholder={placeholder}
