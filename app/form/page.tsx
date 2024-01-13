@@ -172,13 +172,11 @@ function Page() {
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     setIsSuccess(undefined);
     event.preventDefault();
-    // const Contributors = myContributors.map((item) => item.value);
-    // const WorkScopes = myworkScope.map((item) => item.value);
-    // setFormValues({
-    //   ...formValues,
-    //   workScope: WorkScopes,
-    //   contributors: Contributors,
-    // });
+    setFormValues({
+      ...formValues,
+      workScope: workScopeStored,
+      contributors: contributorsStored,
+    });
 
     if (isValid(formValues) && client) {
       setIsMinting(true);

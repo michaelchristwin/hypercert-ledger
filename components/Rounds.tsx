@@ -10,7 +10,7 @@ function Rounds() {
       className={`w-full flex justify-center items-center h-fit py-[90px] mt-[100px]`}
     >
       <div
-        className={`grid lg:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-[20px]`}
+        className={`grid lg:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-[20px] w-[90%]`}
       >
         <Round
           roundId="0x5eB890e41c8D2cFF75ea942085E406bB90016561"

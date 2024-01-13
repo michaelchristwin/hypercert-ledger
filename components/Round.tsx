@@ -25,7 +25,9 @@ function Round({ name, image, roundId, chain }: RoundProps) {
   };
 
   return (
-    <div className={`rounded-[12px] mx-auto shadow h-[380px] w-[350px]`}>
+    <div
+      className={`rounded-[12px] mx-auto shadow h-[380px] w-[100%] max-w-[350px]`}
+    >
       <div
         className={`h-[40%] p-4 rounded-t-[12px] bg-cover bg-center object-cover backdrop-brightness-[40%] backdrop-blur-md backdrop-filter`}
         style={{
