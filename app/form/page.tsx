@@ -50,7 +50,6 @@ function Page() {
     impactTimeframeStart: `${cY}-01-01`,
     impactTimeframeEnd: currentYear.toISOString().slice(0, 10),
   });
-
   const [isOpen, setIsOpen] = useState(false);
   const [isMinting, setIsMinting] = useState(false);
   const { address } = useWeb3ModalAccount();
@@ -118,9 +117,7 @@ function Page() {
             const options = convertArrayToDisplayText(contributors);
             setContributors(options);
             const myItem = [...metaData].find(
-              (item) =>
-                item.metadata.application.recipient ===
-                "0x84E420915147625c11c265FA61AEC826347204D1"
+              (item) => item.metadata.application.recipient === address
             );
             if (myItem === undefined) {
               throw new Error("Item not found");

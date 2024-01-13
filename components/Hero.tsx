@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
-import Round from "./Round";
 import HyperCertCard from "./HyperCertCard";
+import { myChains } from "@/providers/Walletprovider";
 
 function Hero() {
   const [currentText, setCurrentText] = useState("");
@@ -26,9 +25,12 @@ function Hero() {
       className={`flex w-full h-[80vh] items-center justify-center space-x-4`}
     >
       <HyperCertCard
+        chainId="10"
         name="GG19: Climate"
+        roundId="0x5eb890e41c8d2cff75ea942085e406bb90016561"
         bannerImg="clir2.jpeg"
         logoImg="clir1.jpeg"
+        chain={myChains.optimism}
       />
 
       <div className={`flex flex-col w-[50%] space-y-4`}>

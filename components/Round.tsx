@@ -1,23 +1,26 @@
 import { useWeb3Modal, useWeb3ModalAccount } from "@web3modal/ethers/react";
 import { useRouter } from "next/navigation";
-import { myChains } from "@/providers/Walletprovider";
+import { Chain } from "viem";
 
 interface RoundProps {
   name: string;
   image: string;
   details?: string;
-  chainId?: string;
+  chainId: string;
   roundId?: string;
+  chain: Chain;
 }
-function Round({ name, image, roundId, chainId }: RoundProps) {
-  const { isConnected, address } = useWeb3ModalAccount();
+function Round({ name, image, roundId, chainId, chain }: RoundProps) {
+  const { isConnected } = useWeb3ModalAccount();
   const { open } = useWeb3Modal();
+
   const router = useRouter();
+
   const handleClick = () => {
     if (!isConnected) {
       open();
     } else {
-      router.push(`/form?chainId=${chainId}&roundId=${roundId}`);
+      router.push(`/form?chainId=${chain.id}&roundId=${roundId}`);
     }
   };
 
