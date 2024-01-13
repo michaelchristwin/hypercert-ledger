@@ -134,7 +134,7 @@ function Page() {
             });
             setAllow(true);
           } catch (err) {
-            console.error("Failed to fetch data:", err);
+            console.error("Error:", err);
             throw err;
           }
         })(),

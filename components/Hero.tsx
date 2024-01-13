@@ -27,7 +27,7 @@ function Hero() {
       <HyperCertCard
         chainId="10"
         name="GG19: Climate"
-        roundId="0x5eb890e41c8d2cff75ea942085e406bb90016561"
+        roundId="0x5eB890e41c8D2cFF75ea942085E406bB90016561"
         bannerImg="clir2.jpeg"
         logoImg="clir1.jpeg"
         chain={myChains.optimism}

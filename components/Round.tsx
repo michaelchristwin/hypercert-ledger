@@ -6,11 +6,11 @@ interface RoundProps {
   name: string;
   image: string;
   details?: string;
-  chainId: string;
+
   roundId?: string;
   chain: Chain;
 }
-function Round({ name, image, roundId, chainId, chain }: RoundProps) {
+function Round({ name, image, roundId, chain }: RoundProps) {
   const { isConnected } = useWeb3ModalAccount();
   const { open } = useWeb3Modal();
 
