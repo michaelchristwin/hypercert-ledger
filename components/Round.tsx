@@ -31,7 +31,9 @@ function Round({ name, image, roundId, chainId }: RoundProps) {
         }}
       >
         <div className={`flex w-full justify-between`}>
-          <p className={`font-bold text-[23px] text-white`}>{name}</p>
+          <div className={`block w-[50%]`}>
+            <p className={`font-bold text-[23px] text-white`}>{name}</p>
+          </div>
           <button
             onClick={handleClick}
             className={`text-black bg-white hover:opacity-75 active:opacity-60 text-[11px] rounded-[7px] h-[21px] w-fit px-2`}

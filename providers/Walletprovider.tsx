@@ -9,6 +9,7 @@ import {
   mainnet,
   optimism,
   sepolia,
+  polygon,
 } from "viem/chains";
 
 const projectId = process.env.NEXT_PUBLIC_PROJECT_ID as string;
@@ -78,6 +79,13 @@ createWeb3Modal({
       chainId: mainnet.id,
       currency: mainnet.nativeCurrency.symbol,
     },
+    {
+      ...polygon,
+      rpcUrl: polygon.rpcUrls.default.http[0],
+      explorerUrl: polygon.blockExplorers.default.url,
+      chainId: polygon.id,
+      currency: polygon.nativeCurrency.symbol,
+    },
   ],
   projectId,
   themeMode: "light",
@@ -102,4 +110,5 @@ export const myChains = {
   mainnet,
   sepolia,
   optimism,
+  polygon,
 };

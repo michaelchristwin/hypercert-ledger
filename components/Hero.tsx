@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Round from "./Round";
+import HyperCertCard from "./HyperCertCard";
 
 function Hero() {
   const [currentText, setCurrentText] = useState("");
@@ -21,27 +22,27 @@ function Hero() {
   }, [currentIndex, delay, text]);
 
   return (
-    <div className={`flex w-full h-[80vh] items-center justify-around`}>
-      <Image
-        className={`w-[320px] lg:h-[450px] md:h-[420px] h-[400px] rounded-[30px] shadow`}
-        width={320}
-        height={450}
-        src={`/hyper.webp`}
-        alt="hyper"
+    <div
+      className={`flex w-full h-[80vh] items-center justify-center space-x-4`}
+    >
+      <HyperCertCard
+        name="GG19: Climate"
+        bannerImg="clir2.jpeg"
+        logoImg="clir1.jpeg"
       />
 
-      <div className={`flex flex-col w-[50%]`}>
+      <div className={`flex flex-col w-[50%] space-y-4`}>
         <p
           className={`bg-gradient-to-r from-black via-slate-700 to-gray-500 text-transparent inline-block bg-clip-text text-center text-[60px] font-extrabold `}
         >
           {currentText}
         </p>
-        <Round
-          name="Round GG19"
-          image="edited.jpg"
-          roundId="0x5eB890e41c8D2cFF75ea942085E406bB90016561"
-          chainId="10"
-        />
+        {/* <button
+          className={`bg-white text-black w-fit px-2 h-[37px] rounded-lg mx-auto`}
+        >
+          Mint HyperCert
+        </button> */}
+        {/* <HyperCertCard name="GG19: Climate" /> */}
       </div>
     </div>
   );

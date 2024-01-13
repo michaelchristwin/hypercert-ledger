@@ -23,6 +23,7 @@ function TextArea({
       name={name}
       value={displayText}
       id={name}
+      onChange={handleChange}
       className={`w-[100%] h-[150px] ps-2 bg-white/50 placeholder:text-black/60 rounded-[6px] focus:outline-none text-black`}
     ></textarea>
   );
