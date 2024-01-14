@@ -31,6 +31,6 @@ function TextArea({
 
 export default TextArea;
 
-export function convertArrayToDisplayText(wordArray: string[]) {
+export function convertArrayToDisplayText(wordArray: any[]) {
   return wordArray.join(", ");
 }

@@ -29,6 +29,7 @@ interface MyMetadata {
 
 async function MintHypercert(props: MyMetadata, client: HypercertClient) {
   const { data } = formatHypercertData(props);
+
   const totalUnits = BigInt(10000);
 
   let txHash;
@@ -37,6 +38,7 @@ async function MintHypercert(props: MyMetadata, client: HypercertClient) {
       txHash = await client.mintClaim(
         data as HypercertMetadata,
         totalUnits,
+
         TransferRestrictions.FromCreatorOnly
       );
     } catch (err) {

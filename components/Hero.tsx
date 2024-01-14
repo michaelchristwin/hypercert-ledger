@@ -5,25 +5,23 @@ import HyperCertCard from "./HyperCertCard";
 import { myChains } from "@/providers/Walletprovider";
 
 function Hero() {
-  const [currentText, setCurrentText] = useState("");
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const text = "Mint Your HyperCerts";
-  const delay = 120;
-  useEffect(() => {
-    if (currentIndex < text.length) {
-      const timeout = setTimeout(() => {
-        setCurrentText((prevText) => prevText + text[currentIndex]);
-        setCurrentIndex((prevIndex) => prevIndex + 1);
-      }, delay);
+  // const [currentText, setCurrentText] = useState("");
+  // const [currentIndex, setCurrentIndex] = useState(0);
+  // const text = "Mint Your HyperCerts";
+  // const delay = 120;
+  // useEffect(() => {
+  //   if (currentIndex < text.length) {
+  //     const timeout = setTimeout(() => {
+  //       setCurrentText((prevText) => prevText + text[currentIndex]);
+  //       setCurrentIndex((prevIndex) => prevIndex + 1);
+  //     }, delay);
 
-      return () => clearTimeout(timeout);
-    }
-  }, [currentIndex, delay, text]);
+  //     return () => clearTimeout(timeout);
+  //   }
+  // }, [currentIndex, delay, text]);
 
   return (
-    <div
-      className={`flex w-full h-[80vh] items-center justify-center space-x-4`}
-    >
+    <div className={`flex w-full h-[70vh] pt-[100px] justify-center space-x-4`}>
       <HyperCertCard
         chainId="10"
         name="GG19: Climate"
@@ -37,14 +35,19 @@ function Hero() {
         <p
           className={`bg-gradient-to-r from-black via-slate-700 to-gray-500 text-transparent inline-block bg-clip-text text-center text-[60px] font-extrabold `}
         >
-          {currentText}
+          Mint Your HyperCerts
         </p>
-        {/* <button
-          className={`bg-white text-black w-fit px-2 h-[37px] rounded-lg mx-auto`}
-        >
-          Mint HyperCert
-        </button> */}
-        {/* <HyperCertCard name="GG19: Climate" /> */}
+        <div className={`w-[80%] block mx-auto`}>
+          <p className={`text-[17px]`}>
+            HyperMinter is a tool for minting a HyperCert to make an onchain
+            claim of the impact your project will make with the grant funding
+          </p>
+          <ul className={`list-disc`}>
+            <li>Connect the grant payout wallet</li>
+            <li>Click mint on the round you participated in</li>
+            <li>Modifiy the form that is generated and mint your HyperCert</li>
+          </ul>
+        </div>
       </div>
     </div>
   );

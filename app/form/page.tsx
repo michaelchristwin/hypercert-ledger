@@ -6,16 +6,12 @@ import {
   ISOToUNIX,
   isValid,
 } from "@/actions/hypercerts";
-import { HypercertClient } from "@hypercerts-org/sdk";
+import { HypercertClient, AllowlistEntry } from "@hypercerts-org/sdk";
 import { useWeb3ModalAccount } from "@web3modal/ethers/react";
 import { useState, useRef, useEffect } from "react";
 import { createWalletClient, custom, WalletClient } from "viem";
 import { useSearchParams } from "next/navigation";
 import { sepolia } from "viem/chains";
-import CreateSelect, {
-  Option,
-  createOption,
-} from "@/components/CreateableSelect";
 import toast from "react-hot-toast";
 import domtoimage from "dom-to-image";
 import axios from "axios";
@@ -34,10 +30,11 @@ function Page() {
   const [walletCli, setWalletCli] = useState<WalletClient | undefined>(
     undefined
   );
+  const [allowList, setallowList] = useState<AllowlistEntry[]>([]);
   const [myworkScope, setWorkScopes] = useState<string>("");
   const [myContributors, setContributors] = useState<string>("");
   const [workScopeStored, setWorkScopeStored] = useState<string[]>([]);
-  const [contributorsStored, setContributorsStored] = useState<string[]>([]);
+  const [contributorsStored, setContributorsStored] = useState<any[]>([]);
   const [formImages, setFormImages] = useState({
     logoImage: "",
     bannerImage: "",
@@ -106,22 +103,31 @@ function Page() {
             const res = await axios.get(
               `https://grants-stack-indexer.gitcoin.co/data/${chainId}/rounds/${roundId}/applications.json`
             );
-            const res2 = await axios.get(
-              `https://grants-stack-indexer.gitcoin.co/data/${chainId}/rounds/${roundId}/contributors.json`
-            );
             const metaData = res.data;
-            const projectData = res2.data;
-            const contributors = [...projectData].map(
-              (contributor) => contributor.id
-            );
-            const options = convertArrayToDisplayText(contributors);
-            setContributors(options);
             const myItem = [...metaData].find(
-              (item) => item.metadata.application.recipient === address
+              (item) =>
+                item.metadata.application.recipient ===
+                "0x4AFC0c9a5C4060DF2345C5b8C73e8eDBA2DE8E47"
             );
             if (myItem === undefined) {
               throw new Error("Item not found");
             }
+            const res2 = await axios.get(
+              `https://grants-stack-indexer.gitcoin.co/data/${chainId}/rounds/${roundId}/contributors.json`
+            );
+            const projectData = res2.data;
+            const contributors: AllowlistEntry[] = [...projectData].map(
+              (contributor) => {
+                return {
+                  address: contributor.id,
+                  units: BigInt(contributor.amountUSD),
+                };
+              }
+            );
+            setallowList(contributors);
+            const options = convertArrayToDisplayText(contributors);
+            setContributors(options);
+
             setFormValues({
               ...formValues,
               name: myItem.metadata.application.project.title,
@@ -145,7 +151,6 @@ function Page() {
         }
       );
     }
-    //@ts-ignore
   }, []);
 
   const handleChange = (
@@ -398,31 +403,8 @@ function Page() {
             />
           </fieldset>
         </div>
-        <fieldset className={`w-[100%]`}>
-          <label
-            htmlFor="contributors"
-            className={`text-white font-bold text-[16px] block mb-1`}
-          >
-            List of contributors
-          </label>
-          {/* <CreateSelect
-            name="contributors"
-            required
-            placeholder={`Type something and press enter . . . . . .`}
-            value={myContributors}
-            setValue={setContributors}
-          /> */}
-          <TextArea
-            name="contributors"
-            displayText={myContributors}
-            setDisplayText={setContributors}
-            setStoredValues={setContributorsStored}
-          />
-          <p className={`text-red-600 italic invisible peer-required:visible`}>
-            *
-          </p>
-        </fieldset>
-        <div className={`w-[100%] rounded-[6px] bg-white/50 text-black p-3`}>
+
+        {/* <div className={`w-[100%] rounded-[6px] bg-white/50 text-black p-3`}>
           <div
             className={`flex justify-between hover:cursor-pointer`}
             onClick={() => setIsOpen((prevOpen) => !prevOpen)}
@@ -548,7 +530,7 @@ function Page() {
               </fieldset>
             </div>
           </div>
-        </div>
+        </div> */}
         <hr />
         <p className={`text-[23px] text-violet-800 font-semibold`}>
           Distribution
