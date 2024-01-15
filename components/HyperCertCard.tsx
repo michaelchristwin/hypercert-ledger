@@ -10,7 +10,7 @@ interface HyperCertCardProps {
   name: string;
   logoImg: string;
   bannerImg: string;
-  chainId: string;
+
   roundId: string;
   chain?: Chain;
 }
@@ -20,7 +20,7 @@ function HyperCertCard({
   bannerImg,
   logoImg,
   roundId,
-  chainId,
+
   chain,
 }: HyperCertCardProps) {
   const { isConnected } = useWeb3ModalAccount();
@@ -41,9 +41,9 @@ function HyperCertCard({
       style={{
         background: `linear-gradient(
         to bottom,
-        rgba(88, 28, 135, 0.4) 0%,
-        rgba(147, 51, 234, 0.5) 35%,
-        rgba(88, 28, 135,0.7) 100%
+        rgba(88, 28, 135, 0.3) 0%,
+        rgba(205, 205, 205,0.2) 35%,
+        rgba(205, 205, 205,0.3) 100%
       ),
       url("/svg/black.png") center/cover repeat, url("${bannerImg}") center/300px 380px no-repeat`,
       }}
