@@ -1,8 +1,12 @@
+import { MyMetadata } from "@/actions/hypercerts";
+
 interface TextAreaProps {
   name: string;
   displayText: string;
   setDisplayText: React.Dispatch<React.SetStateAction<string>>;
   setStoredValues: React.Dispatch<React.SetStateAction<string[]>>;
+  formValues: MyMetadata;
+  setFormValues: React.Dispatch<React.SetStateAction<MyMetadata>>;
 }
 
 function TextArea({
@@ -10,13 +14,19 @@ function TextArea({
   displayText,
   setDisplayText,
   setStoredValues,
+  formValues,
+  setFormValues,
 }: TextAreaProps) {
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const { value } = event.target;
+    const { value, name } = event.target;
     setDisplayText(value);
     const SplitedWords = displayText.split(",");
     const newSplitedWords = SplitedWords.map((word) => word.trim());
     setStoredValues(newSplitedWords);
+    setFormValues({
+      ...formValues,
+      [name]: newSplitedWords,
+    });
   };
   return (
     <textarea

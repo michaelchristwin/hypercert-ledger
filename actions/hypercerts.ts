@@ -1,5 +1,9 @@
 import { HypercertClient, HypercertMetadata } from "@hypercerts-org/sdk";
-import { TransferRestrictions, formatHypercertData } from "@hypercerts-org/sdk";
+import {
+  TransferRestrictions,
+  formatHypercertData,
+  AllowlistEntry,
+} from "@hypercerts-org/sdk";
 import { myChains } from "@/providers/Walletprovider";
 
 interface MyMetadata {
@@ -26,26 +30,37 @@ interface MyMetadata {
   rights: string[];
   excludedRights: string[];
 }
-
+let allowList2: AllowlistEntry[] = [
+  { address: "0xb2403f83C23748b26B06173db7527383482E8c5a", units: BigInt(10) },
+];
 async function MintHypercert(props: MyMetadata, client: HypercertClient) {
-  const { data } = formatHypercertData(props);
+  const { data, errors, valid } = formatHypercertData(props);
+  console.log(data);
 
-  const totalUnits = BigInt(10000);
-
+  const totalUnits = BigInt(10);
   let txHash;
-  if (client !== undefined) {
-    try {
-      txHash = await client.mintClaim(
-        data as HypercertMetadata,
-        totalUnits,
-
-        TransferRestrictions.FromCreatorOnly
-      );
-    } catch (err) {
-      console.error("Mint Process Failed:", err);
+  try {
+    if (client === undefined) {
+      throw new Error("Client is undefined");
     }
-  } else {
-    console.error("Client is undefined");
+    if (!data) {
+      throw errors;
+    }
+    txHash = await client.createAllowlist(
+      allowList2,
+      data,
+      totalUnits,
+      TransferRestrictions.FromCreatorOnly
+    );
+
+    // await client.mintClaim(
+    //   data as HypercertMetadata,
+    //   totalUnits,
+
+    //   TransferRestrictions.FromCreatorOnly
+    // );
+  } catch (err) {
+    console.error("Mint Process Failed:", err);
   }
   return txHash;
 }
@@ -76,18 +91,27 @@ export const ISOToUNIX = (date: Date) => {
 };
 
 export const isValid = (formValue: MyMetadata) => {
-  return (
-    formValue.name !== "" &&
-    formValue.description !== "" &&
-    formValue.workScope.length &&
-    formValue.contributors.length &&
-    formValue.rights.length &&
-    formValue.workTimeframeEnd &&
-    formValue.workTimeframeStart &&
-    // formValue.image !== "" &&
-    formValue.impactScope.length &&
-    formValue.impactTimeframeEnd &&
-    formValue.impactTimeframeStart &&
-    formValue.version !== ""
-  );
+  try {
+    if (
+      formValue.name !== "" &&
+      formValue.description !== "" &&
+      formValue.workScope.length &&
+      formValue.contributors.length &&
+      formValue.rights.length &&
+      formValue.workTimeframeEnd &&
+      formValue.workTimeframeStart &&
+      // formValue.image !== "" &&
+      formValue.impactScope.length &&
+      formValue.impactTimeframeEnd &&
+      formValue.impactTimeframeStart &&
+      formValue.version !== ""
+    ) {
+      return true;
+    } else {
+      throw new Error("Fill all required input fields");
+    }
+  } catch (err) {
+    console.error("Validation Error", err);
+    throw err;
+  }
 };

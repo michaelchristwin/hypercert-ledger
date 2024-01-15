@@ -11,7 +11,7 @@ import { useWeb3ModalAccount } from "@web3modal/ethers/react";
 import { useState, useRef, useEffect } from "react";
 import { createWalletClient, custom, WalletClient } from "viem";
 import { useSearchParams } from "next/navigation";
-import { sepolia } from "viem/chains";
+import { sepolia, optimism } from "viem/chains";
 import toast from "react-hot-toast";
 import domtoimage from "dom-to-image";
 import axios from "axios";
@@ -57,12 +57,12 @@ function Page() {
       if (address && window.ethereum && chainId) {
         const walletClient = createWalletClient({
           account: address,
-          chain: sepolia,
+          chain: optimism,
           transport: custom(window.ethereum),
         });
         setWalletCli(walletClient);
         let myClient = new HypercertClient({
-          chain: sepolia,
+          chain: optimism,
           walletClient: walletClient,
           nftStorageToken,
         });
@@ -86,7 +86,7 @@ function Page() {
     workTimeframeEnd: ISOToUNIX(new Date(formDates.workTimeframeEnd)),
     impactTimeframeStart: ISOToUNIX(new Date(formDates.impactTimeframeStart)),
     impactTimeframeEnd: ISOToUNIX(new Date(formDates.impactTimeframeEnd)),
-    contributors: [],
+    contributors: ["john", "ada"],
     rights: ["Public Display"],
     excludedRights: [],
   };
@@ -107,7 +107,7 @@ function Page() {
             const myItem = [...metaData].find(
               (item) =>
                 item.metadata.application.recipient ===
-                "0x4AFC0c9a5C4060DF2345C5b8C73e8eDBA2DE8E47"
+                "0x4Be737B450754BC75f1ef0271D3C5dA525173F6b"
             );
             if (myItem === undefined) {
               throw new Error("Item not found");
@@ -120,7 +120,7 @@ function Page() {
               (contributor) => {
                 return {
                   address: contributor.id,
-                  units: BigInt(contributor.amountUSD),
+                  units: BigInt(10),
                 };
               }
             );
@@ -177,12 +177,6 @@ function Page() {
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     setIsSuccess(undefined);
     event.preventDefault();
-    setFormValues({
-      ...formValues,
-      workScope: workScopeStored,
-      contributors: contributorsStored,
-    });
-
     if (isValid(formValues) && client) {
       setIsMinting(true);
       try {
@@ -198,8 +192,9 @@ function Page() {
           ...formValues,
           image: `https://ipfs.io/ipfs/${imgHash}`,
         });
-
+        console.log("Submit running");
         const res = await MintHypercert(formValues, client);
+        console.log(res);
         setIsSuccess(true);
         setIsMinting(false);
       } catch (err) {
@@ -225,7 +220,8 @@ function Page() {
     });
   };
   const diaRef = useRef<HTMLDialogElement | null>(null);
-  console.log("WorkScope Stores:", workScopeStored);
+  //console.log("Formvalues:", formValues);
+  // console.log(allowList);
   return (
     <div
       className={`flex ${
@@ -357,6 +353,8 @@ function Page() {
             setValue={setWorkScopes}
           /> */}
           <TextArea
+            formValues={formValues}
+            setFormValues={setFormValues}
             name="workScope"
             displayText={myworkScope}
             setDisplayText={setWorkScopes}
