@@ -1,16 +1,13 @@
-import {
-  useWeb3Modal,
-  useWeb3ModalAccount,
-  useWeb3ModalState,
-} from "@web3modal/ethers/react";
+"use client";
+import { useWeb3Modal, useWeb3ModalAccount } from "@web3modal/ethers/react";
 import { useRouter } from "next/navigation";
 import { Chain } from "viem";
+import { useEffect, useState } from "react";
 
 interface HyperCertCardProps {
   name: string;
   logoImg: string;
   bannerImg: string;
-
   roundId: string;
   chain?: Chain;
 }
@@ -20,23 +17,32 @@ function HyperCertCard({
   bannerImg,
   logoImg,
   roundId,
-
   chain,
 }: HyperCertCardProps) {
   const { isConnected } = useWeb3ModalAccount();
-  const state = useWeb3ModalState();
+  const [isClicked, setIsClicked] = useState(false);
   const { open } = useWeb3Modal();
   const router = useRouter();
-  const handleClick = () => {
+
+  const handleClick = async () => {
+    setIsClicked(false);
     if (!isConnected) {
+      setIsClicked(true);
       open();
-    } else {
+    } else if (isConnected) {
       router.push(`/form?chainId=${chain?.id}&roundId=${roundId}`);
     }
   };
+  useEffect(() => {
+    if (isClicked && isConnected) {
+      console.log("Route effect ran");
+      router.push(`/form?chainId=${chain?.id}&roundId=${roundId}`);
+      setIsClicked(false);
+    }
+  }, [isClicked, isConnected, roundId, chain, router]);
   return (
     <div
-      className={`block w-[300px] h-[380px] rounded-[12px] p-3`}
+      className={`block max-w-[300px] w-[100%] h-[380px] rounded-[12px] p-3`}
       id="hypercert"
       style={{
         background: `linear-gradient(
@@ -45,7 +51,7 @@ function HyperCertCard({
         rgba(205, 205, 205,0.2) 35%,
         rgba(205, 205, 205,0.3) 100%
       ),
-      url("/svg/black.png") center/cover repeat, url("${bannerImg}") center/300px 380px no-repeat`,
+      url("/svg/black.png") center/cover repeat, url("${bannerImg}") center/310px 380px no-repeat`,
       }}
     >
       <div className={`flex justify-between`}>

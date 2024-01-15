@@ -16,15 +16,15 @@ function Rounds() {
         <HyperCertCard
           roundId="0x5eB890e41c8D2cFF75ea942085E406bB90016561"
           name="GGI9: Climate"
-          logoImg=""
-          bannerImg=""
+          bannerImg="clir2.jpeg"
+          logoImg="clir1.jpeg"
           chain={optimism}
         />
         <HyperCertCard
           roundId="0xa1d52f9b5339792651861329a046dd912761e9a9"
           name="GG19: Infra"
-          logoImg=""
-          bannerImg=""
+          logoImg="infra2.webp"
+          bannerImg="infra.jpg"
           chain={polygon}
         />
         <HyperCertCard
