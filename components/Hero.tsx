@@ -1,25 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import HyperCertCard from "./HyperCertCard";
 import { myChains } from "@/providers/Walletprovider";
 
 function Hero() {
-  // const [currentText, setCurrentText] = useState("");
-  // const [currentIndex, setCurrentIndex] = useState(0);
-  // const text = "Mint Your HyperCerts";
-  // const delay = 120;
-  // useEffect(() => {
-  //   if (currentIndex < text.length) {
-  //     const timeout = setTimeout(() => {
-  //       setCurrentText((prevText) => prevText + text[currentIndex]);
-  //       setCurrentIndex((prevIndex) => prevIndex + 1);
-  //     }, delay);
-
-  //     return () => clearTimeout(timeout);
-  //   }
-  // }, [currentIndex, delay, text]);
-
   return (
     <div
       className={`lg:flex md:flex block w-full h-fit py-[100px] justify-center space-x-[10%]`}

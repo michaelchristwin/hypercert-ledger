@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@hypercerts-org/sdk": "^1.2.0",
+    "@hypercerts-org/sdk": "^1.4.1",
     "@types/dom-to-image": "^2.6.7",
     "@web3modal/ethers": "^3.5.1",
     "@web3modal/wallet": "^3.5.1",

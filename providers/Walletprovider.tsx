@@ -1,5 +1,6 @@
 "use client";
 
+import { AppContext } from "@/context/appContext";
 import { createWeb3Modal, defaultConfig } from "@web3modal/ethers/react";
 import {
   iotex,
@@ -98,7 +99,7 @@ createWeb3Modal({
 });
 
 function WalletProvider({ children }: { children: React.ReactNode }) {
-  return children;
+  return <AppContext>{children}</AppContext>;
 }
 
 export default WalletProvider;

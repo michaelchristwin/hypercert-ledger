@@ -5,6 +5,7 @@ import {
   MintHypercert,
   ISOToUNIX,
   isValid,
+  getChain,
 } from "@/actions/hypercerts";
 import { HypercertClient, AllowlistEntry } from "@hypercerts-org/sdk";
 import { useWeb3ModalAccount } from "@web3modal/ethers/react";
@@ -15,6 +16,7 @@ import { sepolia, optimism } from "viem/chains";
 import toast from "react-hot-toast";
 import domtoimage from "dom-to-image";
 import axios from "axios";
+import { useAppContext } from "@/context/appContext";
 import { uploadImage } from "@/actions/upload";
 import TextArea, { convertArrayToDisplayText } from "@/components/TextArea";
 declare let window: any;
@@ -40,6 +42,7 @@ function Page() {
     bannerImage: "",
   });
   const { logoImage, bannerImage } = formImages;
+  const { setCorrectNetwork, setIsWrongNetwork } = useAppContext();
   const [isSuccess, setIsSuccess] = useState<boolean | undefined>(undefined);
   const [formDates, setFormDates] = useState({
     workTimeframeStart: `${cY}-01-01`,
@@ -49,12 +52,12 @@ function Page() {
   });
   const [isOpen, setIsOpen] = useState(false);
   const [isMinting, setIsMinting] = useState(false);
-  const { address } = useWeb3ModalAccount();
-  const chainId = searchParams.get("chainId");
+  const { address, chainId } = useWeb3ModalAccount();
+  const mychainId = searchParams.get("chainId");
   const roundId = searchParams.get("roundId");
   useEffect(() => {
     (async () => {
-      if (address && window.ethereum && chainId) {
+      if (address && window.ethereum && mychainId) {
         const walletClient = createWalletClient({
           account: address,
           chain: optimism,
@@ -69,7 +72,7 @@ function Page() {
         setClient(myClient);
       }
     })();
-  }, [address, nftStorageToken, chainId]);
+  }, [address, nftStorageToken, mychainId]);
 
   const initialState: MyMetadata = {
     name: "",
@@ -96,12 +99,12 @@ function Page() {
 
   useEffect(() => {
     setAllow(false);
-    if (chainId && roundId) {
+    if (mychainId && roundId) {
       toast.promise(
         (async () => {
           try {
             const res = await axios.get(
-              `https://grants-stack-indexer.gitcoin.co/data/${chainId}/rounds/${roundId}/applications.json`
+              `https://grants-stack-indexer.gitcoin.co/data/${mychainId}/rounds/${roundId}/applications.json`
             );
             const metaData = res.data;
             let raddr = "0x4Be737B450754BC75f1ef0271D3C5dA525173F6b";
@@ -112,7 +115,7 @@ function Page() {
               throw new Error("Item not found");
             }
             const res2 = await axios.get(
-              `https://grants-stack-indexer.gitcoin.co/data/${chainId}/rounds/${roundId}/contributors.json`
+              `https://grants-stack-indexer.gitcoin.co/data/${mychainId}/rounds/${roundId}/contributors.json`
             );
             const projectData = res2.data;
             const contributors: AllowlistEntry[] = [...projectData].map(
@@ -151,6 +154,13 @@ function Page() {
       );
     }
   }, []);
+
+  useEffect(() => {
+    if (chainId !== Number(mychainId)) {
+      setIsWrongNetwork(true);
+      setCorrectNetwork(getChain(Number(mychainId)));
+    }
+  }, [chainId, mychainId, setCorrectNetwork, setIsWrongNetwork]);
 
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>

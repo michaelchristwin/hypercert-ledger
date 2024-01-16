@@ -1,6 +1,7 @@
 "use client";
 import { useWeb3Modal, useWeb3ModalAccount } from "@web3modal/ethers/react";
 import { useRouter } from "next/navigation";
+import { useAppContext } from "@/context/appContext";
 import { Chain } from "viem";
 import { useEffect, useState } from "react";
 
@@ -18,11 +19,11 @@ function HyperCertCard({
   roundId,
   chain,
 }: HyperCertCardProps) {
-  const { isConnected } = useWeb3ModalAccount();
+  const { isConnected, chainId } = useWeb3ModalAccount();
   const [isClicked, setIsClicked] = useState(false);
   const { open } = useWeb3Modal();
   const router = useRouter();
-
+  const { setCorrectNetwork, setIsWrongNetwork } = useAppContext();
   const handleClick = async () => {
     setIsClicked(false);
     if (!isConnected) {
@@ -36,17 +37,25 @@ function HyperCertCard({
   useEffect(() => {
     (async () => {
       try {
-        if (isClicked && isConnected) {
+        if (isClicked && isConnected && chain && chainId) {
           console.log("Route effect ran");
-
-          router.push(`/form?chainId=${chain?.id}&roundId=${roundId}`);
+          router.push(`/form?chainId=${chain.id}&roundId=${roundId}`);
           setIsClicked(false);
         }
       } catch (err) {
         console.error(err);
       }
     })();
-  }, [isClicked, isConnected, roundId, chain, router]);
+  }, [
+    isClicked,
+    isConnected,
+    roundId,
+    chain,
+    router,
+    chainId,
+    setCorrectNetwork,
+    setIsWrongNetwork,
+  ]);
   return (
     <div
       className={`block max-w-[300px] lg:mx-0 md:mx-0 mx-auto w-[100%] h-[380px] rounded-[12px] p-3`}
