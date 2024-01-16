@@ -11,7 +11,6 @@ interface HyperCertCardProps {
   roundId: string;
   chain?: Chain;
 }
-
 function HyperCertCard({
   name,
   bannerImg,
@@ -33,16 +32,24 @@ function HyperCertCard({
       router.push(`/form?chainId=${chain?.id}&roundId=${roundId}`);
     }
   };
+
   useEffect(() => {
-    if (isClicked && isConnected) {
-      console.log("Route effect ran");
-      router.push(`/form?chainId=${chain?.id}&roundId=${roundId}`);
-      setIsClicked(false);
-    }
+    (async () => {
+      try {
+        if (isClicked && isConnected) {
+          console.log("Route effect ran");
+
+          router.push(`/form?chainId=${chain?.id}&roundId=${roundId}`);
+          setIsClicked(false);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    })();
   }, [isClicked, isConnected, roundId, chain, router]);
   return (
     <div
-      className={`block max-w-[300px] w-[100%] h-[380px] rounded-[12px] p-3`}
+      className={`block max-w-[300px] lg:mx-0 md:mx-0 mx-auto w-[100%] h-[380px] rounded-[12px] p-3`}
       id="hypercert"
       style={{
         background: `linear-gradient(

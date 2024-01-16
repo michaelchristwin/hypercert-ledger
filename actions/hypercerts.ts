@@ -35,7 +35,6 @@ let allowList2: AllowlistEntry[] = [
 ];
 async function MintHypercert(props: MyMetadata, client: HypercertClient) {
   const { data, errors, valid } = formatHypercertData(props);
-  console.log(data);
 
   const totalUnits = BigInt(10);
   let txHash;

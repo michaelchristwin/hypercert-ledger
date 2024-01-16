@@ -104,10 +104,9 @@ function Page() {
               `https://grants-stack-indexer.gitcoin.co/data/${chainId}/rounds/${roundId}/applications.json`
             );
             const metaData = res.data;
+            let raddr = "0x4Be737B450754BC75f1ef0271D3C5dA525173F6b";
             const myItem = [...metaData].find(
-              (item) =>
-                item.metadata.application.recipient ===
-                "0x4Be737B450754BC75f1ef0271D3C5dA525173F6b"
+              (item) => item.metadata.application.recipient === address
             );
             if (myItem === undefined) {
               throw new Error("Item not found");
@@ -194,7 +193,7 @@ function Page() {
         });
         console.log("Submit running");
         const res = await MintHypercert(formValues, client);
-        console.log(res);
+
         setIsSuccess(true);
         setIsMinting(false);
       } catch (err) {
