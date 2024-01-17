@@ -109,7 +109,7 @@ function Page() {
             const metaData = res.data;
             let raddr = "0x4Be737B450754BC75f1ef0271D3C5dA525173F6b";
             const myItem = [...metaData].find(
-              (item) => item.metadata.application.recipient === address
+              (item) => item.metadata.application.recipient === raddr
             );
             if (myItem === undefined) {
               throw new Error("Item not found");
@@ -233,14 +233,16 @@ function Page() {
   // console.log(allowList);
   return (
     <div
-      className={`flex ${
-        allow ? "justify-center space-x-[10%] mx-auto" : "justify-center"
+      className={`lg:flex md:flex block ${
+        allow
+          ? "lg:justify-center md:justify-center lg:space-x-[10%] md:space-x-[7%] mx-auto"
+          : "lg:justify-center md:justify-center"
       }  h-fit py-[20px] w-full relative`}
     >
       <form
         className={`${
           allow ? "block" : "hidden"
-        } p-[40px] w-[43%] space-y-3 rounded-[15px] morph`}
+        } p-[40px] lg:w-[45%] md:w-[45%] w-[80%] space-y-3 rounded-[15px] morph lg:mx-0 md:mx-0 mx-auto`}
         onSubmit={onSubmit}
       >
         <hr />
@@ -584,9 +586,9 @@ function Page() {
       </form>
 
       <div
-        className={`w-[290px] ${
+        className={`w-fit ${
           allow ? "block" : "hidden"
-        } h-[100vh] sticky top-[100px] p-[40px]`}
+        } h-fit sticky top-[100px] p-[40px] lg:mx-0 md:mx-0 mx-auto`}
       >
         <div
           className={`block w-[290px] h-[370px] rounded-[12px] p-3 mx-auto`}
