@@ -6,7 +6,6 @@ interface RoundProps {
   name: string;
   image: string;
   details?: string;
-
   roundId?: string;
   chain: Chain;
 }

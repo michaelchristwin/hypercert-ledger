@@ -10,7 +10,7 @@ function Hero() {
       className={`lg:flex md:flex block w-full h-fit py-[100px] justify-center space-x-[10%]`}
     >
       <HyperCertCard2
-        // name="GG19: Climate"
+        name="GG19: Climate"
         roundId="0x5eB890e41c8D2cFF75ea942085E406bB90016561"
         bannerImg="clir2.jpeg"
         logoImg="clir1.jpeg"
