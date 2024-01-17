@@ -12,7 +12,6 @@ import { useWeb3ModalAccount } from "@web3modal/ethers/react";
 import { useState, useRef, useEffect } from "react";
 import { createWalletClient, custom, WalletClient } from "viem";
 import { useSearchParams } from "next/navigation";
-import { sepolia, optimism } from "viem/chains";
 import toast from "react-hot-toast";
 import domtoimage from "dom-to-image";
 import axios from "axios";
@@ -34,6 +33,7 @@ function Page() {
   );
   const [allowList, setallowList] = useState<AllowlistEntry[]>([]);
   const [myworkScope, setWorkScopes] = useState<string>("");
+  const [allowRange, setAllowRange] = useState<number>(10);
   const [myContributors, setContributors] = useState<string>("");
   const [workScopeStored, setWorkScopeStored] = useState<string[]>([]);
   const [contributorsStored, setContributorsStored] = useState<any[]>([]);
@@ -60,12 +60,12 @@ function Page() {
       if (address && window.ethereum && mychainId) {
         const walletClient = createWalletClient({
           account: address,
-          chain: optimism,
+          chain: getChain(Number(mychainId)),
           transport: custom(window.ethereum),
         });
         setWalletCli(walletClient);
         let myClient = new HypercertClient({
-          chain: optimism,
+          chain: getChain(Number(mychainId)),
           walletClient: walletClient,
           nftStorageToken,
         });
@@ -96,6 +96,7 @@ function Page() {
   const myRef = useRef<HTMLDivElement | null>(null);
   const [formValues, setFormValues] = useState<MyMetadata>(initialState);
   const { name, image, description, external_url, impactScope } = formValues;
+  const [summedAmountUSD, setSumAmountUSD] = useState<number>(0);
 
   useEffect(() => {
     setAllow(false);
@@ -122,11 +123,18 @@ function Page() {
               (contributor) => {
                 return {
                   address: contributor.id,
-                  units: BigInt(10),
+                  units: contributor.amountUSD,
                 };
               }
             );
+            let fal = 0;
+            for (let index = 0; index < contributors.length; index++) {
+              fal = Number(contributors[index].units) + fal;
+            }
+            setSumAmountUSD(fal);
+            const totalUnits = contributors.map((contri) => {});
             setallowList(contributors);
+            setContributorsStored(contributors);
             const options = convertArrayToDisplayText(contributors);
             setContributors(options);
 
@@ -182,10 +190,28 @@ function Page() {
     const imgBlob = await domtoimage.toBlob(myRef.current as HTMLDivElement);
     return imgBlob;
   };
-
+  const handleRangeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+    setAllowRange(Number(value));
+  };
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     setIsSuccess(undefined);
     event.preventDefault();
+    let totalUnits = summedAmountUSD / allowRange;
+
+    let recipientUnits = totalUnits - summedAmountUSD;
+    // console.log(allowRange);
+    // console.log(percent);
+    console.log(summedAmountUSD);
+    console.log(recipientUnits);
+
+    let newAllowlist: AllowlistEntry[] = [
+      ...allowList,
+      // {
+      //   address: address as string,
+      //   units: BigInt(Math.round(reciepientUnits)),
+      // },
+    ];
     if (isValid(formValues) && client) {
       setIsMinting(true);
       try {
@@ -202,7 +228,12 @@ function Page() {
           image: `https://ipfs.io/ipfs/${imgHash}`,
         });
         console.log("Submit running");
-        const res = await MintHypercert(formValues, client);
+        const res = await MintHypercert(
+          formValues,
+          client,
+          newAllowlist,
+          BigInt(Math.round(summedAmountUSD))
+        );
 
         setIsSuccess(true);
         setIsMinting(false);
@@ -566,15 +597,23 @@ function Page() {
           >
             Percentage distributed via allow List
           </label>
-          <input
-            type="range"
-            min={1}
-            max={100}
-            disabled
-            name="distribution"
-            id="distribution"
-            className={`w-[100%] border-0 bg-white outline-none`}
-          />
+          <div className={`flex w-full space-x-2 items-center`}>
+            <input
+              type="range"
+              min={1}
+              max={100}
+              value={allowRange}
+              onChange={handleRangeChange}
+              name="distribution"
+              id="distribution"
+              className={`w-[80%] border-0 bg-white outline-none`}
+            />
+            <div
+              className={`w-[35px] flex justify-center items-center h-[35px] border border-gray-500`}
+            >
+              <p>{allowRange}</p>
+            </div>
+          </div>
         </fieldset>
 
         <button
@@ -591,17 +630,17 @@ function Page() {
         } h-fit sticky top-[100px] p-[40px] lg:mx-0 md:mx-0 mx-auto`}
       >
         <div
-          className={`block w-[290px] h-[370px] rounded-[12px] p-3 mx-auto`}
+          className={`block w-[300px] h-[370px] rounded-[12px] p-3 mx-auto`}
           id="hypercert"
           ref={myRef}
           style={{
             background: `linear-gradient(
               to bottom,
-              rgba(88, 28, 135, 0.6) 0%,
-              rgba(147, 51, 234, 0.7) 35%,
-              rgba(216, 180, 254, 1) 100%
+              rgba(88, 28, 135, 0.3) 0%,
+              rgb(127,49,167, 1) 75%,
+              rgb(127,49,167, 1) 100%
             ),
-            url("/svg/black.png") center/cover repeat, url("${bannerImage}") center/290px 370px no-repeat`,
+            url("/svg/black.png") center/cover repeat, url("${bannerImage}") center/310px 370px no-repeat`,
           }}
         >
           <div

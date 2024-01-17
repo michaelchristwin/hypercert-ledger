@@ -30,13 +30,15 @@ interface MyMetadata {
   rights: string[];
   excludedRights: string[];
 }
-let allowList2: AllowlistEntry[] = [
-  { address: "0xb2403f83C23748b26B06173db7527383482E8c5a", units: BigInt(10) },
-];
-async function MintHypercert(props: MyMetadata, client: HypercertClient) {
+
+async function MintHypercert(
+  props: MyMetadata,
+  client: HypercertClient,
+  allowList: AllowlistEntry[],
+  totalUnits: bigint
+) {
   const { data, errors, valid } = formatHypercertData(props);
 
-  const totalUnits = BigInt(10);
   let txHash;
   try {
     if (client === undefined) {
@@ -46,7 +48,7 @@ async function MintHypercert(props: MyMetadata, client: HypercertClient) {
       throw errors;
     }
     txHash = await client.createAllowlist(
-      allowList2,
+      allowList,
       data,
       totalUnits,
       TransferRestrictions.FromCreatorOnly

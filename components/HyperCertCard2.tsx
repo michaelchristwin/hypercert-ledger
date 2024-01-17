@@ -4,15 +4,16 @@ import { useRouter } from "next/navigation";
 import { useAppContext } from "@/context/appContext";
 import { Chain } from "viem";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 interface HyperCertCardProps {
-  name: string;
+  name?: string;
   logoImg: string;
   bannerImg: string;
   roundId: string;
-  chain?: Chain;
+  chain: Chain;
 }
-function HyperCertCard({
+function HyperCertCard2({
   name,
   bannerImg,
   logoImg,
@@ -58,19 +59,49 @@ function HyperCertCard({
   ]);
   return (
     <div
-      className={`block max-w-[300px] lg:mx-0 md:mx-0 mx-auto w-[100%] h-[380px] rounded-[12px] p-3`}
+      className={`block max-w-[300px] relative lg:mx-0 md:mx-0 mx-auto w-[100%] h-[380px] rounded-[12px]`}
       id="hypercert"
-      style={{
-        background: `linear-gradient(
-        to bottom,
-        rgba(88, 28, 135, 0.3) 0%,
-        rgb(127,49,167, 1) 75%,
-        rgb(127,49,167, 1) 100%
-      ),
-      url("/svg/black.png") center/cover repeat, url("${bannerImg}") center/310px 380px no-repeat`,
-      }}
+      //   style={{
+      //     background: `linear-gradient(
+      //     to bottom,
+      //     rgba(88, 28, 135, 0.3) 0%,
+      //     rgb(127,49,167, 1) 75%,
+      //     rgb(127,49,167, 1) 100%
+      //   ),
+      //   url("/svg/black.png") center/cover repeat, url("${bannerImg}") center/310px 380px no-repeat`,
+      //   }}
     >
-      <div className={`flex justify-between`}>
+      <Image
+        className={`max-w-[300px] rounded-[12px] h-[380px]`}
+        alt="bg-image"
+        src={`/${bannerImg}`}
+        width={300}
+        height={360}
+      />
+      <div
+        className={`w-full h-[100%] absolute bottom-[0px] rounded-[12px] p-2`}
+        style={{
+          background: `linear-gradient(to bottom, rgba(226,188,245,0.3) 10%, rgb(153,50,204) 75%)`,
+        }}
+      >
+        <div className={`flex justify-between`}>
+          <Image
+            width={40}
+            height={40}
+            alt="logo"
+            src={`/${logoImg as string}`}
+            className={`w-[40px] h-[40px] rounded-full`}
+          />
+          <button
+            className={`bg-white text-black w-fit px-2 h-[35px] rounded-lg`}
+            type="button"
+            onClick={handleClick}
+          >
+            Mint HyperCert
+          </button>
+        </div>
+      </div>
+      {/* <div className={`flex justify-between`}>
         <div
           className={`w-[40px] h-[40px] bg-cover rounded-full bg-[]`}
           style={{ backgroundImage: `url("${logoImg}")` }}
@@ -98,9 +129,9 @@ function HyperCertCard({
           <p className={`text-[13px] space-x-1`}>&rarr;</p>
           <p className={`text-[14px]`}>work-end</p>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
 
-export default HyperCertCard;
+export default HyperCertCard2;
