@@ -33,7 +33,7 @@ function Page() {
   );
   const [allowList, setallowList] = useState<AllowlistEntry[]>([]);
   const [myworkScope, setWorkScopes] = useState<string>("");
-  const [allowRange, setAllowRange] = useState<number>(10);
+  const [allowRange, setAllowRange] = useState<number>(0);
   const [myContributors, setContributors] = useState<string>("");
   const [workScopeStored, setWorkScopeStored] = useState<string[]>([]);
   const [contributorsStored, setContributorsStored] = useState<any[]>([]);
@@ -123,7 +123,7 @@ function Page() {
               (contributor) => {
                 return {
                   address: contributor.id,
-                  units: contributor.amountUSD,
+                  units: BigInt(Math.floor(contributor.amountUSD)),
                 };
               }
             );
@@ -197,20 +197,19 @@ function Page() {
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     setIsSuccess(undefined);
     event.preventDefault();
+    //let percentage = allowRange / 100;
     let totalUnits = summedAmountUSD / allowRange;
-
     let recipientUnits = totalUnits - summedAmountUSD;
-    // console.log(allowRange);
-    // console.log(percent);
-    console.log(summedAmountUSD);
-    console.log(recipientUnits);
+    console.log("summed amount:", summedAmountUSD);
+    console.log("total units:", totalUnits);
+    console.log("recipient units:", recipientUnits);
 
     let newAllowlist: AllowlistEntry[] = [
       ...allowList,
-      // {
-      //   address: address as string,
-      //   units: BigInt(Math.round(reciepientUnits)),
-      // },
+      {
+        address: address as string,
+        units: BigInt(recipientUnits),
+      },
     ];
     if (isValid(formValues) && client) {
       setIsMinting(true);
@@ -232,7 +231,7 @@ function Page() {
           formValues,
           client,
           newAllowlist,
-          BigInt(Math.round(summedAmountUSD))
+          BigInt(totalUnits)
         );
 
         setIsSuccess(true);
@@ -600,8 +599,9 @@ function Page() {
           <div className={`flex w-full space-x-2 items-center`}>
             <input
               type="range"
-              min={1}
-              max={100}
+              step={0.1}
+              min={0}
+              max={1}
               value={allowRange}
               onChange={handleRangeChange}
               name="distribution"
