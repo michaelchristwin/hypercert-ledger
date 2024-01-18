@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import { Metadata } from "next";
 import WalletProvider from "../providers/Walletprovider";
 import { Toaster } from "react-hot-toast";
+import Footer from "@/components/Footer";
 
 const inter = Raleway({ subsets: ["latin"] });
 
@@ -24,6 +25,7 @@ export default function RootLayout({
           <Toaster />
           <Navbar />
           <div className={`mt-[100px]`}>{children}</div>
+          <Footer />
         </WalletProvider>
       </body>
     </html>

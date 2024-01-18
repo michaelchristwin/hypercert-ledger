@@ -19,7 +19,9 @@ function Hero() {
         gradient="rgb(153,50,204)"
       />
 
-      <div className={`block lg:w-[50%] md:w-[60%] w-[90%] space-y-4`}>
+      <div
+        className={`block lg:w-[50%] md:w-[60%] w-[90%] space-y-4 morph p-[10px]`}
+      >
         <p
           className={`bg-gradient-to-r from-black via-slate-700 to-gray-500 text-transparent text-center inline-block bg-clip-text lg:text-[55px] md:text-[50px] text-[25px] font-extrabold `}
         >

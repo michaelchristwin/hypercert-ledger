@@ -30,7 +30,7 @@ function Rounds() {
           bannerImg="/infra.jpg"
           chain={polygon}
           bannerPattern="/svg/hex.png"
-          gradient="rgb(187,54,54)"
+          gradient="rgb(255,102,102)"
         />
         <HyperCertCard2
           roundId="0xd4cc0dd193c7dc1d665ae244ce12d7fab337a008"

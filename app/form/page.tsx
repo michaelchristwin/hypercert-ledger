@@ -94,7 +94,7 @@ function Page() {
     rights: ["Public Display"],
     excludedRights: [],
   };
-  const myRef = useRef<HTMLDivElement | null>(null);
+
   const [formValues, setFormValues] = useState<MyMetadata>(initialState);
   const { name, image, description, external_url, impactScope, workScope } =
     formValues;
@@ -191,7 +191,8 @@ function Page() {
     });
   };
   const covertToBlob = async () => {
-    const imgBlob = await domtoimage.toBlob(myRef.current as HTMLDivElement);
+    const myRef = document.getElementById("hypercert") as HTMLElement;
+    const imgBlob = await domtoimage.toBlob(myRef);
     return imgBlob;
   };
   const handleRangeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -637,7 +638,7 @@ function Page() {
           name={name}
           workScope={workScopeStored}
           gradient={gradients[num2]}
-          ref={myRef}
+          id="hypercert"
         />
       </div>
     </div>

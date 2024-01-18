@@ -15,7 +15,7 @@ interface HyperCertCardProps {
   chain: Chain;
   startDate?: string;
   endDate?: string;
-  ref?: React.LegacyRef<HTMLDivElement>;
+  id?: string;
   workScope?: string[];
   bannerPattern: string;
   gradient?: string;
@@ -27,7 +27,7 @@ function HyperCertCard2({
   roundId,
   workScope,
   chain,
-  ref,
+  id,
   startDate,
   endDate,
   gradient,
@@ -74,8 +74,7 @@ function HyperCertCard2({
   return (
     <div
       className={`block max-w-[300px] relative lg:mx-0 md:mx-0 mx-auto w-[100%] bg-[] h-[380px] rounded-[12px]`}
-      id="hypercert"
-      ref={ref}
+      id={id}
     >
       <Image
         className={`max-w-[300px] w-[100%] rounded-[12px] h-[380px]`}

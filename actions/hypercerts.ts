@@ -5,6 +5,7 @@ import {
   AllowlistEntry,
 } from "@hypercerts-org/sdk";
 import { myChains } from "@/providers/Walletprovider";
+import { error } from "console";
 
 interface MyMetadata {
   name: string;
@@ -93,18 +94,29 @@ export const ISOToUNIX = (date: Date) => {
 
 export const isValid = (formValue: MyMetadata) => {
   try {
-    for (const [key, value] of Object.entries(formValue)) {
-      if (
-        key !== "image" && // Exclude image validation if intended
-        (value === "" || (Array.isArray(value) && value.length === 0))
-      ) {
-        throw new Error(`${key} is required`);
-      }
-    }
+    let genco = [
+      formValue.name,
+      formValue.description,
+      formValue.workScope,
+      formValue.contributors,
+      formValue.rights,
+      formValue.workTimeframeEnd,
+      formValue.workTimeframeStart,
+      formValue.impactScope.length,
+      formValue.impactTimeframeEnd,
+      formValue.impactTimeframeStart,
+      formValue.version,
+    ];
 
-    return true;
+    const isValid = genco.every((item) => item);
+
+    if (!isValid) {
+      const invalidProperty =
+        Object.keys(formValue)[genco.findIndex((item) => !item)];
+      throw new Error(`${invalidProperty} is invalid`);
+    } else return isValid;
+    // If no errors were thrown, all values in genco are truthy
   } catch (err) {
     console.error("Validation Error", err);
-    throw err;
   }
 };
