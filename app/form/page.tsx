@@ -18,6 +18,7 @@ import axios from "axios";
 import { useAppContext } from "@/context/appContext";
 import { uploadImage } from "@/actions/upload";
 import TextArea, { convertArrayToDisplayText } from "@/components/TextArea";
+import HyperCertCard2 from "@/components/HyperCertCard2";
 declare let window: any;
 
 let currentYear = new Date();
@@ -32,8 +33,8 @@ function Page() {
     undefined
   );
   const [allowList, setallowList] = useState<AllowlistEntry[]>([]);
-  const [myworkScope, setWorkScopes] = useState<string>("");
-  const [allowRange, setAllowRange] = useState<number>(0);
+
+  const [allowRange, setAllowRange] = useState<number>(50);
   const [myContributors, setContributors] = useState<string>("");
   const [workScopeStored, setWorkScopeStored] = useState<string[]>([]);
   const [contributorsStored, setContributorsStored] = useState<any[]>([]);
@@ -95,9 +96,10 @@ function Page() {
   };
   const myRef = useRef<HTMLDivElement | null>(null);
   const [formValues, setFormValues] = useState<MyMetadata>(initialState);
-  const { name, image, description, external_url, impactScope } = formValues;
+  const { name, image, description, external_url, impactScope, workScope } =
+    formValues;
   const [summedAmountUSD, setSumAmountUSD] = useState<number>(0);
-
+  const [myworkScope, setWorkScopes] = useState<string>("");
   useEffect(() => {
     setAllow(false);
     if (mychainId && roundId) {
@@ -148,6 +150,7 @@ function Page() {
               logoImage: `https://ipfs.io/ipfs/${myItem.metadata.application.project.logoImg}`,
               bannerImage: `https://ipfs.io/ipfs/${myItem.metadata.application.project.bannerImg}`,
             });
+            //  setWorkScopeStored([myItem.metadata.application.project.title]);
             setAllow(true);
           } catch (err) {
             console.error("Error:", err);
@@ -197,8 +200,8 @@ function Page() {
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     setIsSuccess(undefined);
     event.preventDefault();
-    //let percentage = allowRange / 100;
-    let totalUnits = summedAmountUSD / allowRange;
+    let percentage = allowRange / 100;
+    let totalUnits = summedAmountUSD / percentage;
     let recipientUnits = totalUnits - summedAmountUSD;
     console.log("summed amount:", summedAmountUSD);
     console.log("total units:", totalUnits);
@@ -259,8 +262,7 @@ function Page() {
     });
   };
   const diaRef = useRef<HTMLDialogElement | null>(null);
-  //console.log("Formvalues:", formValues);
-  // console.log(allowList);
+
   return (
     <div
       className={`lg:flex md:flex block ${
@@ -574,21 +576,7 @@ function Page() {
         <p className={`text-[23px] text-violet-800 font-semibold`}>
           Distribution
         </p>
-        <fieldset className={`w-[100%]`}>
-          <label
-            htmlFor="allowList"
-            className={`text-white font-bold text-[16px] block mb-1`}
-          >
-            Allow List
-          </label>
-          <input
-            type="text"
-            id="allowList"
-            name="allowList"
-            placeholder="https://project.org/allowlist.csv"
-            className={`w-[100%] h-[45px] ps-2 rounded-[6px] bg-white/50 placeholder:text-black/60  focus:outline-none text-black`}
-          />
-        </fieldset>
+
         <fieldset className={`w-[100%]`}>
           <label
             htmlFor="distribution"
@@ -601,12 +589,12 @@ function Page() {
               type="range"
               step={0.1}
               min={0}
-              max={1}
+              max={100}
               value={allowRange}
               onChange={handleRangeChange}
               name="distribution"
               id="distribution"
-              className={`w-[80%] border-0 bg-white outline-none`}
+              className={`w-[90%] border-0 bg-white outline-none`}
             />
             <div
               className={`w-[35px] flex justify-center items-center h-[35px] border border-gray-500`}
@@ -629,50 +617,17 @@ function Page() {
           allow ? "block" : "hidden"
         } h-fit sticky top-[100px] p-[40px] lg:mx-0 md:mx-0 mx-auto`}
       >
-        <div
-          className={`block w-[300px] h-[370px] rounded-[12px] p-3 mx-auto`}
-          id="hypercert"
+        <HyperCertCard2
+          startDate={formDates.workTimeframeStart}
+          endDate={formDates.workTimeframeEnd}
+          chain={getChain(Number(mychainId))}
+          logoImg={logoImage}
+          bannerImg={bannerImage}
+          roundId={roundId as string}
+          name={name}
+          workScope={workScopeStored}
           ref={myRef}
-          style={{
-            background: `linear-gradient(
-              to bottom,
-              rgba(88, 28, 135, 0.3) 0%,
-              rgb(127,49,167, 1) 75%,
-              rgb(127,49,167, 1) 100%
-            ),
-            url("/svg/black.png") center/cover repeat, url("${bannerImage}") center/310px 370px no-repeat`,
-          }}
-        >
-          <div
-            className={`w-[40px] h-[40px] bg-cover rounded-full bg-white`}
-            style={{ backgroundImage: `url("${logoImage}")` }}
-          ></div>
-          <div
-            className={`mt-[30%] w-full space-y-4 min-h-[130px] flex items-center border-t-[2px] border-b`}
-          >
-            <p className={`text-[20px] text-gray-700 font-bold`}>{name}</p>
-          </div>
-          <div className={`flex justify-between w-full pt-2`}>
-            <div className={`block`}>
-              <p className={`font-bold text-[13px] text-gray-700`}>IMPACT</p>
-              <div className={`grid grid-cols-2 gap-2`}>
-                {/* {myworkScope.map((item, index) => (
-                  <div
-                    key={index}
-                    className={`border-[2px] border-gray-600 flex justify-around rounded-[4px] min-w-[10px] h-[20px] px-2`}
-                  >
-                    <p className={`text-[12px] text-center`}>{item.value}</p>
-                  </div>
-                ))} */}
-              </div>
-            </div>
-            <div className={`flex items-cente`}>
-              <p className={`text-[14px]`}>{formDates.impactTimeframeStart}</p>
-              <p className={`text-[13px] space-x-1`}>&rarr;</p>
-              <p className={`text-[14px]`}>{formDates.workTimeframeEnd}</p>
-            </div>
-          </div>
-        </div>
+        />
       </div>
     </div>
   );

@@ -1,9 +1,10 @@
 "use client";
+
 import { useWeb3Modal, useWeb3ModalAccount } from "@web3modal/ethers/react";
 import { useRouter } from "next/navigation";
 import { useAppContext } from "@/context/appContext";
 import { Chain } from "viem";
-import { useEffect, useState } from "react";
+import { ForwardedRef, useEffect, useState } from "react";
 import Image from "next/image";
 
 interface HyperCertCardProps {
@@ -12,13 +13,21 @@ interface HyperCertCardProps {
   bannerImg: string;
   roundId: string;
   chain: Chain;
+  startDate?: string;
+  endDate?: string;
+  ref?: React.LegacyRef<HTMLDivElement>;
+  workScope?: string[];
 }
 function HyperCertCard2({
   name,
   bannerImg,
   logoImg,
   roundId,
+  workScope,
   chain,
+  ref,
+  startDate,
+  endDate,
 }: HyperCertCardProps) {
   const { isConnected, chainId } = useWeb3ModalAccount();
   const [isClicked, setIsClicked] = useState(false);
@@ -53,6 +62,7 @@ function HyperCertCard2({
     roundId,
     chain,
     router,
+
     chainId,
     setCorrectNetwork,
     setIsWrongNetwork,
@@ -61,35 +71,40 @@ function HyperCertCard2({
     <div
       className={`block max-w-[300px] relative lg:mx-0 md:mx-0 mx-auto w-[100%] h-[380px] rounded-[12px]`}
       id="hypercert"
+      ref={ref}
     >
       <Image
         className={`max-w-[300px] w-[100%] rounded-[12px] h-[380px]`}
         alt="bg-image"
-        src={`/${bannerImg}`}
+        src={`${bannerImg}`}
         width={300}
         height={360}
       />
       <div
         className={`w-full h-[100%] absolute bottom-[0px] rounded-[12px] p-3`}
         style={{
-          background: `linear-gradient(to bottom, rgba(226,188,245,0.25) 15%, rgb(153,50,204) 75%)`,
+          background: `linear-gradient(to bottom, rgba(226,188,245,0.25) 15%, rgb(153,50,204) 75%), url("/svg/patt3.png") center/cover no-repeat`,
         }}
       >
-        <div className={`flex justify-between`}>
+        <div
+          className={`flex ${startDate ? "justify-start" : "justify-between"}`}
+        >
           <Image
             width={40}
             height={40}
             alt="logo"
-            src={`/${logoImg as string}`}
+            src={`${logoImg as string}`}
             className={`w-[40px] h-[40px] rounded-full`}
           />
-          <button
-            className={`bg-white text-black w-fit px-2 h-[35px] rounded-lg`}
-            type="button"
-            onClick={handleClick}
-          >
-            Mint HyperCert
-          </button>
+          {!startDate && (
+            <button
+              className={`bg-white text-black w-fit px-2 h-[35px] rounded-lg`}
+              type="button"
+              onClick={handleClick}
+            >
+              Mint HyperCert
+            </button>
+          )}
         </div>
         <div
           className={`border-t-2 border-b justify-center flex flex-col border-black h-[100px] mt-[120px]`}
@@ -99,12 +114,24 @@ function HyperCertCard2({
         <div className={`flex justify-between w-full pt-2 text-black`}>
           <div className={`block`}>
             <p className={`font-bold text-[13px]`}>Work</p>
-            <div className={`grid grid-cols-2 gap-2`}></div>
+            <div className={`grid grid-cols-2 gap-2`}>
+              {workScope &&
+                workScope.map((item, index) => (
+                  <div
+                    key={index}
+                    className={`border-[2px] border-gray-800 flex justify-around rounded-[4px] min-w-[10px] h-[20px] px-2`}
+                  >
+                    <p className={`text-[12px] text-center`}>{item}</p>
+                  </div>
+                ))}
+            </div>
           </div>
           <div className={`flex items-cente`}>
-            <p className={`text-[14px]`}>work-start</p>
+            <p className={`text-[14px]`}>
+              {startDate ? startDate : "work-start"}
+            </p>
             <p className={`text-[13px] space-x-1`}>&rarr;</p>
-            <p className={`text-[14px]`}>work-end</p>
+            <p className={`text-[14px]`}>{endDate ? endDate : "work-end"}</p>
           </div>
         </div>
       </div>

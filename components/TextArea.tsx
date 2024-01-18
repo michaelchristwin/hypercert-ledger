@@ -20,7 +20,7 @@ function TextArea({
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { value, name } = event.target;
     setDisplayText(value);
-    const SplitedWords = displayText.split(",");
+    const SplitedWords = value.split(",");
     const newSplitedWords = SplitedWords.map((word) => word.trim());
     setStoredValues(newSplitedWords);
     setFormValues({
