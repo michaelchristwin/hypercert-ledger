@@ -99,7 +99,7 @@ function Page() {
   const { name, image, description, external_url, impactScope, workScope } =
     formValues;
   const [summedAmountUSD, setSumAmountUSD] = useState<number>(0);
-
+  const num = Math.floor(Math.random() * 4);
   useEffect(() => {
     setAllow(false);
     if (mychainId && roundId) {
@@ -207,7 +207,10 @@ function Page() {
     console.log("summed amount:", summedAmountUSD);
     console.log("total units:", totalUnits);
     console.log("recipient units:", recipientUnits);
-
+    setFormValues({
+      ...formValues,
+      workScope: workScopeStored,
+    });
     let newAllowlist: AllowlistEntry[] = [
       ...allowList,
       {
@@ -263,7 +266,19 @@ function Page() {
     });
   };
   const diaRef = useRef<HTMLDialogElement | null>(null);
-
+  const bannerPatts = [
+    "/svg/patt3.png",
+    "/svg/hex.png",
+    "/svg/dia.png",
+    "/svg/rand.png",
+  ];
+  const gradients = [
+    "rgb(187,54,54)",
+    "rgb(37,123,84)",
+    "rgb(34,61,104)",
+    "rgb(223,221,67)",
+  ];
+  const num2 = Math.floor(Math.random() * 4);
   return (
     <div
       className={`lg:flex md:flex block ${
@@ -613,6 +628,7 @@ function Page() {
       >
         <HyperCertCard2
           startDate={formDates.workTimeframeStart}
+          bannerPattern={bannerPatts[num]}
           endDate={formDates.workTimeframeEnd}
           chain={getChain(Number(mychainId))}
           logoImg={logoImage}
@@ -620,6 +636,7 @@ function Page() {
           roundId={roundId as string}
           name={name}
           workScope={workScopeStored}
+          gradient={gradients[num2]}
           ref={myRef}
         />
       </div>

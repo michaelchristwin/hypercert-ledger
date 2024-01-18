@@ -17,6 +17,8 @@ interface HyperCertCardProps {
   endDate?: string;
   ref?: React.LegacyRef<HTMLDivElement>;
   workScope?: string[];
+  bannerPattern: string;
+  gradient?: string;
 }
 function HyperCertCard2({
   name,
@@ -28,6 +30,8 @@ function HyperCertCard2({
   ref,
   startDate,
   endDate,
+  gradient,
+  bannerPattern,
 }: HyperCertCardProps) {
   const { isConnected, chainId } = useWeb3ModalAccount();
   const [isClicked, setIsClicked] = useState(false);
@@ -69,7 +73,7 @@ function HyperCertCard2({
   ]);
   return (
     <div
-      className={`block max-w-[300px] relative lg:mx-0 md:mx-0 mx-auto w-[100%] h-[380px] rounded-[12px]`}
+      className={`block max-w-[300px] relative lg:mx-0 md:mx-0 mx-auto w-[100%] bg-[] h-[380px] rounded-[12px]`}
       id="hypercert"
       ref={ref}
     >
@@ -83,7 +87,7 @@ function HyperCertCard2({
       <div
         className={`w-full h-[100%] absolute bottom-[0px] rounded-[12px] p-3`}
         style={{
-          background: `linear-gradient(to bottom, rgba(226,188,245,0.25) 15%, rgb(153,50,204) 75%), url("/svg/patt3.png") center/cover no-repeat`,
+          background: `linear-gradient(to bottom, rgba(226,188,245,0.25) 15%, ${gradient} 75%), url("${bannerPattern}") center/cover no-repeat`,
         }}
       >
         <div

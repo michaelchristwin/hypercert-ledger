@@ -13,8 +13,10 @@ function Hero() {
         name="GG19: Climate"
         roundId="0x5eB890e41c8D2cFF75ea942085E406bB90016561"
         bannerImg="/clir2.jpeg"
+        bannerPattern="/svg/patt3.png"
         logoImg="/clir1.jpeg"
         chain={myChains.optimism}
+        gradient="rgb(153,50,204)"
       />
 
       <div className={`block lg:w-[50%] md:w-[60%] w-[80%] space-y-4`}>

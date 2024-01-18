@@ -20,6 +20,8 @@ function Rounds() {
           bannerImg="/clir2.jpeg"
           logoImg="/clir1.jpeg"
           chain={optimism}
+          bannerPattern="/svg/black.png"
+          gradient="rgb(37,123,84)"
         />
         <HyperCertCard2
           roundId="0xa1d52f9b5339792651861329a046dd912761e9a9"
@@ -27,12 +29,16 @@ function Rounds() {
           logoImg="/infra2.webp"
           bannerImg="/infra.jpg"
           chain={polygon}
+          bannerPattern="/svg/hex.png"
+          gradient="rgb(187,54,54)"
         />
         <HyperCertCard2
           roundId="0xd4cc0dd193c7dc1d665ae244ce12d7fab337a008"
           bannerImg="/oss.jpg"
           logoImg="/oss2.jpg"
           name="GG19: OSS"
+          bannerPattern="/svg/rand.png"
+          gradient="rgb(34,61,104)"
           chain={pgn}
         />
         <HyperCertCard2
@@ -40,7 +46,9 @@ function Rounds() {
           name="GG19: Community and Ed"
           bannerImg="/ed2.jpg"
           logoImg="/ed.jpeg"
+          gradient="rgb(223,221,67)"
           chain={pgn}
+          bannerPattern="/svg/dia.png"
         />
       </div>
     </div>

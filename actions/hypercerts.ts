@@ -93,24 +93,16 @@ export const ISOToUNIX = (date: Date) => {
 
 export const isValid = (formValue: MyMetadata) => {
   try {
-    if (
-      formValue.name !== "" &&
-      formValue.description !== "" &&
-      formValue.workScope.length &&
-      formValue.contributors.length &&
-      formValue.rights.length &&
-      formValue.workTimeframeEnd &&
-      formValue.workTimeframeStart &&
-      // formValue.image !== "" &&
-      formValue.impactScope.length &&
-      formValue.impactTimeframeEnd &&
-      formValue.impactTimeframeStart &&
-      formValue.version !== ""
-    ) {
-      return true;
-    } else {
-      throw new Error("Fill all required input fields");
+    for (const [key, value] of Object.entries(formValue)) {
+      if (
+        key !== "image" && // Exclude image validation if intended
+        (value === "" || (Array.isArray(value) && value.length === 0))
+      ) {
+        throw new Error(`${key} is required`);
+      }
     }
+
+    return true;
   } catch (err) {
     console.error("Validation Error", err);
     throw err;
