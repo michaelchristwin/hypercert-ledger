@@ -110,7 +110,7 @@ function Page() {
             const metaData = res.data;
             let raddr = "0x4Be737B450754BC75f1ef0271D3C5dA525173F6b";
             const myItem = [...metaData].find(
-              (item) => item.metadata.application.recipient === raddr
+              (item) => item.metadata.application.recipient === address
             );
             if (myItem === undefined) {
               throw new Error("Item not found");
