@@ -107,7 +107,7 @@ function HyperCertCard2({
           )}
         </div>
         <div
-          className={`border-t-2 border-b justify-center flex flex-col border-black h-[100px] mt-[120px]`}
+          className={`border-t-2 border-b block border-black min-h-[100px] h-fit mt-[100px]`}
         >
           <p className={`font-[600] text-[22px]`}>{name}</p>
         </div>
@@ -121,7 +121,7 @@ function HyperCertCard2({
                     key={index}
                     className={`border-[2px] border-gray-800 flex justify-around rounded-[4px] min-w-[10px] h-[20px] px-2`}
                   >
-                    <p className={`text-[12px] text-center`}>{item}</p>
+                    <p className={`text-[12px] text-center truncate`}>{item}</p>
                   </div>
                 ))}
             </div>

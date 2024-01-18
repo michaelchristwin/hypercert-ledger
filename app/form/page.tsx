@@ -33,7 +33,7 @@ function Page() {
     undefined
   );
   const [allowList, setallowList] = useState<AllowlistEntry[]>([]);
-
+  const [myworkScope, setWorkScopes] = useState<string>("");
   const [allowRange, setAllowRange] = useState<number>(50);
   const [myContributors, setContributors] = useState<string>("");
   const [workScopeStored, setWorkScopeStored] = useState<string[]>([]);
@@ -99,7 +99,7 @@ function Page() {
   const { name, image, description, external_url, impactScope, workScope } =
     formValues;
   const [summedAmountUSD, setSumAmountUSD] = useState<number>(0);
-  const [myworkScope, setWorkScopes] = useState<string>("");
+
   useEffect(() => {
     setAllow(false);
     if (mychainId && roundId) {
@@ -150,7 +150,8 @@ function Page() {
               logoImage: `https://ipfs.io/ipfs/${myItem.metadata.application.project.logoImg}`,
               bannerImage: `https://ipfs.io/ipfs/${myItem.metadata.application.project.bannerImg}`,
             });
-            //  setWorkScopeStored([myItem.metadata.application.project.title]);
+            setWorkScopeStored([myItem.metadata.application.project.title]);
+            setWorkScopes(myItem.metadata.application.project.title);
             setAllow(true);
           } catch (err) {
             console.error("Error:", err);
@@ -388,13 +389,6 @@ function Page() {
           >
             Work Scope
           </label>
-          {/* <CreateSelect
-            name="workScope"
-            required
-            placeholder={`Type something and press enter . . . . . .`}
-            value={myworkScope}
-            setValue={setWorkScopes}
-          /> */}
           <TextArea
             formValues={formValues}
             setFormValues={setFormValues}

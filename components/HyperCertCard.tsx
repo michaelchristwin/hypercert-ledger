@@ -84,7 +84,7 @@ function HyperCertCard({
         </button>
       </div>
       <div
-        className={`mt-[30%] w-full space-y-4 min-h-[130px] flex items-center border-black border-t-[2px] border-b`}
+        className={`mt-[24%] w-full space-y-4 min-h-[130px] h-fit flex items-center border-black border-t-[2px] border-b`}
       >
         <p className={`text-[20px] text-black font-bold`}>{name}</p>
       </div>
