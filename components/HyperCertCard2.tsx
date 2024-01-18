@@ -102,7 +102,7 @@ function HyperCertCard2({
           />
           {!startDate && (
             <button
-              className={`bg-white text-black w-fit px-2 h-[35px] rounded-lg`}
+              className={`bg-white text-black w-fit hover:opacity-80 active:opacity-65 px-2 h-[35px] rounded-lg`}
               type="button"
               onClick={handleClick}
             >
@@ -111,7 +111,7 @@ function HyperCertCard2({
           )}
         </div>
         <div
-          className={`border-t-2 border-b block border-black min-h-[100px] h-fit mt-[100px]`}
+          className={`border-t-2 border-b block border-black min-h-[100px] h-fit mt-[130px]`}
         >
           <p className={`font-[600] text-[22px]`}>{name}</p>
         </div>
@@ -123,7 +123,7 @@ function HyperCertCard2({
                 workScope.map((item, index) => (
                   <div
                     key={index}
-                    className={`border-[2px] border-gray-800 flex justify-around rounded-[4px] min-w-[10px] h-[20px] px-2`}
+                    className={`border-[2px] border-gray-800 flex justify-around rounded-[4px] min-w-[20px] h-[20px] px-[2px]`}
                   >
                     <p className={`text-[12px] text-center truncate`}>{item}</p>
                   </div>

@@ -290,7 +290,7 @@ function Page() {
       <form
         className={`${
           allow ? "block" : "hidden"
-        } p-[40px] lg:w-[45%] md:w-[45%] w-[80%] space-y-3 rounded-[15px] morph lg:mx-0 md:mx-0 mx-auto`}
+        } lg:p-[40px] md:p-[30px] p-[20px] lg:w-[45%] md:w-[45%] w-[94%] space-y-3 rounded-[15px] morph lg:mx-0 md:mx-0 mx-auto`}
         onSubmit={onSubmit}
       >
         <hr />

@@ -9,10 +9,10 @@ function Rounds() {
   const { pgn, polygon, optimism } = myChains;
   return (
     <div
-      className={`w-full flex justify-center items-center h-fit py-[90px] mt-[100px]`}
+      className={`w-full flex justify-center items-center h-fit lg:py-[60px] py-[40px] md:py-[90px] lg:mt-[100px] md:mt-[80px] mt-[50px]`}
     >
       <div
-        className={`grid lg:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-[20px] w-[90%]`}
+        className={`grid lg:grid-cols-4 md:grid-cols-3 grid-cols-1 gap-[20px] w-[90%]`}
       >
         <HyperCertCard2
           roundId="0x5eB890e41c8D2cFF75ea942085E406bB90016561"

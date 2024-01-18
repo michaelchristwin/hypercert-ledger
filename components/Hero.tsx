@@ -7,7 +7,7 @@ import HyperCertCard2 from "./HyperCertCard2";
 function Hero() {
   return (
     <div
-      className={`lg:flex md:flex block w-full h-fit py-[100px] justify-center space-x-[10%]`}
+      className={`lg:flex md:flex block w-full h-fit lg:py-[100px] md:py-[60px] py-[40px] justify-center space-x-[10%]`}
     >
       <HyperCertCard2
         name="GG19: Climate"
@@ -19,13 +19,13 @@ function Hero() {
         gradient="rgb(153,50,204)"
       />
 
-      <div className={`block lg:w-[50%] md:w-[60%] w-[80%] space-y-4`}>
+      <div className={`block lg:w-[50%] md:w-[60%] w-[90%] space-y-4`}>
         <p
-          className={`bg-gradient-to-r from-black via-slate-700 to-gray-500 text-transparent text-center inline-block bg-clip-text lg:text-[55px] md:text-[50px] text-[40px] font-extrabold `}
+          className={`bg-gradient-to-r from-black via-slate-700 to-gray-500 text-transparent text-center inline-block bg-clip-text lg:text-[55px] md:text-[50px] text-[25px] font-extrabold `}
         >
           Mint Your HyperCerts
         </p>
-        <div className={`w-[90%] block p-6 text-[20px]`}>
+        <div className={`w-[90%] block lg:p-6 md:p-4 p-2 text-[20px]`}>
           <p className={``}>
             HyperMinter is a tool for minting a HyperCert to make an onchain
             claim of the impact your project will make with the grant funding

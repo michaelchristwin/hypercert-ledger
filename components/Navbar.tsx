@@ -1,6 +1,7 @@
 "use client";
 import { useAppContext } from "@/context/appContext";
 import { DM_Sans } from "next/font/google";
+import Link from "next/link";
 const font = DM_Sans({
   weight: "600",
   subsets: ["latin"],
@@ -22,11 +23,16 @@ function Navbar() {
   };
   return (
     <nav
-      className={`flex w-[100vw] h-[90px] px-9 items-center justify-between z-20 fixed top-0 shadow bg-[#ffffff] backdrop-filter backdrop-blur-[20px] bg-opacity-10`}
+      className={`flex w-full h-[90px] lg:px-9 md:px-7 px-2 items-center justify-between z-20 fixed top-0 shadow bg-[#ffffff] backdrop-filter backdrop-blur-[20px] bg-opacity-10`}
     >
-      <p className={`text-[23px] font-bold text-[#3a59ef]`}>MINTER</p>
+      <Link
+        href={`/`}
+        className={`lg:text-[23px] md:text-[22px] text-[20px] block font-bold text-[#3a59ef]`}
+      >
+        MINTER
+      </Link>
       <div className={`block`}>
-        <w3m-button />
+        <w3m-button size="sm" />
       </div>
     </nav>
   );
