@@ -24,7 +24,7 @@ export default function RootLayout({
         <WalletProvider>
           <Toaster />
           <Navbar />
-          <div className={`mt-[100px]`}>{children}</div>
+          <div className={`mt-[100px] min-h-[80vh]`}>{children}</div>
           <Footer />
         </WalletProvider>
       </body>

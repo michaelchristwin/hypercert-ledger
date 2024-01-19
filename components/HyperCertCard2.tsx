@@ -4,7 +4,7 @@ import { useWeb3Modal, useWeb3ModalAccount } from "@web3modal/ethers/react";
 import { useRouter } from "next/navigation";
 import { useAppContext } from "@/context/appContext";
 import { Chain } from "viem";
-import { ForwardedRef, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 
 interface HyperCertCardProps {
@@ -18,7 +18,7 @@ interface HyperCertCardProps {
   id?: string;
   workScope?: string[];
   bannerPattern: string;
-  gradient?: string;
+  gradient: string;
 }
 function HyperCertCard2({
   name,
@@ -37,23 +37,40 @@ function HyperCertCard2({
   const [isClicked, setIsClicked] = useState(false);
   const { open } = useWeb3Modal();
   const router = useRouter();
-  const { setCorrectNetwork, setIsWrongNetwork } = useAppContext();
+  const { setCorrectNetwork, setIsWrongNetwork, setRoundColor } =
+    useAppContext();
   const handleClick = async () => {
+    setRoundColor({
+      pattern: "",
+      color: "",
+    });
     setIsClicked(false);
     if (!isConnected) {
       setIsClicked(true);
       open();
     } else if (isConnected) {
       router.push(`/form?chainId=${chain?.id}&roundId=${roundId}`);
+      setRoundColor({
+        pattern: bannerPattern,
+        color: gradient,
+      });
     }
   };
 
   useEffect(() => {
     (async () => {
       try {
-        if (isClicked && isConnected && chain && chainId) {
+        if (isClicked && isConnected && chain) {
+          setRoundColor({
+            pattern: "",
+            color: "",
+          });
           console.log("Route effect ran");
           router.push(`/form?chainId=${chain.id}&roundId=${roundId}`);
+          setRoundColor({
+            pattern: bannerPattern,
+            color: gradient,
+          });
           setIsClicked(false);
         }
       } catch (err) {
@@ -66,7 +83,9 @@ function HyperCertCard2({
     roundId,
     chain,
     router,
-
+    bannerPattern,
+    gradient,
+    setRoundColor,
     chainId,
     setCorrectNetwork,
     setIsWrongNetwork,

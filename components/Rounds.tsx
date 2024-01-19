@@ -21,7 +21,7 @@ function Rounds() {
           logoImg="/clir1.jpeg"
           chain={optimism}
           bannerPattern="/svg/black.png"
-          gradient="rgb(37,123,84)"
+          gradient="rgb(153,50,204)"
         />
         <HyperCertCard2
           roundId="0xa1d52f9b5339792651861329a046dd912761e9a9"
