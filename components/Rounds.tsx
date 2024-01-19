@@ -24,7 +24,7 @@ function Rounds() {
           gradient="rgb(153,50,204)"
         />
         <HyperCertCard2
-          roundId="0xa1d52f9b5339792651861329a046dd912761e9a9"
+          roundId="0xa1D52F9b5339792651861329A046dD912761E9A9"
           name="GG19: Infra"
           logoImg="/infra2.webp"
           bannerImg="/infra.jpg"
