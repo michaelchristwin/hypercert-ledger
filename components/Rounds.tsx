@@ -33,7 +33,7 @@ function Rounds() {
           gradient="rgb(255,102,102)"
         />
         <HyperCertCard2
-          roundId="0xd4cc0dd193c7dc1d665ae244ce12d7fab337a008"
+          roundId="0xd4CC0dd193c7DC1d665AE244cE12D7FAB337a008"
           bannerImg="/oss.jpg"
           logoImg="/oss2.jpg"
           name="GG19: OSS"
@@ -42,7 +42,7 @@ function Rounds() {
           chain={pgn}
         />
         <HyperCertCard2
-          roundId="0x98720dd1925d34a2453ebc1f91c9d48e7e89ec29"
+          roundId="0x98720dD1925d34a2453ebC1F91C9d48E7e89ec29"
           name="GG19: Community and Ed"
           bannerImg="/ed2.jpg"
           logoImg="/ed.jpeg"

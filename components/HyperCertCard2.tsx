@@ -115,6 +115,7 @@ function HyperCertCard2({
             width={40}
             height={40}
             alt="logo"
+            loading="lazy"
             src={`${logoImg as string}`}
             className={`w-[40px] h-[40px] rounded-full`}
           />

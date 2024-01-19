@@ -19,6 +19,7 @@ import { useAppContext } from "@/context/appContext";
 import { uploadImage } from "@/actions/upload";
 import TextArea, { convertArrayToDisplayText } from "@/components/TextArea";
 import HyperCertCard2 from "@/components/HyperCertCard2";
+import { optimism } from "viem/chains";
 declare let window: any;
 
 let currentYear = new Date();
@@ -61,12 +62,12 @@ function Page() {
       if (address && window.ethereum && mychainId) {
         const walletClient = createWalletClient({
           account: address,
-          chain: getChain(Number(mychainId)),
+          chain: optimism,
           transport: custom(window.ethereum),
         });
         setWalletCli(walletClient);
         let myClient = new HypercertClient({
-          chain: getChain(Number(mychainId)),
+          chain: optimism,
           walletClient: walletClient,
           nftStorageToken,
         });
