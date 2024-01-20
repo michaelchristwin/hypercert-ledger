@@ -11,7 +11,7 @@ function Rounds() {
       className={`w-full flex justify-center items-center h-fit lg:py-[60px] py-[40px] md:py-[90px] lg:my-[120px] md:my-[100px] my-[70px]`}
     >
       <div
-        className={`grid lg:grid-cols-4 md:grid-cols-3 grid-cols-1 w-full gap-x-[3%] gap-y-[20px] px-[100px]`}
+        className={`grid lg:grid-cols-4 md:grid-cols-3 grid-cols-1 w-full gap-x-[3%] gap-y-[20px] lg:px-[100px] md:px-[100px] px-[20px]`}
       >
         <HyperCertCard
           roundId="0x5eB890e41c8D2cFF75ea942085E406bB90016561"
@@ -19,7 +19,7 @@ function Rounds() {
           bannerImg="/pg1.webp"
           logoImg="/logo.webp"
           chain={optimism}
-          bannerPattern="/svg/patt8.png"
+          bannerPattern="/svg/patt3.png"
           gradient="rgb(153,50,204)"
         />
         <HyperCertCard
@@ -28,7 +28,7 @@ function Rounds() {
           logoImg="/logo.webp"
           bannerImg="/pg2.webp"
           chain={polygon}
-          bannerPattern="/svg/patt6.png"
+          bannerPattern="/svg/patt9.png"
           gradient="rgb(255,102,102)"
         />
         <HyperCertCard
@@ -47,7 +47,7 @@ function Rounds() {
           logoImg="/logo.webp"
           gradient="rgb(223,221,67)"
           chain={pgn}
-          bannerPattern="/svg/patt7.png"
+          bannerPattern="/svg/patt10.png"
         />
       </div>
     </div>

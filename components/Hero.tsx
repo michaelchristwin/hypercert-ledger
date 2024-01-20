@@ -6,13 +6,13 @@ import { myChains } from "@/providers/Walletprovider";
 function Hero() {
   return (
     <div
-      className={`grid grid-cols-3 w-full h-fit lg:p-[100px] gap-x-[13%] md:p-[60px] p-[40px]`}
+      className={`lg:grid md:grid block grid-cols-3 w-full h-fit lg:p-[100px] lg:gap-x-[13%] md:gap-x-[13%] md:p-[60px] p-[20px] space-y-2`}
     >
       <HyperCertCard
         name="GG19: Climate"
         roundId="0x5eB890e41c8D2cFF75ea942085E406bB90016561"
         bannerImg="/pg1.webp"
-        bannerPattern="/svg/patt8.png"
+        bannerPattern="/svg/patt3.png"
         logoImg="/logo.webp"
         chain={myChains.optimism}
         gradient="rgb(153,50,204)"
