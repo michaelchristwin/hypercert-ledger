@@ -10,7 +10,7 @@ const inter = Raleway({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Hyperminter",
-  description: "A tool for minting project based HyperCerts onchain.",
+  description: "A tool for minting project based Hypercerts onchain.",
 };
 
 export default function RootLayout({
