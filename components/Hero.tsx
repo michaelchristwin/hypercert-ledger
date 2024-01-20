@@ -2,17 +2,16 @@
 
 import HyperCertCard from "./HyperCertCard";
 import { myChains } from "@/providers/Walletprovider";
-import HyperCertCard2 from "./HyperCertCard2";
 
 function Hero() {
   return (
     <div
       className={`lg:flex md:flex block w-full h-fit lg:py-[100px] md:py-[60px] py-[40px] justify-center lg:space-y-0 md:space-y-0 space-y-[40px] lg:space-x-[10%] md:space-x-[10%]`}
     >
-      <HyperCertCard2
+      <HyperCertCard
         name="GG19: Climate"
         roundId="0x5eB890e41c8D2cFF75ea942085E406bB90016561"
-        bannerImg="/clir2.jpeg"
+        bannerImg="/pg1.webp"
         bannerPattern="/svg/patt3.png"
         logoImg="/clir1.jpeg"
         chain={myChains.optimism}
