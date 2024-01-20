@@ -42,7 +42,7 @@ function Round({ name, image, roundId, chain }: RoundProps) {
             onClick={handleClick}
             className={`text-black bg-white hover:opacity-75 active:opacity-60 text-[11px] rounded-[7px] h-[21px] w-fit px-2`}
           >
-            Mint HyperCert
+            Mint Hypercert
           </button>
         </div>
       </div>

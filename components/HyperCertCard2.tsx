@@ -24,72 +24,13 @@ function HyperCertCard2({
   name,
   bannerImg,
   logoImg,
-  roundId,
   workScope,
-  chain,
   id,
   startDate,
   endDate,
   gradient,
   bannerPattern,
 }: HyperCertCardProps) {
-  const { isConnected, chainId } = useWeb3ModalAccount();
-  const [isClicked, setIsClicked] = useState(false);
-  const { open } = useWeb3Modal();
-  const router = useRouter();
-  const { setCorrectNetwork, setIsWrongNetwork, setRoundColor } =
-    useAppContext();
-  const handleClick = async () => {
-    setRoundColor({
-      pattern: "",
-      color: "",
-    });
-    setIsClicked(false);
-    if (!isConnected) {
-      setIsClicked(true);
-      open();
-    } else if (isConnected) {
-      router.push(`/form?chainId=${chain?.id}&roundId=${roundId}`);
-      setRoundColor({
-        pattern: bannerPattern,
-        color: gradient,
-      });
-    }
-  };
-
-  useEffect(() => {
-    (async () => {
-      try {
-        if (isClicked && isConnected && chain) {
-          setRoundColor({
-            pattern: "",
-            color: "",
-          });
-          console.log("Route effect ran");
-          router.push(`/form?chainId=${chain.id}&roundId=${roundId}`);
-          setRoundColor({
-            pattern: bannerPattern,
-            color: gradient,
-          });
-          setIsClicked(false);
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    })();
-  }, [
-    isClicked,
-    isConnected,
-    roundId,
-    chain,
-    router,
-    bannerPattern,
-    gradient,
-    setRoundColor,
-    chainId,
-    setCorrectNetwork,
-    setIsWrongNetwork,
-  ]);
   return (
     <div
       className={`block max-w-[300px] relative lg:mx-0 md:mx-0 mx-auto w-[100%] bg-[] h-[380px] rounded-[12px]`}
@@ -108,9 +49,7 @@ function HyperCertCard2({
           background: `linear-gradient(to bottom, rgba(226,188,245,0.25) 15%, ${gradient} 75%), url("${bannerPattern}") center/cover no-repeat`,
         }}
       >
-        <div
-          className={`flex ${startDate ? "justify-start" : "justify-between"}`}
-        >
+        <div className={`flex justify-start`}>
           <Image
             width={40}
             height={40}
@@ -119,15 +58,6 @@ function HyperCertCard2({
             src={`${logoImg as string}`}
             className={`w-[40px] h-[40px] rounded-full`}
           />
-          {!startDate && (
-            <button
-              className={`bg-white text-black w-fit hover:opacity-80 active:opacity-65 px-2 h-[35px] rounded-lg`}
-              type="button"
-              onClick={handleClick}
-            >
-              Mint HyperCert
-            </button>
-          )}
         </div>
         <div
           className={`border-t-2 border-b block border-black min-h-[100px] h-fit mt-[130px]`}
@@ -150,11 +80,9 @@ function HyperCertCard2({
             </div>
           </div>
           <div className={`flex items-cente`}>
-            <p className={`text-[14px]`}>
-              {startDate ? startDate : "work-start"}
-            </p>
+            <p className={`text-[14px]`}>{startDate}</p>
             <p className={`text-[13px] space-x-1`}>&rarr;</p>
-            <p className={`text-[14px]`}>{endDate ? endDate : "work-end"}</p>
+            <p className={`text-[14px]`}>{endDate}</p>
           </div>
         </div>
       </div>

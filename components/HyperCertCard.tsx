@@ -84,10 +84,10 @@ function HyperCertCard({
   ]);
   return (
     <div
-      className={`block max-w-[300px] relative w-[100%] h-[380px] rounded-[12px]`}
+      className={`block min-w-[260px] relative w-[100%] h-[380px] rounded-[12px]`}
     >
       <Image
-        className={`max-w-[300px] w-[100%] rounded-[12px] h-[380px]`}
+        className={`min-w-[260px] w-[100%] rounded-[12px] h-[380px]`}
         alt="bg-image"
         src={`${bannerImg}`}
         loading="lazy"
@@ -127,11 +127,11 @@ function HyperCertCard({
           </div>
         </div>
         <button
-          className={`text-black mx-auto bg-["${gradient}"] backdrop-filter backdrop-brightness-150 block mt-[20px] w-fit hover:opacity-80 active:opacity-65 px-2 h-[35px] rounded-lg`}
+          className={`text-black mx-auto bg-["${gradient}"] backdrop-filter backdrop-brightness-150 block mt-[20px] w-fit hover:opacity-60 hover:border active:opacity-65 px-2 h-[35px] rounded-lg`}
           type="button"
           onClick={handleClick}
         >
-          Mint HyperCert
+          Mint Hypercert
         </button>
       </div>
     </div>
