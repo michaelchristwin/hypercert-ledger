@@ -19,6 +19,7 @@ import { useAppContext } from "@/context/appContext";
 import { uploadImage } from "@/actions/upload";
 import TextArea, { convertArrayToDisplayText } from "@/components/TextArea";
 import HyperCertCard2 from "@/components/HyperCertCard2";
+import ProgressPopup from "@/components/Progress";
 import { optimism } from "viem/chains";
 declare let window: any;
 
@@ -34,6 +35,7 @@ function Page() {
     undefined
   );
   const [allowList, setallowList] = useState<AllowlistEntry[]>([]);
+
   const [myworkScope, setWorkScopes] = useState<string>("");
   const [allowRange, setAllowRange] = useState<number>(50);
   const [myContributors, setContributors] = useState<string>("");

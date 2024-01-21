@@ -1,10 +1,6 @@
 "use client";
 
-import { useWeb3Modal, useWeb3ModalAccount } from "@web3modal/ethers/react";
-import { useRouter } from "next/navigation";
-import { useAppContext } from "@/context/appContext";
 import { Chain } from "viem";
-import { useEffect, useState } from "react";
 import Image from "next/image";
 
 interface HyperCertCardProps {
