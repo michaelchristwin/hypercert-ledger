@@ -32,8 +32,8 @@ function Page({
   params: { slug: string };
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
+  const diaRef = useRef<HTMLDialogElement | null>(null);
   const nftStorageToken = process.env.NEXT_PUBLIC_NFTSTORAGE;
-
   const [client, setClient] = useState<HypercertClient | undefined>(undefined);
   const [allow, setAllow] = useState(false);
   const [walletCli, setWalletCli] = useState<WalletClient | undefined>(
@@ -119,7 +119,7 @@ function Page({
             const metaData = res.data;
             let raddr = "0x4Be737B450754BC75f1ef0271D3C5dA525173F6b";
             const myItem = [...metaData].find(
-              (item) => item.metadata.application.recipient === address
+              (item) => item.metadata.application.recipient === raddr
             );
             if (myItem === undefined) {
               throw new Error("Item not found");
@@ -212,9 +212,7 @@ function Page({
     let percentage = allowRange / 100;
     let totalUnits = summedAmountUSD / percentage;
     let recipientUnits = totalUnits - summedAmountUSD;
-    console.log("summed amount:", summedAmountUSD);
-    console.log("total units:", totalUnits);
-    console.log("recipient units:", recipientUnits);
+
     setFormValues({
       ...formValues,
       workScope: workScopeStored,
@@ -226,7 +224,8 @@ function Page({
         units: BigInt(recipientUnits),
       },
     ];
-    if (isValid(formValues) && client) {
+    if (isValid(formValues) && client && diaRef.current) {
+      diaRef.current.showModal();
       setIsMinting(true);
       try {
         const hyperImage = await covertToBlob();
@@ -251,6 +250,7 @@ function Page({
 
         setIsSuccess(true);
         setIsMinting(false);
+        diaRef.current.close();
       } catch (err) {
         setIsSuccess(false);
         console.error(err);
@@ -273,133 +273,132 @@ function Page({
       [name]: newDate,
     });
   };
-  const diaRef = useRef<HTMLDialogElement | null>(null);
 
   return (
-    <div
-      className={`lg:flex md:flex block ${
-        allow
-          ? "lg:justify-center md:justify-center lg:space-x-[10%] md:space-x-[7%] mx-auto"
-          : "lg:justify-center md:justify-center"
-      }  h-fit py-[20px] w-full relative`}
-    >
-      <form
-        className={`${
-          allow ? "block" : "hidden"
-        } lg:p-[40px] md:p-[30px] p-[20px] lg:w-[45%] md:w-[45%] w-[94%] space-y-3 rounded-[15px] morph lg:mx-0 md:mx-0 mx-auto`}
-        onSubmit={onSubmit}
+    <>
+      <div
+        className={`lg:flex md:flex block ${
+          allow
+            ? "lg:justify-center md:justify-center lg:space-x-[10%] md:space-x-[7%] mx-auto"
+            : "lg:justify-center md:justify-center"
+        }  h-fit py-[20px] w-full relative`}
       >
-        <hr />
-        <p className={`text-[23px] text-violet-800 font-semibold`}>
-          General Fields
-        </p>
-        <fieldset className={`w-[100%]`}>
-          <label
-            htmlFor="name"
-            className={`text-white font-bold text-[16px] block mb-1`}
-          >
-            Hypercert Name
-          </label>
+        <form
+          className={`${
+            allow ? "block" : "hidden"
+          } lg:p-[40px] md:p-[30px] p-[20px] lg:w-[45%] md:w-[45%] w-[94%] space-y-3 rounded-[15px] morph lg:mx-0 md:mx-0 mx-auto`}
+          onSubmit={onSubmit}
+        >
+          <hr />
+          <p className={`text-[23px] text-violet-800 font-semibold`}>
+            General Fields
+          </p>
+          <fieldset className={`w-[100%]`}>
+            <label
+              htmlFor="name"
+              className={`text-white font-bold text-[16px] block mb-1`}
+            >
+              Hypercert Name
+            </label>
 
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={name}
-            required
-            onChange={handleChange}
-            placeholder="The name of your hypercert"
-            className={`w-[100%] h-[45px] ps-2 peer bg-white/50 placeholder:text-black/60 rounded-[6px] focus:outline-none text-black`}
-          />
-          <p className={`text-red-600 italic invisible peer-required:visible`}>
-            *
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={name}
+              required
+              onChange={handleChange}
+              placeholder="The name of your hypercert"
+              className={`w-[100%] h-[45px] ps-2 peer bg-white/50 placeholder:text-black/60 rounded-[6px] focus:outline-none text-black`}
+            />
+            <p
+              className={`text-red-600 italic invisible peer-required:visible`}
+            >
+              *
+            </p>
+          </fieldset>
+          <fieldset className={`w-[100%]`}>
+            <label
+              htmlFor="logoImage"
+              className={`text-white font-bold text-[16px] block mb-1`}
+            >
+              Logo Image
+            </label>
+            <input
+              type="text"
+              id="logoImage"
+              required
+              name="logoImage"
+              value={logoImage}
+              onChange={handleImages}
+              placeholder="Image URL"
+              className={`w-[100%] h-[45px] peer ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
+            />
+            <p
+              className={`text-red-600 italic invisible peer-required:visible`}
+            >
+              *
+            </p>
+          </fieldset>
+          <fieldset className={`w-[100%]`}>
+            <label
+              htmlFor="bannerImage"
+              className={`text-white font-bold text-[16px] block mb-1`}
+            >
+              Banner Image
+            </label>
+            <input
+              type="text"
+              id="bannerImage"
+              name="bannerImage"
+              value={bannerImage}
+              onChange={handleImages}
+              placeholder="Banner Image URL"
+              className={`w-[100%] h-[45px] ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
+            />
+          </fieldset>
+          <fieldset className={`w-[100%]`}>
+            <label
+              htmlFor="description"
+              className={`text-white font-bold text-[16px] block mb-1`}
+            >
+              Description
+            </label>
+            <textarea
+              name="description"
+              id="description"
+              value={description}
+              required
+              onChange={handleChange}
+              className={`w-[100%] p-2 peer h-[150px] bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
+            ></textarea>
+            <p
+              className={`text-red-600 italic invisible peer-required:visible`}
+            >
+              *
+            </p>
+          </fieldset>
+          <fieldset className={`w-[100%]`}>
+            <label
+              htmlFor="external_url"
+              className={`text-white font-bold text-[16px] block mb-1`}
+            >
+              Link
+            </label>
+            <input
+              type="text"
+              id="external_url"
+              name="external_url"
+              value={external_url}
+              onChange={handleChange}
+              placeholder="https://project.org"
+              className={`w-[100%] h-[45px] ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
+            />
+          </fieldset>
+          <hr />
+          <p className={`text-[23px] text-violet-800 font-semibold`}>
+            Hypercert Fields
           </p>
-        </fieldset>
-        <fieldset className={`w-[100%]`}>
-          <label
-            htmlFor="logoImage"
-            className={`text-white font-bold text-[16px] block mb-1`}
-          >
-            Logo Image
-          </label>
-          <input
-            type="text"
-            id="logoImage"
-            required
-            name="logoImage"
-            value={logoImage}
-            onChange={handleImages}
-            placeholder="Image URL"
-            className={`w-[100%] h-[45px] peer ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
-          />
-          <p className={`text-red-600 italic invisible peer-required:visible`}>
-            *
-          </p>
-        </fieldset>
-        <fieldset className={`w-[100%]`}>
-          <label
-            htmlFor="bannerImage"
-            className={`text-white font-bold text-[16px] block mb-1`}
-          >
-            Banner Image
-          </label>
-          <input
-            type="text"
-            id="bannerImage"
-            name="bannerImage"
-            value={bannerImage}
-            onChange={handleImages}
-            placeholder="Banner Image URL"
-            className={`w-[100%] h-[45px] ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
-          />
-        </fieldset>
-        <fieldset className={`w-[100%]`}>
-          <label
-            htmlFor="description"
-            className={`text-white font-bold text-[16px] block mb-1`}
-          >
-            Description
-          </label>
-          <textarea
-            name="description"
-            id="description"
-            value={description}
-            required
-            onChange={handleChange}
-            className={`w-[100%] p-2 peer h-[150px] bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
-          ></textarea>
-          <p className={`text-red-600 italic invisible peer-required:visible`}>
-            *
-          </p>
-        </fieldset>
-        <fieldset className={`w-[100%]`}>
-          <label
-            htmlFor="external_url"
-            className={`text-white font-bold text-[16px] block mb-1`}
-          >
-            Link
-          </label>
-          <input
-            type="text"
-            id="external_url"
-            name="external_url"
-            value={external_url}
-            onChange={handleChange}
-            placeholder="https://project.org"
-            className={`w-[100%] h-[45px] ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
-          />
-        </fieldset>
-        <hr />
-        <p className={`text-[23px] text-violet-800 font-semibold`}>
-          Hypercert Fields
-        </p>
-        <fieldset className={`w-[100%]`}>
-          <label
-            htmlFor="workScope"
-            className={`text-white font-bold text-[16px] block mb-1`}
-          >
-            Work Scope
-          </label>
           <TextArea
             formValues={formValues}
             setFormValues={setFormValues}
@@ -407,50 +406,47 @@ function Page({
             displayText={myworkScope}
             setDisplayText={setWorkScopes}
             setStoredValues={setWorkScopeStored}
+            label="Work Scope"
           />
-          <p className={`text-red-600 italic invisible peer-required:visible`}>
-            *
-          </p>
-        </fieldset>
-        <div
-          className={`w-[100%] flex justify-center items-center space-x-2 h-[130px]`}
-        >
-          <fieldset className={`w-[48%]`}>
-            <label
-              htmlFor="workTimeframeStart"
-              className={`text-white font-bold text-[16px] block mb-1`}
-            >
-              Work Start Date
-            </label>
+          <div
+            className={`w-[100%] flex justify-center items-center space-x-2 h-[130px]`}
+          >
+            <fieldset className={`w-[48%]`}>
+              <label
+                htmlFor="workTimeframeStart"
+                className={`text-white font-bold text-[16px] block mb-1`}
+              >
+                Work Start Date
+              </label>
 
-            <input
-              type="date"
-              name="workTimeframeStart"
-              id="workTimeframeStart"
-              value={formDates.workTimeframeStart}
-              onChange={handleDates}
-              className={`w-[100%] h-[45px] ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
-            />
-          </fieldset>
-          <fieldset className={`w-[48%]`}>
-            <label
-              htmlFor="workTimeframeEnd"
-              className={`text-white font-bold text-[16px] block mb-1`}
-            >
-              Work End Date
-            </label>
-            <input
-              type="date"
-              name="workTimeframeEnd"
-              id="workTimeframeEnd"
-              value={formDates.workTimeframeEnd}
-              onChange={handleDates}
-              className={`w-[100%] h-[45px] ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
-            />
-          </fieldset>
-        </div>
+              <input
+                type="date"
+                name="workTimeframeStart"
+                id="workTimeframeStart"
+                value={formDates.workTimeframeStart}
+                onChange={handleDates}
+                className={`w-[100%] h-[45px] ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
+              />
+            </fieldset>
+            <fieldset className={`w-[48%]`}>
+              <label
+                htmlFor="workTimeframeEnd"
+                className={`text-white font-bold text-[16px] block mb-1`}
+              >
+                Work End Date
+              </label>
+              <input
+                type="date"
+                name="workTimeframeEnd"
+                id="workTimeframeEnd"
+                value={formDates.workTimeframeEnd}
+                onChange={handleDates}
+                className={`w-[100%] h-[45px] ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
+              />
+            </fieldset>
+          </div>
 
-        {/* <div className={`w-[100%] rounded-[6px] bg-white/50 text-black p-3`}>
+          {/* <div className={`w-[100%] rounded-[6px] bg-white/50 text-black p-3`}>
           <div
             className={`flex justify-between hover:cursor-pointer`}
             onClick={() => setIsOpen((prevOpen) => !prevOpen)}
@@ -577,66 +573,68 @@ function Page({
             </div>
           </div>
         </div> */}
-        <hr />
-        <p className={`text-[23px] text-violet-800 font-semibold`}>
-          Distribution
-        </p>
+          <hr />
+          <p className={`text-[23px] text-violet-800 font-semibold`}>
+            Distribution
+          </p>
 
-        <fieldset className={`w-[100%]`}>
-          <label
-            htmlFor="distribution"
-            className={`text-white font-bold text-[16px] block mb-1`}
-          >
-            Percentage distributed via allow List
-          </label>
-          <div className={`flex w-full space-x-2 items-center`}>
-            <input
-              type="range"
-              step={0.1}
-              min={0}
-              max={100}
-              value={allowRange}
-              onChange={handleRangeChange}
-              name="distribution"
-              id="distribution"
-              className={`w-[90%] border-0 bg-white outline-none`}
-            />
-            <div
-              className={`w-[35px] flex justify-center items-center h-[35px] border border-gray-500`}
+          <fieldset className={`w-[100%]`}>
+            <label
+              htmlFor="distribution"
+              className={`text-white font-bold text-[16px] block mb-1`}
             >
-              <p>{allowRange}</p>
+              Percentage distributed via allow List
+            </label>
+            <div className={`flex w-full space-x-2 items-center`}>
+              <input
+                type="range"
+                step={0.1}
+                min={0}
+                max={100}
+                value={allowRange}
+                onChange={handleRangeChange}
+                name="distribution"
+                id="distribution"
+                className={`w-[90%] border-0 bg-white outline-none`}
+              />
+              <div
+                className={`w-[35px] flex justify-center items-center h-[35px] border border-gray-500`}
+              >
+                <p>{allowRange}</p>
+              </div>
             </div>
-          </div>
-        </fieldset>
+          </fieldset>
 
-        <button
-          type="submit"
-          className={`px-1 border w-[100px] bg-white text-black hover:opacity-75 active:opacity-60 rounded-lg mx-auto h-[35px] block`}
+          <button
+            type="submit"
+            className={`px-1 border w-[100px] bg-white text-black hover:opacity-75 active:opacity-60 rounded-lg mx-auto h-[35px] block`}
+          >
+            Create
+          </button>
+        </form>
+
+        <div
+          className={`w-fit ${
+            allow ? "block" : "hidden"
+          } h-fit sticky top-[100px] p-[40px] lg:mx-0 md:mx-0 mx-auto`}
         >
-          Create
-        </button>
-      </form>
-
-      <div
-        className={`w-fit ${
-          allow ? "block" : "hidden"
-        } h-fit sticky top-[100px] p-[40px] lg:mx-0 md:mx-0 mx-auto`}
-      >
-        <HyperCertCard2
-          startDate={formDates.workTimeframeStart}
-          bannerPattern={roundColor.pattern}
-          endDate={formDates.workTimeframeEnd}
-          chain={getChain(Number(mychainId))}
-          logoImg={logoImage}
-          bannerImg={bannerImage}
-          roundId={roundId as string}
-          name={name}
-          workScope={workScopeStored}
-          gradient={roundColor.color}
-          id="hypercert"
-        />
+          <HyperCertCard2
+            startDate={formDates.workTimeframeStart}
+            bannerPattern={roundColor.pattern}
+            endDate={formDates.workTimeframeEnd}
+            chain={getChain(Number(mychainId))}
+            logoImg={logoImage}
+            bannerImg={bannerImage}
+            roundId={roundId as string}
+            name={name}
+            workScope={workScopeStored}
+            gradient={roundColor.color}
+            id="hypercert"
+          />
+        </div>
       </div>
-    </div>
+      <ProgressPopup ref={diaRef} />
+    </>
   );
 }
 

@@ -7,10 +7,12 @@ interface TextAreaProps {
   setStoredValues: React.Dispatch<React.SetStateAction<string[]>>;
   formValues: MyMetadata;
   setFormValues: React.Dispatch<React.SetStateAction<MyMetadata>>;
+  label: string;
 }
 
 function TextArea({
   name,
+  label,
   displayText,
   setDisplayText,
   setStoredValues,
@@ -29,13 +31,23 @@ function TextArea({
     });
   };
   return (
-    <textarea
-      name={name}
-      value={displayText}
-      id={name}
-      onChange={handleChange}
-      className={`w-[100%] h-[150px] ps-2 bg-white/50 placeholder:text-black/60 rounded-[6px] focus:outline-none text-black`}
-    ></textarea>
+    <fieldset className={`w-[100%]`}>
+      <label
+        htmlFor={name}
+        className={`text-white font-bold text-[16px] block mb-1`}
+      >
+        {label}
+      </label>
+      <textarea
+        name={name}
+        value={displayText}
+        required
+        id={name}
+        onChange={handleChange}
+        className={`w-[100%] h-[150px] ps-2 bg-white/50 peer placeholder:text-black/60 rounded-[6px] focus:outline-none text-black`}
+      />
+      <p className={`text-red-600 italic invisible peer-required:visible`}>*</p>
+    </fieldset>
   );
 }
 
