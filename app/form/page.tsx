@@ -11,7 +11,6 @@ import { HypercertClient, AllowlistEntry } from "@hypercerts-org/sdk";
 import { useWeb3ModalAccount } from "@web3modal/ethers/react";
 import { useState, useRef, useEffect } from "react";
 import { createWalletClient, custom, WalletClient } from "viem";
-import { useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import domtoimage from "dom-to-image";
 import axios from "axios";
@@ -26,9 +25,15 @@ declare let window: any;
 let currentYear = new Date();
 let cY = currentYear.getFullYear();
 
-function Page() {
+function Page({
+  params,
+  searchParams,
+}: {
+  params: { slug: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
   const nftStorageToken = process.env.NEXT_PUBLIC_NFTSTORAGE;
-  const searchParams = useSearchParams();
+
   const [client, setClient] = useState<HypercertClient | undefined>(undefined);
   const [allow, setAllow] = useState(false);
   const [walletCli, setWalletCli] = useState<WalletClient | undefined>(
@@ -57,8 +62,8 @@ function Page() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinting, setIsMinting] = useState(false);
   const { address, chainId } = useWeb3ModalAccount();
-  const mychainId = searchParams.get("chainId");
-  const roundId = searchParams.get("roundId");
+  const mychainId = searchParams.chainId as string;
+  const roundId = searchParams.roundId as string;
   useEffect(() => {
     (async () => {
       if (address && window.ethereum && mychainId) {

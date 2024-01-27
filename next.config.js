@@ -9,9 +9,7 @@ const nextConfig = {
       },
     ],
   },
-  experimental: {
-    missingSuspenseWithCSRBailout: false,
-  },
+  experimental: {},
   reactStrictMode: false,
 };
 
