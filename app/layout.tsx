@@ -11,6 +11,13 @@ const inter = Raleway({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Hyperminter",
   description: "A tool for minting project based Hypercerts onchain.",
+
+  openGraph: {
+    type: "website",
+    title: "Hyperminter",
+    url: "https://hyperminter.xyz",
+    description: "A tool for minting project based Hypercerts onchain.",
+  },
 };
 
 export default function RootLayout({
