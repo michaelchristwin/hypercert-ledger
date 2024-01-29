@@ -36,7 +36,8 @@ async function MintHypercert(
   props: MyMetadata,
   client: HypercertClient,
   allowList: AllowlistEntry[],
-  totalUnits: bigint
+  totalUnits: bigint,
+  setStatus: React.Dispatch<React.SetStateAction<string>>
 ) {
   const { data, errors, valid } = formatHypercertData(props);
 
@@ -48,6 +49,7 @@ async function MintHypercert(
     if (!data) {
       throw errors;
     }
+    setStatus("Creating allowlist");
     txHash = await client.createAllowlist(
       allowList,
       data,

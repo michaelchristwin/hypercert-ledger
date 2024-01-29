@@ -54,7 +54,7 @@ function Page({
     impactTimeframeStart: `${cY}-01-01`,
     impactTimeframeEnd: currentYear.toISOString().slice(0, 10),
   });
-  const [isOpen, setIsOpen] = useState(false);
+  const [status, setStatus] = useState("");
   const [isMinting, setIsMinting] = useState(false);
   const { address, chainId } = useWeb3ModalAccount();
   const mychainId = searchParams.chainId as string;
@@ -237,6 +237,7 @@ function Page({
       setIsMinting(true);
       try {
         const hyperImage = await covertToBlob();
+        setStatus("Uploading image");
         if (!hyperImage) {
           throw new Error("Hypercert image is invalid");
         }
@@ -249,11 +250,13 @@ function Page({
           image: `https://ipfs.io/ipfs/${imgHash}`,
         });
         console.log("Submit running");
+        setStatus("Started onchain minting");
         const res = await MintHypercert(
           formValues,
           hypercertClient,
           newAllowlist,
-          BigInt(totalUnits)
+          BigInt(totalUnits),
+          setStatus
         );
 
         setIsSuccess(true);
@@ -642,7 +645,7 @@ function Page({
           />
         </div>
       </div>
-      <ProgressPopup ref={diaRef} />
+      <ProgressPopup ref={diaRef} status={status} />
     </>
   );
 }

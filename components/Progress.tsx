@@ -1,6 +1,10 @@
 import { forwardRef } from "react";
 
-const ProgressPopup = forwardRef(function ProgressPopup(props, ref) {
+const ProgressPopup = forwardRef(function ProgressPopup(
+  props: { status: string },
+  ref
+) {
+  const { status } = props;
   return (
     <dialog
       className={`lg:w-[45%] md:w-[45%] w-[90%] h-[350px] lg:px-[80px] md:px-[60px] px-[20px] py-[50px] backdrop:bg-neutral-900/90 inset-0 backdrop-blur z-[30] rounded-xl`}
@@ -29,6 +33,7 @@ const ProgressPopup = forwardRef(function ProgressPopup(props, ref) {
           <div className="eye"></div>
         </div>
       </div>
+      <p className={`text-center my-3 text-green-600`}>{status}</p>
     </dialog>
   );
 });
