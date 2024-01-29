@@ -254,6 +254,7 @@ function Page({
         setIsMinting(false);
         diaRef.current.close();
       } catch (err) {
+        diaRef.current.close();
         setIsSuccess(false);
         console.error(err);
         throw err;
