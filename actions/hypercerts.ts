@@ -39,7 +39,7 @@ async function MintHypercert(
   totalUnits: bigint
 ) {
   const { data, errors, valid } = formatHypercertData(props);
-  console.log("on totalUnits", totalUnits);
+
   let txHash;
   try {
     if (client === undefined) {

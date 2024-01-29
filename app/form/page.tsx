@@ -9,7 +9,7 @@ import {
 } from "@/actions/hypercerts";
 import { HypercertClient, AllowlistEntry } from "@hypercerts-org/sdk";
 import { useWeb3ModalAccount } from "@web3modal/ethers/react";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { createWalletClient, custom, WalletClient } from "viem";
 import toast from "react-hot-toast";
 import domtoimage from "dom-to-image";
@@ -34,13 +34,8 @@ function Page({
 }) {
   const diaRef = useRef<HTMLDialogElement | null>(null);
   const nftStorageToken = process.env.NEXT_PUBLIC_NFTSTORAGE;
-  const [client, setClient] = useState<HypercertClient | undefined>(undefined);
   const [allow, setAllow] = useState(false);
-  const [walletCli, setWalletCli] = useState<WalletClient | undefined>(
-    undefined
-  );
   const [allowList, setallowList] = useState<AllowlistEntry[]>([]);
-
   const [myworkScope, setWorkScopes] = useState<string>("");
   const [allowRange, setAllowRange] = useState<number>(50);
   const [myContributors, setContributors] = useState<string>("");
@@ -64,24 +59,6 @@ function Page({
   const { address, chainId } = useWeb3ModalAccount();
   const mychainId = searchParams.chainId as string;
   const roundId = searchParams.roundId as string;
-  useEffect(() => {
-    (async () => {
-      if (address && window.ethereum && mychainId) {
-        const walletClient = createWalletClient({
-          account: address,
-          chain: optimism,
-          transport: custom(window.ethereum),
-        });
-        setWalletCli(walletClient);
-        let myClient = new HypercertClient({
-          chain: optimism,
-          walletClient: walletClient,
-          nftStorageToken,
-        });
-        setClient(myClient);
-      }
-    })();
-  }, [address, nftStorageToken, mychainId]);
 
   const initialState: MyMetadata = {
     name: "",
@@ -102,10 +79,39 @@ function Page({
     rights: ["Public Display"],
     excludedRights: [],
   };
-
+  const createHypercertClient = (
+    address: `0x${string}`,
+    nftStorageToken: string
+  ) => {
+    let myClient;
+    try {
+      if (window.ethereum) {
+        const walletClient = createWalletClient({
+          account: address,
+          chain: optimism,
+          transport: custom(window.ethereum),
+        });
+        myClient = new HypercertClient({
+          chain: optimism,
+          walletClient: walletClient,
+          nftStorageToken: nftStorageToken,
+        });
+      }
+    } catch (err) {
+      console.error("Failed to create client:", err);
+    }
+    return myClient;
+  };
+  const hypercertClient = useMemo(
+    () =>
+      createHypercertClient(
+        address as `0x${string}`,
+        nftStorageToken as string
+      ),
+    [address, nftStorageToken]
+  );
   const [formValues, setFormValues] = useState<MyMetadata>(initialState);
-  const { name, image, description, external_url, impactScope, workScope } =
-    formValues;
+  const { name, description, external_url } = formValues;
   const [summedAmountUSD, setSumAmountUSD] = useState<number>(0);
   useEffect(() => {
     setAllow(false);
@@ -121,7 +127,7 @@ function Page({
             const myItem = [...metaData].find(
               (item) =>
                 String(item.metadata.application.recipient).toLowerCase() ===
-                raddr?.toLowerCase()
+                address?.toLowerCase()
             );
             if (myItem === undefined) {
               throw new Error("Item not found");
@@ -226,7 +232,7 @@ function Page({
         units: BigInt(recipientUnits),
       },
     ];
-    if (isValid(formValues) && client && diaRef.current) {
+    if (isValid(formValues) && hypercertClient && diaRef.current) {
       diaRef.current.showModal();
       setIsMinting(true);
       try {
@@ -245,7 +251,7 @@ function Page({
         console.log("Submit running");
         const res = await MintHypercert(
           formValues,
-          client,
+          hypercertClient,
           newAllowlist,
           BigInt(totalUnits)
         );
