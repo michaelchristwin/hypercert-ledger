@@ -216,6 +216,7 @@ function Page({
   };
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     setIsSuccess(undefined);
+    setStatus("");
     event.preventDefault();
     let percentage = allowRange / 100;
     let totalUnits = summedAmountUSD / percentage;
