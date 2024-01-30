@@ -57,7 +57,7 @@ function HyperCertCard({
             pattern: "",
             color: "",
           });
-          console.log("Route effect ran");
+
           router.push(`/form?chainId=${chain.id}&roundId=${roundId}`);
           setRoundColor({
             pattern: bannerPattern,
@@ -86,13 +86,9 @@ function HyperCertCard({
     <div
       className={`block min-w-[260px] relative w-[100%] h-[400px] rounded-[12px]`}
     >
-      <Image
-        className={`min-w-[260px] w-[100%] rounded-[12px] h-[400px]`}
-        alt="bg-image"
-        src={`${bannerImg}`}
-        loading="lazy"
-        width={300}
-        height={360}
+      <div
+        className={`bg-cover bg-center w-[100%] rounded-[12px] h-full`}
+        style={{ backgroundImage: `url("${bannerImg}")` }}
       />
       <div
         className={`w-full h-[100%] absolute bottom-[0px] rounded-[12px] p-3`}
@@ -101,13 +97,9 @@ function HyperCertCard({
         }}
       >
         <div className={`flex justify-start`}>
-          <Image
-            width={40}
-            height={40}
-            alt="logo"
-            loading="lazy"
-            src={`${logoImg as string}`}
-            className={`w-[40px] h-[40px] rounded-full`}
+          <div
+            className={`w-[40px] h-[40px] bg-cover rounded-full`}
+            style={{ backgroundImage: `url("${logoImg}")` }}
           />
         </div>
         <div

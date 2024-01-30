@@ -65,6 +65,7 @@ async function MintHypercert(
     // );
   } catch (err) {
     console.error("Mint Process Failed:", err);
+    alert(err);
   }
   return txHash;
 }

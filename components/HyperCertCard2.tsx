@@ -29,7 +29,7 @@ function HyperCertCard2({
 }: HyperCertCardProps) {
   return (
     <div
-      className={`block max-w-[300px] relative lg:mx-0 md:mx-0 mx-auto w-[100%] bg-[] h-[380px] rounded-[12px]`}
+      className={`block max-w-[300px] relative lg:mx-0 md:mx-0 mx-auto w-[300px] h-[380px] rounded-[12px]`}
       id={id}
     >
       <Image
@@ -46,13 +46,9 @@ function HyperCertCard2({
         }}
       >
         <div className={`flex justify-start`}>
-          <Image
-            width={40}
-            height={40}
-            alt="logo"
-            loading="lazy"
-            src={`${logoImg as string}`}
-            className={`w-[40px] h-[40px] rounded-full`}
+          <div
+            className={`w-[40px] h-[40px] bg-cover rounded-full`}
+            style={{ backgroundImage: `url("${logoImg}")` }}
           />
         </div>
         <div

@@ -9,7 +9,7 @@ import {
 } from "@/actions/hypercerts";
 import { HypercertClient, AllowlistEntry } from "@hypercerts-org/sdk";
 import { useWeb3ModalAccount } from "@web3modal/ethers/react";
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect } from "react";
 import { createWalletClient, custom } from "viem";
 import toast from "react-hot-toast";
 import domtoimage from "dom-to-image";
