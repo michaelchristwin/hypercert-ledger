@@ -10,7 +10,7 @@ import {
 import { HypercertClient, AllowlistEntry } from "@hypercerts-org/sdk";
 import { useWeb3ModalAccount } from "@web3modal/ethers/react";
 import { useState, useRef, useEffect, useMemo } from "react";
-import { createWalletClient, custom, WalletClient } from "viem";
+import { createWalletClient, custom } from "viem";
 import toast from "react-hot-toast";
 import domtoimage from "dom-to-image";
 import axios from "axios";
@@ -40,6 +40,9 @@ function Page({
   const [allowRange, setAllowRange] = useState<number>(50);
   const [myContributors, setContributors] = useState<string>("");
   const [workScopeStored, setWorkScopeStored] = useState<string[]>([]);
+  const [hyperClient, setHyperClient] = useState<HypercertClient | undefined>(
+    undefined
+  );
   const [contributorsStored, setContributorsStored] = useState<any[]>([]);
   const [formImages, setFormImages] = useState({
     logoImage: "",
@@ -79,37 +82,34 @@ function Page({
     rights: ["Public Display"],
     excludedRights: [],
   };
-  const createHypercertClient = (
-    address: `0x${string}`,
-    nftStorageToken: string
-  ) => {
-    let myClient;
-    try {
-      if (window.ethereum) {
-        const walletClient = createWalletClient({
-          account: address,
-          chain: optimism,
-          transport: custom(window.ethereum),
-        });
-        myClient = new HypercertClient({
-          chain: optimism,
-          walletClient: walletClient,
-          nftStorageToken: nftStorageToken,
-        });
+  useEffect(() => {
+    (() => {
+      try {
+        if (window.ethereum) {
+          let walletClient = createWalletClient({
+            account: address,
+            chain: optimism,
+            transport: custom(window.ethereum),
+          });
+          if (walletClient) {
+            let myClient = new HypercertClient({
+              chain: optimism,
+              walletClient: walletClient,
+              nftStorageToken: nftStorageToken,
+            });
+            setHyperClient(myClient);
+          } else {
+            console.error("Failed to create wallet client.");
+          }
+        } else {
+          console.error("window.ethereum is not available.");
+        }
+      } catch (err) {
+        console.error("Failed to create client:", err);
       }
-    } catch (err) {
-      console.error("Failed to create client:", err);
-    }
-    return myClient;
-  };
-  const hypercertClient = useMemo(
-    () =>
-      createHypercertClient(
-        address as `0x${string}`,
-        nftStorageToken as string
-      ),
-    [address, nftStorageToken]
-  );
+    })();
+  }, [address, nftStorageToken]);
+
   const [formValues, setFormValues] = useState<MyMetadata>(initialState);
   const { name, description, external_url } = formValues;
   const [summedAmountUSD, setSumAmountUSD] = useState<number>(0);
@@ -233,7 +233,7 @@ function Page({
         units: BigInt(recipientUnits),
       },
     ];
-    if (isValid(formValues) && hypercertClient && diaRef.current) {
+    if (isValid(formValues) && hyperClient && diaRef.current) {
       diaRef.current.showModal();
       setIsMinting(true);
       try {
@@ -254,7 +254,7 @@ function Page({
         setStatus("Started onchain minting");
         const res = await MintHypercert(
           formValues,
-          hypercertClient,
+          hyperClient,
           newAllowlist,
           BigInt(totalUnits),
           setStatus

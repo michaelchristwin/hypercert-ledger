@@ -33,7 +33,7 @@ const ProgressPopup = forwardRef(function ProgressPopup(
           <div className="eye"></div>
         </div>
       </div>
-      <p className={`text-center my-1 text-green-600`}>{status}</p>
+      {/* <p className={`text-center my-1 text-green-600`}>{status}</p> */}
     </dialog>
   );
 });

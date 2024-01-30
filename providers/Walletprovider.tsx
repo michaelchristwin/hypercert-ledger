@@ -15,9 +15,9 @@ import {
 
 const projectId = process.env.NEXT_PUBLIC_PROJECT_ID as string;
 const metadata = {
-  name: "My Website",
-  description: "My Website description",
-  url: "https://mywebsite.com",
+  name: "Hyperminter",
+  description: "A tool for minting project based Hypercerts onchain.",
+  url: "https://hyperminter.xyz",
   icons: ["https://avatars.mywebsite.com/"],
 };
 
