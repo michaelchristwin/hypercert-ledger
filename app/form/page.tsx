@@ -269,6 +269,8 @@ function Page({
         console.error(err);
         throw err;
       }
+    } else {
+      alert("Form values invalid");
     }
   };
 
@@ -601,7 +603,7 @@ function Page({
             <div className={`flex w-full space-x-2 items-center`}>
               <input
                 type="range"
-                step={0.1}
+                step={1}
                 min={0}
                 max={100}
                 value={allowRange}
