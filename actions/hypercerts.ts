@@ -50,6 +50,7 @@ async function MintHypercert(
       throw errors;
     }
     setStatus("Creating allowlist");
+
     txHash = await client.createAllowlist(
       allowList,
       data,

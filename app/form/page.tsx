@@ -10,7 +10,7 @@ import {
 import { HypercertClient, AllowlistEntry } from "@hypercerts-org/sdk";
 import { useWeb3ModalAccount } from "@web3modal/ethers/react";
 import { useState, useRef, useEffect } from "react";
-import { createWalletClient, custom } from "viem";
+import { createWalletClient, custom, WalletClient } from "viem";
 import toast from "react-hot-toast";
 import domtoimage from "dom-to-image";
 import axios from "axios";
@@ -41,6 +41,9 @@ function Page({
   const [myContributors, setContributors] = useState<string>("");
   const [workScopeStored, setWorkScopeStored] = useState<string[]>([]);
   const [hyperClient, setHyperClient] = useState<HypercertClient | undefined>(
+    undefined
+  );
+  const [myWalletClient, setWalletClient] = useState<WalletClient | undefined>(
     undefined
   );
   const [contributorsStored, setContributorsStored] = useState<any[]>([]);
@@ -97,6 +100,7 @@ function Page({
               walletClient: walletClient,
               nftStorageToken: nftStorageToken,
             });
+            setWalletClient(walletClient);
             setHyperClient(myClient);
           } else {
             console.error("Failed to create wallet client.");
@@ -252,6 +256,8 @@ function Page({
         });
         console.log("Submit running");
         setStatus("Started onchain minting");
+        let adds = await myWalletClient?.requestAddresses();
+        console.log(adds);
         const res = await MintHypercert(
           formValues,
           hyperClient,
@@ -270,7 +276,6 @@ function Page({
         throw err;
       }
     } else {
-      alert("Form values invalid");
     }
   };
 
