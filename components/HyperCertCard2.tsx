@@ -32,12 +32,9 @@ function HyperCertCard2({
       className={`block max-w-[300px] relative lg:mx-0 md:mx-0 mx-auto w-[300px] h-[380px] rounded-[12px]`}
       id={id}
     >
-      <Image
-        className={`max-w-[300px] w-[100%] rounded-[12px] h-[380px]`}
-        alt="bg-image"
-        src={`${bannerImg}`}
-        width={300}
-        height={360}
+      <div
+        className={`bg-cover bg-center w-[100%] rounded-[12px] h-full`}
+        style={{ backgroundImage: `url("${bannerImg}")` }}
       />
       <div
         className={`w-full h-[100%] absolute bottom-[0px] rounded-[12px] p-3`}

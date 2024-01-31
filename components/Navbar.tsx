@@ -1,7 +1,6 @@
 "use client";
 import { useAppContext } from "@/context/appContext";
 import { DM_Sans } from "next/font/google";
-import Image from "next/image";
 import Link from "next/link";
 const font = DM_Sans({
   weight: "600",
@@ -28,7 +27,7 @@ function Navbar() {
     >
       <Link href={`/`} className={`flex w-fit items-center space-x-1`}>
         <p
-          className={`lg:text-[23px] md:text-[22px] text-[20px] font-bold bg-gradient-to-r from-[#3d8b8d] to-[rgba(252,0,255)] text-transparent text-center inline-block bg-clip-text `}
+          className={`lg:text-[23px] md:text-[22px] text-[19px] font-bold bg-gradient-to-r from-[#3d8b8d] to-[rgba(252,0,255)] text-transparent text-center inline-block bg-clip-text `}
         >
           HYPERMINTER
         </p>

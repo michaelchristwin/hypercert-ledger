@@ -123,7 +123,7 @@ function Page({
   const [summedAmountUSD, setSumAmountUSD] = useState<number>(0);
   useEffect(() => {
     setAllow(false);
-    if (mychainId && roundId) {
+    if (mychainId && roundId && address) {
       toast.promise(
         (async () => {
           try {
@@ -135,7 +135,7 @@ function Page({
             const myItem = [...metaData].find(
               (item) =>
                 String(item.metadata.application.recipient).toLowerCase() ===
-                raddr?.toLowerCase()
+                address.toLowerCase()
             );
             if (myItem === undefined) {
               throw new Error("Item not found");
@@ -260,7 +260,6 @@ function Page({
         });
         console.log("Submit running");
         setStatus("Started onchain minting");
-
         const res = await MintHypercert(
           formValues,
           hyperClient,
