@@ -8,7 +8,10 @@ import {
   getChain,
 } from "@/actions/hypercerts";
 import { HypercertClient, AllowlistEntry } from "@hypercerts-org/sdk";
-import { useWeb3ModalAccount } from "@web3modal/ethers/react";
+import {
+  useWeb3ModalAccount,
+  useWeb3ModalProvider,
+} from "@web3modal/ethers/react";
 import { useState, useRef, useEffect } from "react";
 import { createWalletClient, custom, WalletClient } from "viem";
 import toast from "react-hot-toast";
@@ -20,7 +23,7 @@ import TextArea, { convertArrayToDisplayText } from "@/components/TextArea";
 import HyperCertCard2 from "@/components/HyperCertCard2";
 import ProgressPopup from "@/components/Progress";
 import { optimism } from "viem/chains";
-declare let window: any;
+import { Eip1193Provider } from "ethers";
 
 let currentYear = new Date();
 let cY = currentYear.getFullYear();
@@ -46,6 +49,7 @@ function Page({
   const [myWalletClient, setWalletClient] = useState<WalletClient | undefined>(
     undefined
   );
+  const { walletProvider } = useWeb3ModalProvider();
   const [contributorsStored, setContributorsStored] = useState<any[]>([]);
   const [formImages, setFormImages] = useState({
     logoImage: "",
@@ -88,11 +92,11 @@ function Page({
   useEffect(() => {
     (() => {
       try {
-        if (window.ethereum) {
+        if (walletProvider) {
           let walletClient = createWalletClient({
             account: address,
             chain: optimism,
-            transport: custom(window.ethereum),
+            transport: custom(walletProvider as Eip1193Provider),
           });
           if (walletClient) {
             let myClient = new HypercertClient({
@@ -106,13 +110,13 @@ function Page({
             console.error("Failed to create wallet client.");
           }
         } else {
-          console.error("window.ethereum is not available.");
+          console.error("wallet provider is not available.");
         }
       } catch (err) {
         console.error("Failed to create client:", err);
       }
     })();
-  }, [address, nftStorageToken]);
+  }, [address, nftStorageToken, walletProvider]);
 
   const [formValues, setFormValues] = useState<MyMetadata>(initialState);
   const { name, description, external_url } = formValues;

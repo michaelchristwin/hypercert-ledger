@@ -3,7 +3,6 @@
 import { AppContext } from "@/context/appContext";
 import { createWeb3Modal, defaultConfig } from "@web3modal/ethers/react";
 import {
-  iotex,
   arbitrum,
   fantom,
   pgn,
@@ -45,13 +44,7 @@ createWeb3Modal({
       chainId: optimism.id,
       currency: optimism.nativeCurrency.symbol,
     },
-    {
-      ...iotex,
-      rpcUrl: iotex.rpcUrls.default.http[0],
-      explorerUrl: iotex.blockExplorers.default.url,
-      chainId: iotex.id,
-      currency: iotex.nativeCurrency.symbol,
-    },
+
     {
       ...arbitrum,
       rpcUrl: arbitrum.rpcUrls.default.http[0],
@@ -104,7 +97,6 @@ function WalletProvider({ children }: { children: React.ReactNode }) {
 
 export default WalletProvider;
 export const myChains = {
-  iotex,
   arbitrum,
   fantom,
   pgn,
