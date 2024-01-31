@@ -260,8 +260,7 @@ function Page({
         });
         console.log("Submit running");
         setStatus("Started onchain minting");
-        let adds = await myWalletClient?.requestAddresses();
-        console.log(adds);
+
         const res = await MintHypercert(
           formValues,
           hyperClient,
