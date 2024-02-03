@@ -15,12 +15,12 @@ import {
 import { useState, useRef, useEffect } from "react";
 import { createWalletClient, custom, WalletClient } from "viem";
 import toast from "react-hot-toast";
-import domtoimage from "dom-to-image";
 import axios from "axios";
 import { useAppContext } from "@/context/appContext";
 import { uploadImage } from "@/actions/upload";
+import domToImage from "dom-to-image";
 import TextArea, { convertArrayToDisplayText } from "@/components/TextArea";
-import HyperCertCard2 from "@/components/HyperCertCard2";
+import MyHypercert from "@/components/MyHypercert";
 import ProgressPopup from "@/components/Progress";
 import { optimism } from "viem/chains";
 import { Eip1193Provider } from "ethers";
@@ -121,6 +121,7 @@ function Page({
   const [formValues, setFormValues] = useState<MyMetadata>(initialState);
   const { name, description, external_url } = formValues;
   const [summedAmountUSD, setSumAmountUSD] = useState<number>(0);
+  const cardRef = useRef<HTMLDivElement | undefined>(undefined);
   useEffect(() => {
     setAllow(false);
     if (mychainId && roundId && address) {
@@ -157,7 +158,7 @@ function Page({
               fal = Number(contributors[index].units) + fal;
             }
             setSumAmountUSD(fal);
-            const totalUnits = contributors.map((contri) => {});
+
             setallowList(contributors);
             setContributorsStored(contributors);
             const options = convertArrayToDisplayText(contributors);
@@ -213,10 +214,12 @@ function Page({
       [name]: value,
     });
   };
-  const covertToBlob = async () => {
-    const myRef = document.getElementById("hypercert") as HTMLElement;
-    const imgBlob = await domtoimage.toBlob(myRef);
-    return imgBlob;
+  const covertToBlob = async (ref: React.MutableRefObject<HTMLDivElement>) => {
+    if (ref.current) {
+      const myRef = cardRef.current;
+      const imgBlob = await domToImage.toBlob(myRef as HTMLElement);
+      return imgBlob;
+    }
   };
   const handleRangeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
@@ -245,7 +248,9 @@ function Page({
       diaRef.current.showModal();
       setIsMinting(true);
       try {
-        const hyperImage = await covertToBlob();
+        const hyperImage = await covertToBlob(
+          cardRef as React.MutableRefObject<HTMLDivElement>
+        );
         setStatus("Uploading image");
         if (!hyperImage) {
           throw new Error("Hypercert image is invalid");
@@ -256,7 +261,7 @@ function Page({
         }
         setFormValues({
           ...formValues,
-          image: `https://ipfs.io/ipfs/${imgHash}`,
+          image: imgHash,
         });
         console.log("Submit running");
         setStatus("Started onchain minting");
@@ -640,18 +645,18 @@ function Page({
             allow ? "block" : "hidden"
           } h-fit sticky top-[100px] p-[40px] lg:mx-0 md:mx-0 mx-auto`}
         >
-          <HyperCertCard2
+          <MyHypercert
             startDate={formDates.workTimeframeStart}
             bannerPattern={roundColor.pattern}
             endDate={formDates.workTimeframeEnd}
             chain={getChain(Number(mychainId))}
             logoImg={logoImage}
+            ref={cardRef}
             bannerImg={bannerImage}
             roundId={roundId as string}
             name={name}
             workScope={workScopeStored}
             gradient={roundColor.color}
-            id="hypercert"
           />
         </div>
       </div>

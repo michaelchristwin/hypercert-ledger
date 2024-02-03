@@ -1,7 +1,8 @@
 "use client";
 
 import { Chain } from "viem";
-import Image from "next/image";
+
+import { forwardRef } from "react";
 
 interface HyperCertCardProps {
   name: string;
@@ -11,26 +12,27 @@ interface HyperCertCardProps {
   chain: Chain;
   startDate?: string;
   endDate?: string;
-  id?: string;
   workScope?: string[];
   bannerPattern: string;
   gradient: string;
 }
-function HyperCertCard2({
-  name,
-  bannerImg,
-  logoImg,
-  workScope,
-  id,
-  startDate,
-  endDate,
-  gradient,
-  bannerPattern,
-}: HyperCertCardProps) {
+const MyHypercert = forwardRef(function HyperCertCard2(
+  {
+    name,
+    bannerImg,
+    logoImg,
+    workScope,
+    startDate,
+    endDate,
+    gradient,
+    bannerPattern,
+  }: HyperCertCardProps,
+  ref
+) {
   return (
     <div
       className={`block max-w-[300px] relative lg:mx-0 md:mx-0 mx-auto w-[300px] h-[380px] rounded-[12px]`}
-      id={id}
+      ref={ref as React.LegacyRef<HTMLDivElement>}
     >
       <div
         className={`bg-cover bg-center w-[100%] rounded-[12px] h-full`}
@@ -61,14 +63,14 @@ function HyperCertCard2({
                 workScope.map((item, index) => (
                   <div
                     key={index}
-                    className={`border-[2px] border-gray-800 flex justify-around rounded-[4px] min-w-[20px] h-[20px] px-[2px]`}
+                    className={`border-[2px] border-gray-800 flex justify-around rounded-[4px] min-w-[20px] max-w-[40px] h-[20px] px-[2px]`}
                   >
                     <p className={`text-[12px] text-center truncate`}>{item}</p>
                   </div>
                 ))}
             </div>
           </div>
-          <div className={`flex items-cente`}>
+          <div className={`flex`}>
             <p className={`text-[14px]`}>{startDate}</p>
             <p className={`text-[13px] space-x-1`}>&rarr;</p>
             <p className={`text-[14px]`}>{endDate}</p>
@@ -77,6 +79,6 @@ function HyperCertCard2({
       </div>
     </div>
   );
-}
+});
 
-export default HyperCertCard2;
+export default MyHypercert;
