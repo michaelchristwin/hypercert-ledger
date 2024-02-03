@@ -1,11 +1,12 @@
-import { HypercertClient, HypercertMetadata } from "@hypercerts-org/sdk";
 import {
+  HypercertClient,
+  getClaimStoredDataFromTxHash,
   TransferRestrictions,
   formatHypercertData,
   AllowlistEntry,
 } from "@hypercerts-org/sdk";
 import { myChains } from "@/providers/Walletprovider";
-import { error } from "console";
+import { createPublicClient, http, PublicClient } from "viem";
 
 interface MyMetadata {
   name: string;
@@ -31,17 +32,24 @@ interface MyMetadata {
   rights: string[];
   excludedRights: string[];
 }
-
+const publicClient = createPublicClient({
+  chain: myChains.optimism,
+  transport: http(),
+});
 async function MintHypercert(
   props: MyMetadata,
   client: HypercertClient,
   allowList: AllowlistEntry[],
   totalUnits: bigint,
-  setStatus: React.Dispatch<React.SetStateAction<string>>
+  setIsSuccess: React.Dispatch<React.SetStateAction<boolean>>,
+  setIsMinting: React.Dispatch<React.SetStateAction<boolean>>
 ) {
   const { data, errors, valid } = formatHypercertData(props);
+  let res: { claims: any | undefined; txHash: `0x${string}` | undefined } = {
+    claims: undefined,
+    txHash: undefined,
+  };
 
-  let txHash;
   try {
     if (client === undefined) {
       throw new Error("Client is undefined");
@@ -49,25 +57,27 @@ async function MintHypercert(
     if (!data) {
       throw errors;
     }
-    setStatus("Creating allowlist");
 
-    txHash = await client.createAllowlist(
+    res.txHash = await client.createAllowlist(
       allowList,
       data,
       totalUnits,
       TransferRestrictions.FromCreatorOnly
     );
-
-    // await client.mintClaim(
-    //   data as HypercertMetadata,
-    //   totalUnits,
-
-    //   TransferRestrictions.FromCreatorOnly
-    // );
+    if (res.txHash) {
+      res.claims = await getClaimStoredDataFromTxHash(
+        publicClient as PublicClient,
+        res.txHash
+      );
+    } else {
+      throw new Error("Response is undefined");
+    }
   } catch (err) {
     console.error("Mint Process Failed:", err);
+    setIsSuccess(false);
+    setIsMinting(false);
   }
-  return txHash;
+  return res;
 }
 
 export { MintHypercert, type MyMetadata };

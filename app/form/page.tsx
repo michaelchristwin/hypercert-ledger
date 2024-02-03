@@ -21,7 +21,7 @@ import { uploadImage } from "@/actions/upload";
 import domToImage from "dom-to-image";
 import TextArea, { convertArrayToDisplayText } from "@/components/TextArea";
 import MyHypercert from "@/components/MyHypercert";
-import ProgressPopup from "@/components/Progress";
+import ProgressPopup, { MethRes } from "@/components/Progress";
 import { optimism } from "viem/chains";
 import { Eip1193Provider } from "ethers";
 
@@ -46,6 +46,8 @@ function Page({
   const [hyperClient, setHyperClient] = useState<HypercertClient | undefined>(
     undefined
   );
+  const [res, setRes] = useState<MethRes>();
+
   const [myWalletClient, setWalletClient] = useState<WalletClient | undefined>(
     undefined
   );
@@ -57,19 +59,22 @@ function Page({
   });
   const { logoImage, bannerImage } = formImages;
   const { setCorrectNetwork, setIsWrongNetwork, roundColor } = useAppContext();
-  const [isSuccess, setIsSuccess] = useState<boolean | undefined>(undefined);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isMinting, setIsMinting] = useState(false);
   const [formDates, setFormDates] = useState({
     workTimeframeStart: `${cY}-01-01`,
     workTimeframeEnd: currentYear.toISOString().slice(0, 10),
     impactTimeframeStart: `${cY}-01-01`,
     impactTimeframeEnd: currentYear.toISOString().slice(0, 10),
   });
-  const [status, setStatus] = useState("");
-  const [isMinting, setIsMinting] = useState(false);
   const { address, chainId } = useWeb3ModalAccount();
   const mychainId = searchParams.chainId as string;
   const roundId = searchParams.roundId as string;
-
+  const handleDiaClose = () => {
+    if (diaRef.current) {
+      diaRef.current.close();
+    }
+  };
   const initialState: MyMetadata = {
     name: "",
     description: "",
@@ -98,6 +103,7 @@ function Page({
             chain: optimism,
             transport: custom(walletProvider as Eip1193Provider),
           });
+
           if (walletClient) {
             let myClient = new HypercertClient({
               chain: optimism,
@@ -136,7 +142,7 @@ function Page({
             const myItem = [...metaData].find(
               (item) =>
                 String(item.metadata.application.recipient).toLowerCase() ===
-                address.toLowerCase()
+                raddr.toLowerCase()
             );
             if (myItem === undefined) {
               throw new Error("Item not found");
@@ -226,8 +232,6 @@ function Page({
     setAllowRange(Number(value));
   };
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    setIsSuccess(undefined);
-    setStatus("");
     event.preventDefault();
     let percentage = allowRange / 100;
     let totalUnits = summedAmountUSD / percentage;
@@ -245,13 +249,13 @@ function Page({
       },
     ];
     if (isValid(formValues) && hyperClient && diaRef.current) {
-      diaRef.current.showModal();
       setIsMinting(true);
+      diaRef.current.showModal();
       try {
         const hyperImage = await covertToBlob(
           cardRef as React.MutableRefObject<HTMLDivElement>
         );
-        setStatus("Uploading image");
+
         if (!hyperImage) {
           throw new Error("Hypercert image is invalid");
         }
@@ -264,25 +268,31 @@ function Page({
           image: `ipfs://${imgHash}`,
         });
         console.log("Submit running");
-        setStatus("Started onchain minting");
+
         const res = await MintHypercert(
           formValues,
           hyperClient,
           newAllowlist,
           BigInt(totalUnits),
-          setStatus
+          setIsSuccess,
+          setIsMinting
         );
 
+        if (!res.txHash) {
+          throw new Error("Response is undefined");
+        }
+
+        setRes(res);
         setIsSuccess(true);
         setIsMinting(false);
-        diaRef.current.close();
       } catch (err) {
-        diaRef.current.close();
         setIsSuccess(false);
-        console.error(err);
+        console.error("Bubbled");
+        setIsMinting(false);
         throw err;
       }
     } else {
+      throw new Error("A form value is invalid");
     }
   };
 
@@ -660,7 +670,13 @@ function Page({
           />
         </div>
       </div>
-      <ProgressPopup ref={diaRef} status={status} />
+      <ProgressPopup
+        ref={diaRef}
+        isSuccess={isSuccess}
+        isMinting={isMinting}
+        res={res as MethRes}
+        onClick={handleDiaClose}
+      />
     </>
   );
 }
