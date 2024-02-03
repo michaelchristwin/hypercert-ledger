@@ -261,7 +261,7 @@ function Page({
         }
         setFormValues({
           ...formValues,
-          image: imgHash,
+          image: `ipfs://${imgHash}`,
         });
         console.log("Submit running");
         setStatus("Started onchain minting");
