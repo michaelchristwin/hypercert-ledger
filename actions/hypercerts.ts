@@ -2,7 +2,6 @@ import {
   HypercertClient,
   TransferRestrictions,
   formatHypercertData,
-  getClaimStoredDataFromTxHash,
   AllowlistEntry,
   HypercertMinterAbi,
 } from "@hypercerts-org/sdk";
@@ -17,7 +16,7 @@ import {
 } from "viem";
 
 import { Eip1193Provider, TransactionReceipt } from "ethers";
-import { BrowserProvider } from "ethers";
+import { BrowserProvider, Interface } from "ethers";
 
 interface MyMetadata {
   name: string;
@@ -114,12 +113,15 @@ async function mintHypercert(
       }
     };
     const receipt = await getTillTruthy(getReceipt);
-    let rrr = parseLog(receipt);
-    console.log(rrr);
-    // res.claims = receipt;
-    // let interA = new Interface(SepoliaABI);
-    // let details = interA.parseTransaction({ data: receipt.logs[0].data });
-    // console.log(details);
+
+    res.claims = receipt;
+    let logs = parseLog(receipt);
+    let interA = new Interface(HypercertMinterAbi);
+    let details = interA.parseLog(logs[0]);
+    if (details) {
+    }
+    console.log("Args:", details?.args[0].valueOf());
+    console.log("topic:", details?.topic);
   } catch (err) {
     console.error("Mint Process Failed:", err);
   }
@@ -187,20 +189,5 @@ function parseLog(receipt: TransactionReceipt) {
     logs: receipt.logs as any,
   });
 
-  if (logs.length === 0) {
-    return {
-      errors: {
-        noLogs: "No logs found for this transaction",
-      },
-      success: false,
-    };
-  }
-
-  const claimStoredLog = logs[1];
-  const topics = decodeEventLog({
-    abi: HypercertMinterAbi,
-    data: claimStoredLog.data,
-    topics: claimStoredLog.topics,
-  });
-  return topics;
+  return logs;
 }
