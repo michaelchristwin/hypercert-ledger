@@ -142,7 +142,7 @@ function Page({
             const myItem = [...metaData].find(
               (item) =>
                 String(item.metadata.application.recipient).toLowerCase() ===
-                raddr.toLowerCase()
+                address.toLowerCase()
             );
             if (myItem === undefined) {
               throw new Error("Item not found");
