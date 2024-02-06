@@ -1,3 +1,10 @@
+"use client";
+
+import { getChain } from "@/actions/hypercerts";
+import * as AlertDialog from "@radix-ui/react-alert-dialog";
+import { useWeb3ModalAccount } from "@web3modal/ethers/react";
+import Link from "next/link";
+
 import { forwardRef } from "react";
 export type MethRes = {
   txHash: `0x${string}` | undefined;
@@ -8,15 +15,18 @@ interface ProgressProps {
   res: MethRes;
   isSuccess: boolean;
   isMinting: boolean;
-  onClick: () => void;
 }
 
 const ProgressPopup = forwardRef(function ProgressPopup(
   props: ProgressProps,
   ref
 ) {
-  const { res, isSuccess, onClick, isMinting } = props;
+  const { res, isSuccess, isMinting } = props;
+
   const Monitor = () => {
+    const { chainId } = useWeb3ModalAccount();
+    const currentChain = getChain(chainId as number);
+
     if (isMinting) {
       return (
         <div className="loader">
@@ -35,9 +45,9 @@ const ProgressPopup = forwardRef(function ProgressPopup(
       );
     } else if (!isMinting && isSuccess) {
       return (
-        <div className={`w-full flex justify-center items-center h-[100px]`}>
+        <div className={`w-full items-center space-y-2 h-[70%]`}>
           <div
-            className={`w-[140px] flex animate-animateContainer justify-center items-center h-[140px] bg-green-600 rounded-full`}
+            className={`w-[140px] mx-auto flex animate-animateContainer justify-center items-center h-[140px] bg-green-600 rounded-full`}
           >
             <svg
               viewBox="0 0 24 24"
@@ -62,14 +72,20 @@ const ProgressPopup = forwardRef(function ProgressPopup(
             </svg>
           </div>
           <p className={`text-[18px] text-green-600`}>
-            Transaction Successeful
+            Transaction Successful!
           </p>
-          <p className={`block text-[16px]`}>Tx Hash: {res.txHash}</p>;
+          <pre className={`block text-[16px]`}>
+            Tx Hash:
+            <Link
+              href={`${currentChain.blockExplorers.default.url}/tx/${res.txHash}`}
+              className={`text-sky-500`}
+            >{` ${res.txHash?.slice(0, 15)}...${res.txHash?.slice(-15)}`}</Link>
+          </pre>
         </div>
       );
     } else {
       return (
-        <div className={`w-full flex justify-center items-center h-[100px]`}>
+        <div className={`w-full flex justify-center items-center h-[70%]`}>
           <div
             className={`w-[140px] flex animate-animateContainer justify-center items-center h-[140px] bg-red-600 rounded-full`}
           >
@@ -99,48 +115,59 @@ const ProgressPopup = forwardRef(function ProgressPopup(
       );
     }
   };
-
+  const handleClick = () => {
+    if (isSuccess) {
+      window.location.assign("/");
+    }
+  };
   return (
-    <dialog
-      className={`lg:w-[40%] md:w-[40%] w-[90%] relative h-[350px] lg:px-[70px] md:px-[60px] px-[20px] py-[30px] backdrop:bg-neutral-900/90 inset-0 backdrop-blur z-[30] rounded-[7px]`}
-      ref={ref as React.LegacyRef<HTMLDialogElement>}
-    >
-      <p
-        className={`block lg:text-[25px] md:text-[20px] text-[19px] font-bold`}
-      >
-        Processing Hypercert
-      </p>
-      {isMinting && (
-        <p
-          className={`block lg:text-[18px] md:text-[18px] text-[16px] italic text-neutral-700`}
-        >
-          Please keep this tab open until completion
-        </p>
-      )}
-      {!isMinting && (
-        <button
-          className={`w-[25px] h-[25px] p-1 absolute flex justify-center items-center right-2 top-2 rounded-full bg-black`}
-          onClick={onClick}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            width="22"
-            height="22"
+    <AlertDialog.Root>
+      <AlertDialog.Trigger asChild>
+        <button ref={ref as React.LegacyRef<HTMLButtonElement>}></button>
+      </AlertDialog.Trigger>
+      <AlertDialog.Portal>
+        <AlertDialog.Overlay className="fixed bg-neutral-900/90 inset-0 backdrop-blur z-[30]" />
+        <AlertDialog.Content className="fixed focus:outline-none drop-shadow-md border z-[31] border-neutral-700 top-[50%] left-[50%] h-[300px] lg:w-[38%] md:w-[38%] w-[90%] translate-y-[-50%] translate-x-[-50%] rounded-md bg-white p-[30px]">
+          <AlertDialog.Title
+            className={`block lg:text-[25px] md:text-[20px] text-[19px] font-bold`}
           >
-            <path d="M0 0h24v24H0z" fill="none" />
-            <path
-              d="M18 6L6 18M6 6l12 12"
-              stroke="#ffffff"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
-      )}
-      <Monitor />
-    </dialog>
+            Processing Hypercert
+          </AlertDialog.Title>
+          {isMinting && (
+            <AlertDialog.Description
+              className={`block lg:text-[16px] md:text-[17px] text-[16px] text-neutral-700`}
+            >
+              Please keep this tab open until completion
+            </AlertDialog.Description>
+          )}
+          {!isMinting && (
+            <AlertDialog.Cancel asChild>
+              <button
+                className={`w-[25px] h-[25px]  absolute flex justify-center items-center right-2 top-2 rounded-full bg-black`}
+                onClick={handleClick}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                >
+                  <path d="M0 0h24v24H0z" fill="none" />
+                  <path
+                    d="M18 6L6 18M6 6l12 12"
+                    stroke="#ffffff"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            </AlertDialog.Cancel>
+          )}
+          <Monitor />
+        </AlertDialog.Content>
+      </AlertDialog.Portal>
+    </AlertDialog.Root>
   );
 });
 

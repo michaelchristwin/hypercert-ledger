@@ -4,6 +4,7 @@ import {
   TransferRestrictions,
   formatHypercertData,
   AllowlistEntry,
+  ParserReturnType,
 } from "@hypercerts-org/sdk";
 import { myChains } from "@/providers/Walletprovider";
 import { createPublicClient, http, PublicClient } from "viem";
@@ -32,24 +33,28 @@ interface MyMetadata {
   rights: string[];
   excludedRights: string[];
 }
-const publicClient = createPublicClient({
-  chain: myChains.optimism,
-  transport: http(),
-});
+
 async function MintHypercert(
   props: MyMetadata,
   client: HypercertClient,
   allowList: AllowlistEntry[],
   totalUnits: bigint,
-  setIsSuccess: React.Dispatch<React.SetStateAction<boolean>>,
-  setIsMinting: React.Dispatch<React.SetStateAction<boolean>>
+  chainId: number
 ) {
   const { data, errors, valid } = formatHypercertData(props);
-  let res: { claims: any | undefined; txHash: `0x${string}` | undefined } = {
+  let res: {
+    claims: ParserReturnType | undefined;
+    txHash: `0x${string}` | undefined;
+  } = {
     claims: undefined,
     txHash: undefined,
   };
+  let currentChain = getChain(chainId);
 
+  const publicClient = createPublicClient({
+    chain: currentChain,
+    transport: http(),
+  });
   try {
     if (client === undefined) {
       throw new Error("Client is undefined");
@@ -65,17 +70,16 @@ async function MintHypercert(
       TransferRestrictions.FromCreatorOnly
     );
     if (res.txHash) {
-      res.claims = await getClaimStoredDataFromTxHash(
-        publicClient as PublicClient,
-        res.txHash
-      );
+      // res.claims = await getClaimStoredDataFromTxHash(
+      //   publicClient as PublicClient,
+      //   res.txHash
+      // );
     } else {
+      res.claims = undefined;
       throw new Error("Response is undefined");
     }
   } catch (err) {
     console.error("Mint Process Failed:", err);
-    setIsSuccess(false);
-    setIsMinting(false);
   }
   return res;
 }

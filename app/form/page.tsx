@@ -22,7 +22,7 @@ import domToImage from "dom-to-image";
 import TextArea, { convertArrayToDisplayText } from "@/components/TextArea";
 import MyHypercert from "@/components/MyHypercert";
 import ProgressPopup, { MethRes } from "@/components/Progress";
-import { optimism } from "viem/chains";
+import { optimism, sepolia } from "viem/chains";
 import { Eip1193Provider } from "ethers";
 
 let currentYear = new Date();
@@ -35,7 +35,7 @@ function Page({
   params: { slug: string };
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  const diaRef = useRef<HTMLDialogElement | null>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
   const nftStorageToken = process.env.NEXT_PUBLIC_NFTSTORAGE;
   const [allow, setAllow] = useState(false);
   const [allowList, setallowList] = useState<AllowlistEntry[]>([]);
@@ -70,11 +70,7 @@ function Page({
   const { address, chainId } = useWeb3ModalAccount();
   const mychainId = searchParams.chainId as string;
   const roundId = searchParams.roundId as string;
-  const handleDiaClose = () => {
-    if (diaRef.current) {
-      diaRef.current.close();
-    }
-  };
+
   const initialState: MyMetadata = {
     name: "",
     description: "",
@@ -100,13 +96,13 @@ function Page({
         if (walletProvider) {
           let walletClient = createWalletClient({
             account: address,
-            chain: optimism,
+            chain: sepolia,
             transport: custom(walletProvider as Eip1193Provider),
           });
 
           if (walletClient) {
             let myClient = new HypercertClient({
-              chain: optimism,
+              chain: sepolia,
               walletClient: walletClient,
               nftStorageToken: nftStorageToken,
             });
@@ -248,9 +244,9 @@ function Page({
         units: BigInt(recipientUnits),
       },
     ];
-    if (isValid(formValues) && hyperClient && diaRef.current) {
+    if (isValid(formValues) && hyperClient && triggerRef.current) {
       setIsMinting(true);
-      diaRef.current.showModal();
+      triggerRef.current.click();
       try {
         const hyperImage = await covertToBlob(
           cardRef as React.MutableRefObject<HTMLDivElement>
@@ -274,11 +270,10 @@ function Page({
           hyperClient,
           newAllowlist,
           BigInt(totalUnits),
-          setIsSuccess,
-          setIsMinting
+          chainId as number
         );
 
-        if (!res.txHash) {
+        if (!res.txHash && !res.claims) {
           throw new Error("Response is undefined");
         }
 
@@ -287,7 +282,6 @@ function Page({
         setIsMinting(false);
       } catch (err) {
         setIsSuccess(false);
-        console.error("Bubbled");
         setIsMinting(false);
         throw err;
       }
@@ -671,11 +665,10 @@ function Page({
         </div>
       </div>
       <ProgressPopup
-        ref={diaRef}
+        ref={triggerRef}
         isSuccess={isSuccess}
         isMinting={isMinting}
         res={res as MethRes}
-        onClick={handleDiaClose}
       />
     </>
   );
