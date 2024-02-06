@@ -22,7 +22,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hot-toast": "^2.4.1",
-    "react-select": "^5.8.0"
+    "react-select": "^5.8.0",
+    "viem": "^2.7.6"
   },
   "devDependencies": {
     "typescript": "^5",

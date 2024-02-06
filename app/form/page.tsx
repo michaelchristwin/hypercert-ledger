@@ -2,7 +2,7 @@
 
 import {
   MyMetadata,
-  MintHypercert,
+  mintHypercert,
   ISOToUNIX,
   isValid,
   getChain,
@@ -13,7 +13,7 @@ import {
   useWeb3ModalProvider,
 } from "@web3modal/ethers/react";
 import { useState, useRef, useEffect } from "react";
-import { createWalletClient, custom, WalletClient } from "viem";
+import { Chain, createWalletClient, custom, WalletClient } from "viem";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { useAppContext } from "@/context/appContext";
@@ -102,8 +102,8 @@ function Page({
 
           if (walletClient) {
             let myClient = new HypercertClient({
-              chain: sepolia,
-              walletClient: walletClient,
+              chain: sepolia as any,
+              walletClient: walletClient as any,
               nftStorageToken: nftStorageToken,
             });
             setWalletClient(walletClient);
@@ -138,7 +138,7 @@ function Page({
             const myItem = [...metaData].find(
               (item) =>
                 String(item.metadata.application.recipient).toLowerCase() ===
-                address.toLowerCase()
+                raddr.toLowerCase()
             );
             if (myItem === undefined) {
               throw new Error("Item not found");
@@ -265,12 +265,13 @@ function Page({
         });
         console.log("Submit running");
 
-        const res = await MintHypercert(
+        const res = await mintHypercert(
           formValues,
           hyperClient,
           newAllowlist,
           BigInt(totalUnits),
-          chainId as number
+          chainId as number,
+          walletProvider as Eip1193Provider
         );
 
         if (!res.txHash && !res.claims) {

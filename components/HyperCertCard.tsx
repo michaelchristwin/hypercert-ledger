@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useAppContext } from "@/context/appContext";
 import { Chain } from "viem";
 import { useEffect, useState } from "react";
-import Image from "next/image";
 
 interface HyperCertCardProps {
   name: string;

@@ -1,13 +1,23 @@
 import {
   HypercertClient,
-  getClaimStoredDataFromTxHash,
   TransferRestrictions,
   formatHypercertData,
+  getClaimStoredDataFromTxHash,
   AllowlistEntry,
-  ParserReturnType,
+  HypercertMinterAbi,
 } from "@hypercerts-org/sdk";
+
 import { myChains } from "@/providers/Walletprovider";
-import { createPublicClient, http, PublicClient } from "viem";
+import {
+  createPublicClient,
+  http,
+  PublicClient,
+  decodeEventLog,
+  parseEventLogs,
+} from "viem";
+
+import { Eip1193Provider, TransactionReceipt } from "ethers";
+import { BrowserProvider } from "ethers";
 
 interface MyMetadata {
   name: string;
@@ -34,19 +44,39 @@ interface MyMetadata {
   excludedRights: string[];
 }
 
-async function MintHypercert(
+/**
+ * Keeps running an async method till you get a truthy value.
+ * @param method - Async method to call.
+ * @returns truthy value.
+ */
+const getTillTruthy = async (
+  method: () => Promise<TransactionReceipt | null>,
+  interval = 1000
+) => {
+  while (true) {
+    const result = await method();
+    if (result) {
+      return result;
+    }
+    await new Promise((resolve) => setTimeout(resolve, interval));
+  }
+};
+
+async function mintHypercert(
   props: MyMetadata,
   client: HypercertClient,
   allowList: AllowlistEntry[],
   totalUnits: bigint,
-  chainId: number
+  chainId: number,
+  walletProvider: Eip1193Provider
 ) {
   const { data, errors, valid } = formatHypercertData(props);
+
   let res: {
-    claims: ParserReturnType | undefined;
+    claims: TransactionReceipt | null;
     txHash: `0x${string}` | undefined;
   } = {
-    claims: undefined,
+    claims: null,
     txHash: undefined,
   };
   let currentChain = getChain(chainId);
@@ -69,22 +99,34 @@ async function MintHypercert(
       totalUnits,
       TransferRestrictions.FromCreatorOnly
     );
-    if (res.txHash) {
-      // res.claims = await getClaimStoredDataFromTxHash(
-      //   publicClient as PublicClient,
-      //   res.txHash
-      // );
-    } else {
-      res.claims = undefined;
-      throw new Error("Response is undefined");
-    }
+    let provider = new BrowserProvider(walletProvider);
+    const getReceipt = async () => {
+      let receipt: TransactionReceipt | null;
+      try {
+        if (res.txHash) {
+          receipt = await provider.getTransactionReceipt(res.txHash);
+        } else {
+          throw new Error("Response is undefined");
+        }
+        return receipt;
+      } catch (err) {
+        throw err;
+      }
+    };
+    const receipt = await getTillTruthy(getReceipt);
+    let rrr = parseLog(receipt);
+    console.log(rrr);
+    // res.claims = receipt;
+    // let interA = new Interface(SepoliaABI);
+    // let details = interA.parseTransaction({ data: receipt.logs[0].data });
+    // console.log(details);
   } catch (err) {
     console.error("Mint Process Failed:", err);
   }
   return res;
 }
 
-export { MintHypercert, type MyMetadata };
+export { mintHypercert, type MyMetadata };
 
 /**
  * Gets the chain object for the given chain id.
@@ -137,3 +179,28 @@ export const isValid = (formValue: MyMetadata) => {
     console.error("Validation Error", err);
   }
 };
+
+function parseLog(receipt: TransactionReceipt) {
+  const logs = parseEventLogs({
+    abi: HypercertMinterAbi,
+    eventName: "ClaimStored",
+    logs: receipt.logs as any,
+  });
+
+  if (logs.length === 0) {
+    return {
+      errors: {
+        noLogs: "No logs found for this transaction",
+      },
+      success: false,
+    };
+  }
+
+  const claimStoredLog = logs[1];
+  const topics = decodeEventLog({
+    abi: HypercertMinterAbi,
+    data: claimStoredLog.data,
+    topics: claimStoredLog.topics,
+  });
+  return topics;
+}
