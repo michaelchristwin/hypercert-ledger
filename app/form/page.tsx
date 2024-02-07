@@ -96,13 +96,13 @@ function Page({
         if (walletProvider) {
           let walletClient = createWalletClient({
             account: address,
-            chain: optimism,
+            chain: sepolia,
             transport: custom(walletProvider as Eip1193Provider),
           });
 
           if (walletClient) {
             let myClient = new HypercertClient({
-              chain: optimism as any,
+              chain: sepolia as any,
               walletClient: walletClient as any,
               nftStorageToken: nftStorageToken,
             });
@@ -138,7 +138,7 @@ function Page({
             const myItem = [...metaData].find(
               (item) =>
                 String(item.metadata.application.recipient).toLowerCase() ===
-                address.toLowerCase()
+                raddr.toLowerCase()
             );
             if (myItem === undefined) {
               throw new Error("Item not found");

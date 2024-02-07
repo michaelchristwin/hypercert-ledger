@@ -7,9 +7,10 @@ import {
 } from "@hypercerts-org/sdk";
 import { StandardMerkleTree } from "@openzeppelin/merkle-tree";
 import { myChains } from "@/providers/Walletprovider";
-import { parseEventLogs, toHex } from "viem";
+import { parseEventLogs } from "viem";
 import { Eip1193Provider, TransactionReceipt } from "ethers";
 import { BrowserProvider, Interface } from "ethers";
+import { celo, optimism, sepolia } from "viem/chains";
 
 interface MyMetadata {
   name: string;
@@ -53,6 +54,7 @@ const getTillTruthy = async (
     await new Promise((resolve) => setTimeout(resolve, interval));
   }
 };
+
 async function mintHypercert(
   props: MyMetadata,
   client: HypercertClient,
@@ -85,75 +87,84 @@ async function mintHypercert(
       totalUnits,
       TransferRestrictions.FromCreatorOnly
     );
-    // let provider = new BrowserProvider(walletProvider);
-    // const getReceipt = async () => {
-    //   let receipt: TransactionReceipt | null;
-    //   try {
-    //     if (res.allowlistTxHash) {
-    //       receipt = await provider.getTransactionReceipt(res.allowlistTxHash);
-    //     } else {
-    //       throw new Error("Response is undefined");
-    //     }
-    //     return receipt;
-    //   } catch (err) {
-    //     throw err;
-    //   }
-    // };
-    // const receipt = await getTillTruthy(getReceipt);
-    // const { storage, indexer } = client;
-    // let logs = parseLog(receipt);
-    // console.log(String(logs[0].topics[1]));
-    // let address = (await provider.getSigner()).address;
-    // let hyperInterface = new Interface(HypercertMinterAbi);
-    // let details = hyperInterface.parseLog(logs[0]);
-    // if (details) {
-    //   let claim_Id = details.args[0].valueOf();
-    //   console.log(String(claim_Id));
-
-    //   const getPr = async () => {
-    //     let claimById;
-    //     try {
-    //       return claimById;
-    //     } catch (err) {
-    //       console.error("Failed method");
-    //       throw err; // Rethrow the error
-    //     }
-    //   };
-
-    //   const claimById = await indexer.claimById(String(logs[0].topics[1]));
-    //   console.log("claimById:", claimById);
-    //   const { uri, tokenID: _id } = claimById.claim;
-    //   const metadata = await storage.getMetadata(uri || "");
-    //   console.log("metadata:", metadata);
-    //   const treeResponse = await storage.getData(metadata.allowList as string);
-    //   const tree = StandardMerkleTree.load(JSON.parse(treeResponse as string));
-    //   console.log("tree:", tree);
-    //   let defArgs;
-    //   for (const [leaf, value] of tree.entries()) {
-    //     if (value[0] === address) {
-    //       defArgs = {
-    //         proofs: tree.getProof(leaf),
-    //         units: BigInt(value[1]),
-    //         claimId: _id,
-    //       };
-    //       break;
-    //     }
-    //   }
-    //   if (!defArgs) {
-    //     throw new Error("Arguments are undefined");
-    //   }
-    //   console.log("defArgs:", defArgs);
-    //   const { proofs, units, claimId } = defArgs;
-    //   const tx = await client.mintClaimFractionFromAllowlist(
-    //     claimId,
-    //     units,
-    //     proofs as `0x${string}`[] | Uint8Array[]
-    //   );
-    //   if (!tx) {
-    //     throw new Error("Mint claim fraction failed");
-    //   }
-    //   res.claimsTxHash = tx;
-    // }
+    let provider = new BrowserProvider(walletProvider);
+    const getReceipt = async () => {
+      let receipt: TransactionReceipt | null;
+      try {
+        if (res.allowlistTxHash) {
+          receipt = await provider.getTransactionReceipt(res.allowlistTxHash);
+        } else {
+          throw new Error("Response is undefined");
+        }
+        return receipt;
+      } catch (err) {
+        throw err;
+      }
+    };
+    const receipt = await getTillTruthy(getReceipt);
+    const { storage, indexer } = client;
+    let logs = parseLog(receipt);
+    let claimIdHash = String(logs[0].topics[1]);
+    let address = (await provider.getSigner()).address;
+    let hyperInterface = new Interface(HypercertMinterAbi);
+    let details = hyperInterface.parseLog(logs[0]);
+    if (details) {
+      let claim_Id = String(details.args[0].valueOf());
+      let currentNetwork = getChain(chainId);
+      let contract_address: string;
+      switch (currentNetwork) {
+        case optimism:
+          contract_address = "0x822F17A9A5EeCFd66dBAFf7946a8071C265D1d07";
+          break;
+        case sepolia:
+          contract_address = "0xa16DFb32Eb140a6f3F2AC68f41dAd8c7e83C4941";
+          break;
+        case celo as any:
+          contract_address = "0x16bA53B74c234C870c61EFC04cD418B8f2865959";
+        default:
+          contract_address = "";
+          break;
+      }
+      console.log(`${contract_address}-${claim_Id}`);
+      if (!contract_address) {
+        throw new Error("Contract address is undefined");
+      }
+      const claimById = await indexer.claimById(
+        `${contract_address}-${claim_Id}`
+      );
+      console.log("claimById:", claimById);
+      const { uri, tokenID: _id } = claimById.claim;
+      const metadata = await storage.getMetadata(uri || "");
+      console.log("metadata:", metadata);
+      const treeResponse = await storage.getData(metadata.allowList as string);
+      const tree = StandardMerkleTree.load(JSON.parse(treeResponse as string));
+      console.log("tree:", tree);
+      let defArgs;
+      for (const [leaf, value] of tree.entries()) {
+        if (value[0] === address) {
+          defArgs = {
+            proofs: tree.getProof(leaf),
+            units: BigInt(value[1]),
+            claimId: _id,
+          };
+          break;
+        }
+      }
+      if (!defArgs) {
+        throw new Error("Arguments are undefined");
+      }
+      console.log("defArgs:", defArgs);
+      const { proofs, units, claimId } = defArgs;
+      const tx = await client.mintClaimFractionFromAllowlist(
+        claimId,
+        units,
+        proofs as `0x${string}`[] | Uint8Array[]
+      );
+      if (!tx) {
+        throw new Error("Mint claim fraction failed");
+      }
+      res.claimsTxHash = tx;
+    }
   } catch (err) {
     console.error("Mint process faild", { cause: err });
     throw err;
