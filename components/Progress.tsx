@@ -131,7 +131,7 @@ const ProgressPopup = forwardRef(function ProgressPopup(
       </AlertDialog.Trigger>
       <AlertDialog.Portal>
         <AlertDialog.Overlay className="fixed bg-neutral-900/90 inset-0 backdrop-blur z-[30]" />
-        <AlertDialog.Content className="fixed focus:outline-none drop-shadow-md border z-[31] border-neutral-700 top-[50%] left-[50%] h-[300px] lg:w-[38%] md:w-[38%] w-[90%] translate-y-[-50%] translate-x-[-50%] rounded-md bg-white p-[30px]">
+        <AlertDialog.Content className="fixed focus:outline-none drop-shadow-md border z-[31] border-neutral-700 top-[50%] left-[50%] h-[300px] lg:w-[38%] md:w-[38%] w-[90%] translate-y-[-50%] translate-x-[-50%] rounded-md bg-white p-[2%]">
           <AlertDialog.Title
             className={`block lg:text-[25px] md:text-[20px] text-[19px] font-bold`}
           >

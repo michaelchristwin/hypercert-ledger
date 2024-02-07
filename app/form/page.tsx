@@ -96,13 +96,13 @@ function Page({
         if (walletProvider) {
           let walletClient = createWalletClient({
             account: address,
-            chain: sepolia,
+            chain: optimism,
             transport: custom(walletProvider as Eip1193Provider),
           });
 
           if (walletClient) {
             let myClient = new HypercertClient({
-              chain: sepolia as any,
+              chain: optimism as any,
               walletClient: walletClient as any,
               nftStorageToken: nftStorageToken,
             });
@@ -138,7 +138,7 @@ function Page({
             const myItem = [...metaData].find(
               (item) =>
                 String(item.metadata.application.recipient).toLowerCase() ===
-                raddr.toLowerCase()
+                address.toLowerCase()
             );
             if (myItem === undefined) {
               throw new Error("Item not found");
@@ -264,7 +264,6 @@ function Page({
           image: `ipfs://${imgHash}`,
         });
         console.log("Submit running");
-
         const res = await mintHypercert(
           formValues,
           hyperClient,
@@ -274,7 +273,7 @@ function Page({
           walletProvider as Eip1193Provider
         );
 
-        if (!res.allowlistTxHash && !res.claimsTxHash) {
+        if (!res.allowlistTxHash) {
           throw new Error("Response is undefined");
         }
         setRes(res);
@@ -283,10 +282,11 @@ function Page({
       } catch (err) {
         setIsSuccess(false);
         setIsMinting(false);
+        console.error("An error occurred:", err);
         throw err;
       }
     } else {
-      throw new Error("A form value is invalid");
+      console.error("A form value is invalid");
     }
   };
 

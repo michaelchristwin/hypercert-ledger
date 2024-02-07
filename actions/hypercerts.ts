@@ -7,7 +7,7 @@ import {
 } from "@hypercerts-org/sdk";
 import { StandardMerkleTree } from "@openzeppelin/merkle-tree";
 import { myChains } from "@/providers/Walletprovider";
-import { parseEventLogs } from "viem";
+import { parseEventLogs, toHex } from "viem";
 import { Eip1193Provider, TransactionReceipt } from "ethers";
 import { BrowserProvider, Interface } from "ethers";
 
@@ -53,7 +53,6 @@ const getTillTruthy = async (
     await new Promise((resolve) => setTimeout(resolve, interval));
   }
 };
-
 async function mintHypercert(
   props: MyMetadata,
   client: HypercertClient,
@@ -86,61 +85,78 @@ async function mintHypercert(
       totalUnits,
       TransferRestrictions.FromCreatorOnly
     );
-    let provider = new BrowserProvider(walletProvider);
-    const getReceipt = async () => {
-      let receipt: TransactionReceipt | null;
-      try {
-        if (res.allowlistTxHash) {
-          receipt = await provider.getTransactionReceipt(res.allowlistTxHash);
-        } else {
-          throw new Error("Response is undefined");
-        }
-        return receipt;
-      } catch (err) {
-        throw err;
-      }
-    };
-    const receipt = await getTillTruthy(getReceipt);
-    const { storage, indexer } = client;
-    let logs = parseLog(receipt);
-    let address = (await provider.getSigner()).address;
-    let hyperInterface = new Interface(HypercertMinterAbi);
-    let details = hyperInterface.parseLog(logs[0]);
-    if (details) {
-      let claimId0 = details.args[0].valueOf();
-      const claimById = await indexer.claimById(claimId0);
-      const { uri, tokenID: _id } = claimById.claim;
-      const metadata = await storage.getMetadata(uri || "");
-      const treeResponse = await storage.getData(metadata.allowList as string);
-      const tree = StandardMerkleTree.load(JSON.parse(treeResponse as string));
-      console.log("claimId:", claimId0);
-      let defArgs;
-      for (const [leaf, value] of tree.entries()) {
-        if (value[0] === address) {
-          defArgs = {
-            proofs: tree.getProof(leaf),
-            units: BigInt(value[1]),
-            claimId: _id,
-          };
-          break;
-        }
-      }
-      if (!defArgs) {
-        throw new Error("Arguments are undefined");
-      }
-      const { proofs, units, claimId } = defArgs;
-      const tx = await client.mintClaimFractionFromAllowlist(
-        claimId,
-        units,
-        proofs as `0x${string}`[] | Uint8Array[]
-      );
-      if (!tx) {
-        throw new Error("Mint claim fraction failed");
-      }
-      res.claimsTxHash = tx;
-    }
+    // let provider = new BrowserProvider(walletProvider);
+    // const getReceipt = async () => {
+    //   let receipt: TransactionReceipt | null;
+    //   try {
+    //     if (res.allowlistTxHash) {
+    //       receipt = await provider.getTransactionReceipt(res.allowlistTxHash);
+    //     } else {
+    //       throw new Error("Response is undefined");
+    //     }
+    //     return receipt;
+    //   } catch (err) {
+    //     throw err;
+    //   }
+    // };
+    // const receipt = await getTillTruthy(getReceipt);
+    // const { storage, indexer } = client;
+    // let logs = parseLog(receipt);
+    // console.log(String(logs[0].topics[1]));
+    // let address = (await provider.getSigner()).address;
+    // let hyperInterface = new Interface(HypercertMinterAbi);
+    // let details = hyperInterface.parseLog(logs[0]);
+    // if (details) {
+    //   let claim_Id = details.args[0].valueOf();
+    //   console.log(String(claim_Id));
+
+    //   const getPr = async () => {
+    //     let claimById;
+    //     try {
+    //       return claimById;
+    //     } catch (err) {
+    //       console.error("Failed method");
+    //       throw err; // Rethrow the error
+    //     }
+    //   };
+
+    //   const claimById = await indexer.claimById(String(logs[0].topics[1]));
+    //   console.log("claimById:", claimById);
+    //   const { uri, tokenID: _id } = claimById.claim;
+    //   const metadata = await storage.getMetadata(uri || "");
+    //   console.log("metadata:", metadata);
+    //   const treeResponse = await storage.getData(metadata.allowList as string);
+    //   const tree = StandardMerkleTree.load(JSON.parse(treeResponse as string));
+    //   console.log("tree:", tree);
+    //   let defArgs;
+    //   for (const [leaf, value] of tree.entries()) {
+    //     if (value[0] === address) {
+    //       defArgs = {
+    //         proofs: tree.getProof(leaf),
+    //         units: BigInt(value[1]),
+    //         claimId: _id,
+    //       };
+    //       break;
+    //     }
+    //   }
+    //   if (!defArgs) {
+    //     throw new Error("Arguments are undefined");
+    //   }
+    //   console.log("defArgs:", defArgs);
+    //   const { proofs, units, claimId } = defArgs;
+    //   const tx = await client.mintClaimFractionFromAllowlist(
+    //     claimId,
+    //     units,
+    //     proofs as `0x${string}`[] | Uint8Array[]
+    //   );
+    //   if (!tx) {
+    //     throw new Error("Mint claim fraction failed");
+    //   }
+    //   res.claimsTxHash = tx;
+    // }
   } catch (err) {
-    console.error("Mint Process Failed:", err);
+    console.error("Mint process faild", { cause: err });
+    throw err;
   }
   return res;
 }
@@ -207,4 +223,24 @@ function parseLog(receipt: TransactionReceipt) {
   });
 
   return logs;
+}
+
+function serializeBigint(obj: any) {
+  return JSON.stringify(obj, (key, value) => {
+    if (typeof value === "bigint") {
+      return String(value);
+    } else {
+      return value;
+    }
+  });
+}
+
+async function tryTillTruthy(method: () => Promise<any>, interval = 1000) {
+  while (true) {
+    const result = await method();
+    if (result.claim) {
+      return result;
+    }
+    await new Promise((resolve) => setTimeout(resolve, interval));
+  }
 }
