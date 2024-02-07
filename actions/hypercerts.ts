@@ -8,9 +8,10 @@ import {
 } from "@hypercerts-org/sdk";
 import { StandardMerkleTree } from "@openzeppelin/merkle-tree";
 import { myChains } from "@/providers/Walletprovider";
-import { parseEventLogs, toHex } from "viem";
+import { parseEventLogs } from "viem";
 import { Eip1193Provider, TransactionReceipt } from "ethers";
 import { BrowserProvider, Interface } from "ethers";
+import { celo, optimism, sepolia } from "viem/chains";
 
 interface MyMetadata {
   name: string;
@@ -54,6 +55,7 @@ const getTillTruthy = async (
     await new Promise((resolve) => setTimeout(resolve, interval));
   }
 };
+
 async function mintHypercert(
   props: MyMetadata,
   client: HypercertClient,
