@@ -3,13 +3,12 @@
 import { getChain } from "@/actions/hypercerts";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import { useWeb3ModalAccount } from "@web3modal/ethers/react";
-import { TransactionReceipt } from "ethers";
 import Link from "next/link";
 
 import { forwardRef } from "react";
 export type MethRes = {
-  txHash: `0x${string}` | undefined;
-  claims: TransactionReceipt | null;
+  allowlistTxHash: `0x${string}` | undefined;
+  claimsTxHash: `0x${string}` | undefined;
 };
 
 interface ProgressProps {
@@ -79,9 +78,12 @@ const ProgressPopup = forwardRef(function ProgressPopup(
             Tx Hash:
             <Link
               target={`_blank`}
-              href={`${currentChain.blockExplorers.default.url}/tx/${res.txHash}`}
+              href={`${currentChain.blockExplorers.default.url}/tx/${res.allowlistTxHash}`}
               className={`text-sky-500`}
-            >{` ${res.txHash?.slice(0, 15)}...${res.txHash?.slice(-15)}`}</Link>
+            >{` ${res.allowlistTxHash?.slice(
+              0,
+              15
+            )}...${res.allowlistTxHash?.slice(-15)}`}</Link>
           </pre>
         </div>
       );

@@ -274,10 +274,9 @@ function Page({
           walletProvider as Eip1193Provider
         );
 
-        if (!res.txHash && !res.claims) {
+        if (!res.allowlistTxHash && !res.claimsTxHash) {
           throw new Error("Response is undefined");
         }
-
         setRes(res);
         setIsSuccess(true);
         setIsMinting(false);

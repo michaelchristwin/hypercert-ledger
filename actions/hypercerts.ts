@@ -5,16 +5,9 @@ import {
   AllowlistEntry,
   HypercertMinterAbi,
 } from "@hypercerts-org/sdk";
-
+import { StandardMerkleTree } from "@openzeppelin/merkle-tree";
 import { myChains } from "@/providers/Walletprovider";
-import {
-  createPublicClient,
-  http,
-  PublicClient,
-  decodeEventLog,
-  parseEventLogs,
-} from "viem";
-
+import { parseEventLogs } from "viem";
 import { Eip1193Provider, TransactionReceipt } from "ethers";
 import { BrowserProvider, Interface } from "ethers";
 
@@ -72,18 +65,13 @@ async function mintHypercert(
   const { data, errors, valid } = formatHypercertData(props);
 
   let res: {
-    claims: TransactionReceipt | null;
-    txHash: `0x${string}` | undefined;
+    claimsTxHash: `0x${string}` | undefined;
+    allowlistTxHash: `0x${string}` | undefined;
   } = {
-    claims: null,
-    txHash: undefined,
+    claimsTxHash: undefined,
+    allowlistTxHash: undefined,
   };
-  let currentChain = getChain(chainId);
 
-  const publicClient = createPublicClient({
-    chain: currentChain,
-    transport: http(),
-  });
   try {
     if (client === undefined) {
       throw new Error("Client is undefined");
@@ -92,7 +80,7 @@ async function mintHypercert(
       throw errors;
     }
 
-    res.txHash = await client.createAllowlist(
+    res.allowlistTxHash = await client.createAllowlist(
       allowList,
       data,
       totalUnits,
@@ -102,8 +90,8 @@ async function mintHypercert(
     const getReceipt = async () => {
       let receipt: TransactionReceipt | null;
       try {
-        if (res.txHash) {
-          receipt = await provider.getTransactionReceipt(res.txHash);
+        if (res.allowlistTxHash) {
+          receipt = await provider.getTransactionReceipt(res.allowlistTxHash);
         } else {
           throw new Error("Response is undefined");
         }
@@ -113,15 +101,44 @@ async function mintHypercert(
       }
     };
     const receipt = await getTillTruthy(getReceipt);
-
-    res.claims = receipt;
+    const { storage, indexer } = client;
     let logs = parseLog(receipt);
-    let interA = new Interface(HypercertMinterAbi);
-    let details = interA.parseLog(logs[0]);
+    let address = (await provider.getSigner()).address;
+    let hyperInterface = new Interface(HypercertMinterAbi);
+    let details = hyperInterface.parseLog(logs[0]);
     if (details) {
+      let claimId0 = details.args[0].valueOf();
+      const claimById = await indexer.claimById(claimId0);
+      const { uri, tokenID: _id } = claimById.claim;
+      const metadata = await storage.getMetadata(uri || "");
+      const treeResponse = await storage.getData(metadata.allowList as string);
+      const tree = StandardMerkleTree.load(JSON.parse(treeResponse as string));
+      console.log("claimId:", claimId0);
+      let defArgs;
+      for (const [leaf, value] of tree.entries()) {
+        if (value[0] === address) {
+          defArgs = {
+            proofs: tree.getProof(leaf),
+            units: BigInt(value[1]),
+            claimId: _id,
+          };
+          break;
+        }
+      }
+      if (!defArgs) {
+        throw new Error("Arguments are undefined");
+      }
+      const { proofs, units, claimId } = defArgs;
+      const tx = await client.mintClaimFractionFromAllowlist(
+        claimId,
+        units,
+        proofs as `0x${string}`[] | Uint8Array[]
+      );
+      if (!tx) {
+        throw new Error("Mint claim fraction failed");
+      }
+      res.claimsTxHash = tx;
     }
-    console.log("Args:", details?.args[0].valueOf());
-    console.log("topic:", details?.topic);
   } catch (err) {
     console.error("Mint Process Failed:", err);
   }
