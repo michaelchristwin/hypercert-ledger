@@ -70,7 +70,7 @@ function Page({
   const { address, chainId } = useWeb3ModalAccount();
   const mychainId = searchParams.chainId as string;
   const roundId = searchParams.roundId as string;
-  const dappChain = sepolia;
+  const dappChain = optimism;
   const initialState: MyMetadata = {
     name: "",
     description: "",
@@ -138,7 +138,7 @@ function Page({
             const myItem = [...metaData].find(
               (item) =>
                 String(item.metadata.application.recipient).toLowerCase() ===
-                raddr.toLowerCase()
+                address.toLowerCase()
             );
             if (myItem === undefined) {
               throw new Error("Item not found");
