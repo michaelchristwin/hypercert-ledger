@@ -70,7 +70,7 @@ function Page({
   const { address, chainId } = useWeb3ModalAccount();
   const mychainId = searchParams.chainId as string;
   const roundId = searchParams.roundId as string;
-
+  const dappChain = optimism;
   const initialState: MyMetadata = {
     name: "",
     description: "",
@@ -96,13 +96,13 @@ function Page({
         if (walletProvider) {
           let walletClient = createWalletClient({
             account: address,
-            chain: optimism,
+            chain: dappChain,
             transport: custom(walletProvider as Eip1193Provider),
           });
 
           if (walletClient) {
             let myClient = new HypercertClient({
-              chain: optimism as any,
+              chain: dappChain as any,
               walletClient: walletClient as any,
               nftStorageToken: nftStorageToken,
             });
@@ -118,7 +118,7 @@ function Page({
         console.error("Failed to create client:", err);
       }
     })();
-  }, [address, nftStorageToken, walletProvider]);
+  }, [address, nftStorageToken, walletProvider, dappChain]);
 
   const [formValues, setFormValues] = useState<MyMetadata>(initialState);
   const { name, description, external_url } = formValues;
@@ -138,7 +138,7 @@ function Page({
             const myItem = [...metaData].find(
               (item) =>
                 String(item.metadata.application.recipient).toLowerCase() ===
-                address.toLowerCase()
+                raddr.toLowerCase()
             );
             if (myItem === undefined) {
               throw new Error("Item not found");
@@ -244,6 +244,10 @@ function Page({
         units: BigInt(recipientUnits),
       },
     ];
+    let curChainId = await myWalletClient?.getChainId();
+    if (myWalletClient && curChainId !== dappChain.id) {
+      myWalletClient.switchChain(dappChain);
+    }
     if (isValid(formValues) && hyperClient && triggerRef.current) {
       setIsMinting(true);
       triggerRef.current.click();
