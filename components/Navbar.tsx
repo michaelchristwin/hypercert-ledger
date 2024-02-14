@@ -28,7 +28,7 @@ function Navbar() {
     >
       <Link href={`/`} className={`flex w-fit items-center space-x-1`}>
         <Image
-          src={`/brandlogo.jpg`}
+          src={`/brandlogo.webp`}
           alt="Hyperminter logo"
           width={30}
           height={30}
