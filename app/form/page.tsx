@@ -341,6 +341,7 @@ function Page({
               id="name"
               name="name"
               value={name}
+              maxLength={70}
               required
               onChange={handleChange}
               placeholder="The name of your hypercert"
