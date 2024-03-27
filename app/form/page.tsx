@@ -134,7 +134,7 @@ function Page({
               `https://grants-stack-indexer.gitcoin.co/data/${mychainId}/rounds/${roundId}/applications.json`
             );
             const metaData = res.data;
-            let raddr = "0x4Be737B450754BC75f1ef0271D3C5dA525173F6b";
+            //let raddr = "0x4Be737B450754BC75f1ef0271D3C5dA525173F6b";
             const myItem = [...metaData].find(
               (item) =>
                 String(item.metadata.application.recipient).toLowerCase() ===
@@ -143,24 +143,25 @@ function Page({
             if (myItem === undefined) {
               throw new Error("Item not found");
             }
-            const res2 = await axios.get(
-              `https://grants-stack-indexer.gitcoin.co/data/${mychainId}/rounds/${roundId}/contributors.json`
+            const votesRes = await axios.get(
+              `https://grants-stack-indexer.gitcoin.co/data/${mychainId}/rounds/${roundId}/votes.json`
             );
-            const projectData = res2.data;
+            const projectData = [...votesRes.data].find(
+              (vote) => vote.projectId === myItem.projectId
+            );
             const contributors: AllowlistEntry[] = [...projectData].map(
-              (contributor) => {
+              (vote) => {
                 return {
-                  address: contributor.id,
-                  units: BigInt(Math.floor(contributor.amountUSD)),
+                  address: vote.voter,
+                  units: BigInt(Math.floor(vote.amountUSD)),
                 };
               }
             );
-            let fal = 0;
+            let summedAmount = 0;
             for (let index = 0; index < contributors.length; index++) {
-              fal = Number(contributors[index].units) + fal;
+              summedAmount = Number(contributors[index].units) + summedAmount;
             }
-            setSumAmountUSD(fal);
-
+            setSumAmountUSD(summedAmount);
             setallowList(contributors);
             setContributorsStored(contributors);
             const options = convertArrayToDisplayText(contributors);
