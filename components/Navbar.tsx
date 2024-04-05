@@ -41,7 +41,7 @@ function Navbar() {
         </p>
       </Link>
       <div className={`block`}>
-        <w3m-button size="sm" disabled={true} />
+        <w3m-button size="sm" />
       </div>
     </nav>
   );
