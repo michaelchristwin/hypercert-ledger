@@ -135,8 +135,8 @@ function Page({
             );
             const metaData = res.data;
             //let raddr = "0x4Be737B450754BC75f1ef0271D3C5dA525173F6b";
-            const myItem = [...metaData].find(
-              (item) =>
+            const myItem: any = Array.from(metaData).find(
+              (item: any) =>
                 String(item.metadata.application.recipient).toLowerCase() ===
                 address.toLowerCase()
             );
@@ -146,11 +146,11 @@ function Page({
             const votesRes = await axios.get(
               `https://grants-stack-indexer.gitcoin.co/data/${mychainId}/rounds/${roundId}/votes.json`
             );
-            const projectData = [...votesRes.data].find(
-              (vote) => vote.projectId === myItem.projectId
+            const projectData: any = Array.from(votesRes.data).find(
+              (vote: any) => vote.projectId === myItem.projectId
             );
-            const contributors: AllowlistEntry[] = [...projectData].map(
-              (vote) => {
+            const contributors: AllowlistEntry[] = Array.from(projectData).map(
+              (vote: any) => {
                 return {
                   address: vote.voter,
                   units: BigInt(Math.floor(vote.amountUSD)),
