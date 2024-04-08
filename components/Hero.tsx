@@ -19,7 +19,7 @@ function Hero() {
       />
 
       <div
-        className={`block col-span-2 lg:w-[100%] md:w-[60%] w-[90%] space-y-4 morph p-[10px] lg:mx-0 md:mx-0 mx-auto`}
+        className={`col-span-2 flex-grow flex-col flex space-y-4 morph p-[10px] lg:mx-0 md:mx-0 mx-auto`}
       >
         <p
           className={`bg-gradient-to-r from-black via-slate-700 to-gray-500 text-transparent text-center inline-block bg-clip-text lg:text-[55px] md:text-[50px] text-[25px] font-extrabold `}

@@ -115,7 +115,7 @@ async function mintHypercert(
       console.log("tree:", tree);
       let defArgs;
       for (const [leaf, value] of tree.entries()) {
-        if (value[0] === address) {
+        if (value[0].toLocaleLowerCase() === address.toLocaleLowerCase()) {
           defArgs = {
             proofs: tree.getProof(leaf),
             units: BigInt(value[1]),
