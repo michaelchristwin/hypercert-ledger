@@ -8,6 +8,8 @@ interface TextAreaProps {
   formValues: MyMetadata;
   setFormValues: React.Dispatch<React.SetStateAction<MyMetadata>>;
   label: string;
+  required?: boolean;
+  placeolder?: string;
 }
 
 function TextArea({
@@ -17,6 +19,8 @@ function TextArea({
   setDisplayText,
   setStoredValues,
   formValues,
+  required,
+  placeolder,
   setFormValues,
 }: TextAreaProps) {
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -25,6 +29,7 @@ function TextArea({
     const SplitedWords = value.split(",");
     const newSplitedWords = SplitedWords.map((word) => word.trim());
     setStoredValues(newSplitedWords);
+    console.log(newSplitedWords);
     setFormValues({
       ...formValues,
       [name]: newSplitedWords,
@@ -41,8 +46,9 @@ function TextArea({
       <textarea
         name={name}
         value={displayText}
-        required
+        required={required}
         id={name}
+        placeholder={placeolder}
         onChange={handleChange}
         className={`w-[100%] h-[150px] ps-2 bg-white/50 peer placeholder:text-black/60 rounded-[6px] focus:outline-none text-black`}
       />

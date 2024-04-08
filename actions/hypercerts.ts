@@ -100,9 +100,12 @@ async function mintHypercert(
         throw err;
       }
     };
-    const receipt = await getTillTruthy(getReceipt);
+    if (!res.allowlistTxHash) {
+      throw new Error("Method Failed")
+    }
+    const receipt = await provider.waitForTransaction(res.allowlistTxHash);
     const { storage, indexer } = client;
-    let logs = parseLog(receipt);
+    let logs = parseLog(receipt as TransactionReceipt);
     console.log(String(logs[0].topics[1]));
     let address = (await provider.getSigner()).address;
     let hyperInterface = new Interface(HypercertMinterAbi);

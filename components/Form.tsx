@@ -24,26 +24,10 @@ import MyHypercert from "@/components/MyHypercert";
 import ProgressPopup, { MethRes } from "@/components/Progress";
 import { optimism, sepolia } from "viem/chains";
 import { Eip1193Provider } from "ethers";
+import { ErrorMessage, Field, Form, Formik } from "formik";
 
 let currentYear = new Date();
 let cY = currentYear.getFullYear();
-
-function findAndReplace(
-  array: AllowlistEntry[],
-  oldValue: AllowlistEntry,
-  newValue: AllowlistEntry
-) {
-  // Use map() function to iterate through the array and perform the replacement
-  return array.map((item) => {
-    // If the current item matches the old value, replace it with the new value
-    if (item === oldValue) {
-      return newValue;
-    } else {
-      // Otherwise, keep the original value
-      return item;
-    }
-  });
-}
 
 function Page({
   params,
@@ -87,7 +71,7 @@ function Page({
   const { address, chainId } = useWeb3ModalAccount();
   const mychainId = searchParams.chainId as string;
   const roundId = searchParams.roundId as string;
-  const dappChain = sepolia;
+  const dappChain = optimism;
   const initialState: MyMetadata = {
     name: "",
     description: "",
@@ -151,11 +135,11 @@ function Page({
               `https://grants-stack-indexer.gitcoin.co/data/${mychainId}/rounds/${roundId}/applications.json`
             );
             const metaData = res.data;
-            let raddr = "0x4Be737B450754BC75f1ef0271D3C5dA525173F6b";
+            //let raddr = "0x4Be737B450754BC75f1ef0271D3C5dA525173F6b";
             const myItem: any = Array.from(metaData).find(
               (item: any) =>
                 String(item.metadata.application.recipient).toLowerCase() ===
-                raddr.toLowerCase()
+                address.toLowerCase()
             );
             if (myItem === undefined) {
               throw new Error("Item not found");
@@ -163,20 +147,17 @@ function Page({
             const votesRes = await axios.get(
               `https://grants-stack-indexer.gitcoin.co/data/${mychainId}/rounds/${roundId}/votes.json`
             );
-            const projectData: any = Array.from(votesRes.data).filter(
+            const projectData: any = Array.from(votesRes.data).find(
               (vote: any) => vote.projectId === myItem.projectId
             );
-            // console.log(projectData);
-            // console.log(myItem.projectId);
-            const contributors: AllowlistEntry[] = projectData.map(
+            const contributors: AllowlistEntry[] = Array.from(projectData).map(
               (vote: any) => {
                 return {
                   address: vote.voter,
-                  units: BigInt(vote.amountRoundToken),
+                  units: BigInt(Math.floor(vote.amountUSD)),
                 };
               }
             );
-            // console.log(contributors);
             let summedAmount = 0;
             for (let index = 0; index < contributors.length; index++) {
               summedAmount = Number(contributors[index].units) + summedAmount;
@@ -240,7 +221,7 @@ function Page({
   const covertToBlob = async (ref: React.MutableRefObject<HTMLDivElement>) => {
     if (ref.current) {
       const myRef = cardRef.current;
-      const imgBlob = await domToImage.toPng(myRef as HTMLElement);
+      const imgBlob = await domToImage.toBlob(myRef as HTMLElement);
       return imgBlob;
     }
   };
@@ -250,14 +231,14 @@ function Page({
   };
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setFormValues({
-      ...formValues,
-      workScope: workScopeStored,
-    });
     let percentage = allowRange / 100;
     let totalUnits = summedAmountUSD / percentage;
     let recipientUnits = totalUnits - summedAmountUSD;
 
+    setFormValues({
+      ...formValues,
+      workScope: workScopeStored,
+    });
     let newAllowlist: AllowlistEntry[] = [
       ...allowList,
       {
@@ -280,10 +261,13 @@ function Page({
         if (!hyperImage) {
           throw new Error("Hypercert image is invalid");
         }
-
+        const imgHash = await uploadImage(hyperImage);
+        if (!imgHash) {
+          throw new Error("Image hash is undefined");
+        }
         setFormValues({
           ...formValues,
-          image: hyperImage,
+          image: `ipfs://${imgHash}`,
         });
         console.log("Submit running");
         const res = await mintHypercert(
@@ -336,181 +320,194 @@ function Page({
             : "lg:justify-center md:justify-center"
         }  h-fit py-[20px] w-full relative`}
       >
-        <form
-          className={`${
-            allow ? "block" : "hidden"
-          } lg:p-[40px] md:p-[30px] p-[20px] lg:w-[45%] md:w-[45%] w-[94%] space-y-3 rounded-[15px] morph lg:mx-0 md:mx-0 mx-auto`}
-          onSubmit={onSubmit}
+        <Formik
+          initialValues={initialState}
+          validate={(values) => {
+            let errors: any = {};
+            if (!values.name) {
+              errors.name = "Required";
+            } else if (!values.image) {
+              errors.image = "Required";
+            }
+          }}
+          onSubmit={(values, { setSubmitting }) => {}}
         >
-          <hr />
-          <p className={`text-[23px] text-violet-800 font-semibold`}>
-            General Fields
-          </p>
-          <fieldset className={`w-[100%]`}>
-            <label
-              htmlFor="name"
-              className={`text-white font-bold text-[16px] block mb-1`}
-            >
-              Hypercert Name
-            </label>
-
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={name}
-              maxLength={70}
-              required
-              onChange={handleChange}
-              placeholder="The name of your hypercert"
-              className={`w-[100%] h-[45px] ps-2 peer bg-white/50 placeholder:text-black/60 rounded-[6px] focus:outline-none text-black`}
-            />
-            <p
-              className={`text-red-600 italic invisible peer-required:visible`}
-            >
-              *
-            </p>
-          </fieldset>
-          <fieldset className={`w-[100%]`}>
-            <label
-              htmlFor="logoImage"
-              className={`text-white font-bold text-[16px] block mb-1`}
-            >
-              Logo Image
-            </label>
-            <input
-              type="text"
-              id="logoImage"
-              required
-              name="logoImage"
-              value={logoImage}
-              onChange={handleImages}
-              placeholder="Image URL"
-              className={`w-[100%] h-[45px] peer ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
-            />
-            <p
-              className={`text-red-600 italic invisible peer-required:visible`}
-            >
-              *
-            </p>
-          </fieldset>
-          <fieldset className={`w-[100%]`}>
-            <label
-              htmlFor="bannerImage"
-              className={`text-white font-bold text-[16px] block mb-1`}
-            >
-              Banner Image
-            </label>
-            <input
-              type="text"
-              id="bannerImage"
-              name="bannerImage"
-              value={bannerImage}
-              onChange={handleImages}
-              placeholder="Banner Image URL"
-              className={`w-[100%] h-[45px] ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
-            />
-          </fieldset>
-          <fieldset className={`w-[100%]`}>
-            <label
-              htmlFor="description"
-              className={`text-white font-bold text-[16px] block mb-1`}
-            >
-              Description
-            </label>
-            <textarea
-              name="description"
-              id="description"
-              value={description}
-              required
-              onChange={handleChange}
-              className={`w-[100%] p-2 peer h-[150px] bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
-            ></textarea>
-            <p
-              className={`text-red-600 italic invisible peer-required:visible`}
-            >
-              *
-            </p>
-          </fieldset>
-          <fieldset className={`w-[100%]`}>
-            <label
-              htmlFor="external_url"
-              className={`text-white font-bold text-[16px] block mb-1`}
-            >
-              Link
-            </label>
-            <input
-              type="text"
-              id="external_url"
-              name="external_url"
-              value={external_url}
-              onChange={handleChange}
-              placeholder="https://project.org"
-              className={`w-[100%] h-[45px] ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
-            />
-          </fieldset>
-          <hr />
-          <p className={`text-[23px] text-violet-800 font-semibold`}>
-            Hypercert Fields
-          </p>
-          <TextArea
-            formValues={formValues}
-            setFormValues={setFormValues}
-            name="workScope"
-            required={true}
-            displayText={myworkScope}
-            setDisplayText={setWorkScopes}
-            setStoredValues={setWorkScopeStored}
-            label="Work Scope"
-          />
-          <div
-            className={`w-[100%] flex justify-center items-center space-x-2 h-[130px]`}
+          <Form
+            className={`${
+              allow ? "block" : "hidden"
+            } lg:p-[40px] md:p-[30px] p-[20px] lg:w-[45%] md:w-[45%] w-[94%] space-y-3 rounded-[15px] morph lg:mx-0 md:mx-0 mx-auto`}
+            onSubmit={onSubmit}
           >
-            <fieldset className={`w-[48%]`}>
+            <hr />
+            <p className={`text-[23px] text-violet-800 font-semibold`}>
+              General Fields
+            </p>
+            <fieldset className={`w-[100%]`}>
               <label
-                htmlFor="workTimeframeStart"
+                htmlFor="name"
                 className={`text-white font-bold text-[16px] block mb-1`}
               >
-                Work Start Date
+                Hypercert Name
               </label>
 
-              <input
-                type="date"
-                name="workTimeframeStart"
-                id="workTimeframeStart"
-                value={formDates.workTimeframeStart}
-                onChange={handleDates}
-                className={`w-[100%] h-[45px] ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
+              <Field
+                type="text"
+                id="name"
+                name="name"
+                value={name}
+                maxLength={70}
+                required
+                onChange={handleChange}
+                placeholder="The name of your hypercert"
+                className={`w-[100%] h-[45px] ps-2 peer bg-white/50 placeholder:text-black/60 rounded-[6px] focus:outline-none text-black`}
+              />
+              <ErrorMessage
+                name="name"
+                component={`p`}
+                className={`text-red-500 text-[13px] ps-[20px] italic`}
               />
             </fieldset>
-            <fieldset className={`w-[48%]`}>
+            <fieldset className={`w-[100%]`}>
               <label
-                htmlFor="workTimeframeEnd"
+                htmlFor="logoImage"
                 className={`text-white font-bold text-[16px] block mb-1`}
               >
-                Work End Date
+                Logo Image
               </label>
-              <input
-                type="date"
-                name="workTimeframeEnd"
-                id="workTimeframeEnd"
-                value={formDates.workTimeframeEnd}
-                onChange={handleDates}
-                className={`w-[100%] h-[45px] ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
+              <Field
+                type="text"
+                id="logoImage"
+                required
+                name="logoImage"
+                value={logoImage}
+                onChange={handleImages}
+                placeholder="Image URL"
+                className={`w-[100%] h-[45px] peer ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
+              />
+              <ErrorMessage
+                name="logoImage"
+                component={`p`}
+                className={`text-red-500 text-[13px] ps-[20px] italic`}
               />
             </fieldset>
-          </div>
-          <TextArea
-            placeolder="0xWalletAdress1, 0xWalletAdress2"
-            formValues={formValues}
-            label="Contributors"
-            setDisplayText={setContributors}
-            setFormValues={setFormValues}
-            setStoredValues={setContributorsStored}
-            name="contributors"
-            displayText={myContributors}
-          />
-          {/* <div className={`w-[100%] rounded-[6px] bg-white/50 text-black p-3`}>
+            <fieldset className={`w-[100%]`}>
+              <label
+                htmlFor="bannerImage"
+                className={`text-white font-bold text-[16px] block mb-1`}
+              >
+                Banner Image
+              </label>
+              <Field
+                type="text"
+                id="bannerImage"
+                name="bannerImage"
+                value={bannerImage}
+                onChange={handleImages}
+                placeholder="Banner Image URL"
+                className={`w-[100%] h-[45px] ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
+              />
+              <ErrorMessage
+                name="bannerImage"
+                component={`p`}
+                className={`text-red-500 text-[13px] ps-[20px] italic`}
+              />
+            </fieldset>
+            <fieldset className={`w-[100%]`}>
+              <label
+                htmlFor="description"
+                className={`text-white font-bold text-[16px] block mb-1`}
+              >
+                Description
+              </label>
+              <Field
+                as="textarea"
+                name="description"
+                id="description"
+                value={description}
+                required
+                onChange={handleChange}
+                className={`w-[100%] p-2 peer h-[150px] bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
+              />
+              <ErrorMessage
+                name="description"
+                component={`p`}
+                className={`text-red-500 text-[13px] ps-[20px] italic`}
+              />
+            </fieldset>
+            <fieldset className={`w-[100%]`}>
+              <label
+                htmlFor="external_url"
+                className={`text-white font-bold text-[16px] block mb-1`}
+              >
+                Link
+              </label>
+              <Field
+                type="text"
+                id="external_url"
+                name="external_url"
+                value={external_url}
+                onChange={handleChange}
+                placeholder="https://project.org"
+                className={`w-[100%] h-[45px] ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
+              />
+              <ErrorMessage
+                name="external_url"
+                component={`p`}
+                className={`text-red-500 text-[13px] ps-[20px] italic`}
+              />
+            </fieldset>
+            <hr />
+            <p className={`text-[23px] text-violet-800 font-semibold`}>
+              Hypercert Fields
+            </p>
+            <TextArea
+              formValues={formValues}
+              setFormValues={setFormValues}
+              name="workScope"
+              displayText={myworkScope}
+              setDisplayText={setWorkScopes}
+              setStoredValues={setWorkScopeStored}
+              label="Work Scope"
+            />
+            <div
+              className={`w-[100%] flex justify-center items-center space-x-2 h-[130px]`}
+            >
+              <fieldset className={`w-[48%]`}>
+                <label
+                  htmlFor="workTimeframeStart"
+                  className={`text-white font-bold text-[16px] block mb-1`}
+                >
+                  Work Start Date
+                </label>
+
+                <input
+                  type="date"
+                  name="workTimeframeStart"
+                  id="workTimeframeStart"
+                  value={formDates.workTimeframeStart}
+                  onChange={handleDates}
+                  className={`w-[100%] h-[45px] ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
+                />
+              </fieldset>
+              <fieldset className={`w-[48%]`}>
+                <label
+                  htmlFor="workTimeframeEnd"
+                  className={`text-white font-bold text-[16px] block mb-1`}
+                >
+                  Work End Date
+                </label>
+                <Field
+                  type="date"
+                  name="workTimeframeEnd"
+                  id="workTimeframeEnd"
+                  value={formDates.workTimeframeEnd}
+                  onChange={handleDates}
+                  className={`w-[100%] h-[45px] ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
+                />
+              </fieldset>
+            </div>
+
+            {/* <div className={`w-[100%] rounded-[6px] bg-white/50 text-black p-3`}>
           <div
             className={`flex justify-between hover:cursor-pointer`}
             onClick={() => setIsOpen((prevOpen) => !prevOpen)}
@@ -637,45 +634,46 @@ function Page({
             </div>
           </div>
         </div> */}
-          <hr />
-          <p className={`text-[23px] text-violet-800 font-semibold`}>
-            Distribution
-          </p>
+            <hr />
+            <p className={`text-[23px] text-violet-800 font-semibold`}>
+              Distribution
+            </p>
 
-          <fieldset className={`w-[100%]`}>
-            <label
-              htmlFor="distribution"
-              className={`text-white font-bold text-[16px] block mb-1`}
-            >
-              Percentage distributed via allow List
-            </label>
-            <div className={`flex w-full space-x-2 items-center`}>
-              <input
-                type="range"
-                step={1}
-                min={0}
-                max={100}
-                value={allowRange}
-                onChange={handleRangeChange}
-                name="distribution"
-                id="distribution"
-                className={`w-[90%] border-0 bg-white outline-none`}
-              />
-              <div
-                className={`w-[35px] flex justify-center items-center h-[35px] border border-gray-500`}
+            <fieldset className={`w-[100%]`}>
+              <label
+                htmlFor="distribution"
+                className={`text-white font-bold text-[16px] block mb-1`}
               >
-                <p>{allowRange}</p>
+                Percentage distributed via allow List
+              </label>
+              <div className={`flex w-full space-x-2 items-center`}>
+                <Field
+                  type="range"
+                  step={1}
+                  min={0}
+                  max={100}
+                  value={allowRange}
+                  onChange={handleRangeChange}
+                  name="distribution"
+                  id="distribution"
+                  className={`w-[90%] border-0 bg-white outline-none`}
+                />
+                <div
+                  className={`w-[35px] flex justify-center items-center h-[35px] border border-gray-500`}
+                >
+                  <p>{allowRange}</p>
+                </div>
               </div>
-            </div>
-          </fieldset>
+            </fieldset>
 
-          <button
-            type="submit"
-            className={`px-1 border w-[100px] bg-white text-black hover:opacity-75 active:opacity-60 rounded-lg mx-auto h-[35px] block`}
-          >
-            Create
-          </button>
-        </form>
+            <button
+              type="submit"
+              className={`px-1 border w-[100px] bg-white text-black hover:opacity-75 active:opacity-60 rounded-lg mx-auto h-[35px] block`}
+            >
+              Create
+            </button>
+          </Form>
+        </Formik>
 
         <div
           className={`w-fit ${
