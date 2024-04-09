@@ -18,3 +18,5 @@ function DateField(props: any) {
     />
   );
 }
+
+export { DateField };

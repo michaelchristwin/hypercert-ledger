@@ -101,7 +101,7 @@ async function mintHypercert(
       }
     };
     if (!res.allowlistTxHash) {
-      throw new Error("Method Failed")
+      throw new Error("Method Failed");
     }
     const receipt = await provider.waitForTransaction(res.allowlistTxHash);
     const { storage, indexer } = client;
@@ -118,7 +118,7 @@ async function mintHypercert(
       console.log("tree:", tree);
       let defArgs;
       for (const [leaf, value] of tree.entries()) {
-        if (value[0].toLocaleLowerCase() === address.toLocaleLowerCase()) {
+        if (value[0] === address) {
           defArgs = {
             proofs: tree.getProof(leaf),
             units: BigInt(value[1]),
@@ -143,7 +143,7 @@ async function mintHypercert(
       res.claimsTxHash = tx;
     }
   } catch (err) {
-    console.error("Mint process faild", { cause: err });
+    console.error("Mint process failed", { cause: err });
     throw err;
   }
   return res;

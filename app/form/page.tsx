@@ -28,23 +28,6 @@ import { Eip1193Provider } from "ethers";
 let currentYear = new Date();
 let cY = currentYear.getFullYear();
 
-function findAndReplace(
-  array: AllowlistEntry[],
-  oldValue: AllowlistEntry,
-  newValue: AllowlistEntry
-) {
-  // Use map() function to iterate through the array and perform the replacement
-  return array.map((item) => {
-    // If the current item matches the old value, replace it with the new value
-    if (item === oldValue) {
-      return newValue;
-    } else {
-      // Otherwise, keep the original value
-      return item;
-    }
-  });
-}
-
 function Page({
   params,
   searchParams,
@@ -52,6 +35,7 @@ function Page({
   params: { slug: string };
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
+  let raddr = "0x4Be737B450754BC75f1ef0271D3C5dA525173F6b";
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const nftStorageToken = process.env.NEXT_PUBLIC_NFTSTORAGE;
   const [allow, setAllow] = useState(false);
@@ -103,7 +87,7 @@ function Page({
     workTimeframeEnd: ISOToUNIX(new Date(formDates.workTimeframeEnd)),
     impactTimeframeStart: ISOToUNIX(new Date(formDates.impactTimeframeStart)),
     impactTimeframeEnd: ISOToUNIX(new Date(formDates.impactTimeframeEnd)),
-    contributors: ["john", "ada"],
+    contributors: [],
     rights: ["Public Display"],
     excludedRights: [],
   };
@@ -139,7 +123,7 @@ function Page({
 
   const [formValues, setFormValues] = useState<MyMetadata>(initialState);
   const { name, description, external_url } = formValues;
-  const [summedAmountUSD, setSumAmountUSD] = useState<number>(0);
+  const [summedAmountUSD, setSumAmountUSD] = useState<bigint>(BigInt(0));
   const cardRef = useRef<HTMLDivElement | undefined>(undefined);
   useEffect(() => {
     setAllow(false);
@@ -151,11 +135,11 @@ function Page({
               `https://grants-stack-indexer.gitcoin.co/data/${mychainId}/rounds/${roundId}/applications.json`
             );
             const metaData = res.data;
-            let raddr = "0x4Be737B450754BC75f1ef0271D3C5dA525173F6b";
+
             const myItem: any = Array.from(metaData).find(
               (item: any) =>
                 String(item.metadata.application.recipient).toLowerCase() ===
-                raddr.toLowerCase()
+                address.toLowerCase()
             );
             if (myItem === undefined) {
               throw new Error("Item not found");
@@ -166,8 +150,8 @@ function Page({
             const projectData: any = Array.from(votesRes.data).filter(
               (vote: any) => vote.projectId === myItem.projectId
             );
-            // console.log(projectData);
-            // console.log(myItem.projectId);
+            //console.log("Data:", projectData);
+            //console.log(myItem.projectId);
             const contributors: AllowlistEntry[] = projectData.map(
               (vote: any) => {
                 return {
@@ -176,16 +160,14 @@ function Page({
                 };
               }
             );
-            // console.log(contributors);
-            let summedAmount = 0;
+
+            let summedAmount: bigint = BigInt(0);
             for (let index = 0; index < contributors.length; index++) {
-              summedAmount = Number(contributors[index].units) + summedAmount;
+              summedAmount = contributors[index].units + summedAmount;
             }
             setSumAmountUSD(summedAmount);
             setallowList(contributors);
             setContributorsStored(contributors);
-            const options = convertArrayToDisplayText(contributors);
-            setContributors(options);
 
             setFormValues({
               ...formValues,
@@ -254,17 +236,23 @@ function Page({
       ...formValues,
       workScope: workScopeStored,
     });
-    let percentage = allowRange / 100;
-    let totalUnits = summedAmountUSD / percentage;
-    let recipientUnits = totalUnits - summedAmountUSD;
-
-    let newAllowlist: AllowlistEntry[] = [
-      ...allowList,
-      {
-        address: address as string,
-        units: BigInt(recipientUnits),
-      },
-    ];
+    let othersPercentage = allowRange / 100;
+    let totalUnits = Number(summedAmountUSD) / othersPercentage;
+    let recipientUnits = BigInt(totalUnits) - summedAmountUSD;
+    // console.log(
+    //   "recipient units:",
+    //   recipientUnits,
+    //   "\n",
+    //   "total units:",
+    //   totalUnits,
+    //   "Summed:",
+    //   summedAmountUSD
+    // );
+    let newAllowlist: AllowlistEntry[] = Array(...allowList, {
+      address: address as string,
+      units: BigInt(recipientUnits),
+    });
+    //console.log("New Allowlist:", newAllowlist);
     let curChainId = await myWalletClient?.getChainId();
     if (myWalletClient && curChainId !== dappChain.id) {
       myWalletClient.switchChain(dappChain);
@@ -280,7 +268,7 @@ function Page({
         if (!hyperImage) {
           throw new Error("Hypercert image is invalid");
         }
-
+        // console.log(hyperImage);
         setFormValues({
           ...formValues,
           image: hyperImage,
