@@ -140,6 +140,10 @@ async function mintHypercert(
       if (!tx) {
         throw new Error("Mint claim fraction failed");
       }
+      let secondReciept = await provider.waitForTransaction(tx as string);
+      if (secondReciept?.status === 0) {
+        throw new Error("Transaction reverted");
+      }
       res.claimsTxHash = tx;
     }
   } catch (err) {

@@ -35,7 +35,7 @@ function Page({
   params: { slug: string };
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  let raddr = "0x4Be737B450754BC75f1ef0271D3C5dA525173F6b";
+  let raddr = "0x99573d9494cA4bffe5984FfdDB3aD3F92E091920";
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const nftStorageToken = process.env.NEXT_PUBLIC_NFTSTORAGE;
   const [allow, setAllow] = useState(false);
@@ -139,7 +139,7 @@ function Page({
             const myItem: any = Array.from(metaData).find(
               (item: any) =>
                 String(item.metadata.application.recipient).toLowerCase() ===
-                address.toLowerCase()
+                raddr.toLowerCase()
             );
             if (myItem === undefined) {
               throw new Error("Item not found");
