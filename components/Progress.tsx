@@ -3,6 +3,7 @@
 import { getChain } from "@/actions/hypercerts";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import { useWeb3ModalAccount } from "@web3modal/ethers/react";
+import { motion } from "framer-motion";
 import Link from "next/link";
 
 import { forwardRef } from "react";
@@ -17,10 +18,7 @@ interface ProgressProps {
   isMinting: boolean;
 }
 
-const ProgressPopup = forwardRef(function ProgressPopup(
-  props: ProgressProps,
-  ref
-) {
+const ProgressPopup = forwardRef(function (props: ProgressProps, ref) {
   const { res, isSuccess, isMinting } = props;
 
   const Monitor = () => {
@@ -47,29 +45,52 @@ const ProgressPopup = forwardRef(function ProgressPopup(
       return (
         <div className={`w-full items-center space-y-2 h-[70%]`}>
           <div
-            className={`w-[140px] mx-auto flex animate-animateContainer justify-center items-center h-[140px] bg-green-600 rounded-full`}
+            className={`w-[140px] mx-auto flex animate-animateContainr justify-center items-center h-[140px] bg-green-600 rounded-full`}
           >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
+            <motion.svg
+              width={150} // Adjust the width as needed
+              height={150} // Adjust the height as needed
               xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 400 400"
+              className={`block mx-auto`}
             >
-              <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-              <g
-                id="SVGRepo_tracerCarrier"
+              <motion.circle
+                fill={`none`}
+                stroke="#68E534"
+                strokeWidth={20}
+                cx={200}
+                cy={200}
+                r={190}
+                strokeLinecap={`round`}
+                transform={`rotate(-90 200 200)`}
+                strokeDasharray={1194}
+                strokeDashoffset={1194}
+                initial={{ strokeDashoffset: 1194 }}
+                animate={{
+                  strokeDashoffset: 2388,
+                  animationFillMode: "forwards",
+                  transition: { duration: 1, ease: "easeInOut" },
+                }}
+              />
+              <motion.polyline
+                fill="none"
+                stroke="#68E534"
+                points="88,214 173,284 304,138"
+                strokeWidth="24"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-              ></g>
-              <g id="SVGRepo_iconCarrier">
-                <path
-                  d="M4 12.6111L8.92308 17.5L20 6.5"
-                  stroke="#ffffff"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                ></path>
-              </g>
-            </svg>
+                className="tick"
+                strokeDasharray={350}
+                strokeDashoffset={350}
+                initial={{ strokeDashoffset: 350 }}
+                animate={{
+                  strokeDashoffset: 0,
+                  animationFillMode: "forwards",
+                  animationDelay: "0.95s",
+                  transition: { ease: "easeOut", duration: 0.8 },
+                }}
+              />
+            </motion.svg>
           </div>
           <p className={`text-[18px] text-green-600`}>
             Transaction Successful!
@@ -93,7 +114,7 @@ const ProgressPopup = forwardRef(function ProgressPopup(
           <div
             className={`w-[140px] flex animate-animateContainer justify-center items-center h-[140px] bg-red-600 rounded-full`}
           >
-            <svg
+            {/* <svg
               fill="#ffffff"
               height="70px"
               width="70px"
@@ -113,7 +134,101 @@ const ProgressPopup = forwardRef(function ProgressPopup(
               <g id="SVGRepo_iconCarrier">
                 <path d="M285.08,230.397L456.218,59.27c6.076-6.077,6.076-15.911,0-21.986L423.511,4.565c-2.913-2.911-6.866-4.55-10.992-4.55 c-4.127,0-8.08,1.639-10.993,4.55l-171.138,171.14L59.25,4.565c-2.913-2.911-6.866-4.55-10.993-4.55 c-4.126,0-8.08,1.639-10.992,4.55L4.558,37.284c-6.077,6.075-6.077,15.909,0,21.986l171.138,171.128L4.575,401.505 c-6.074,6.077-6.074,15.911,0,21.986l32.709,32.719c2.911,2.911,6.865,4.55,10.992,4.55c4.127,0,8.08-1.639,10.994-4.55 l171.117-171.12l171.118,171.12c2.913,2.911,6.866,4.55,10.993,4.55c4.128,0,8.081-1.639,10.992-4.55l32.709-32.719 c6.074-6.075,6.074-15.909,0-21.986L285.08,230.397z"></path>
               </g>
-            </svg>
+            </svg> */}
+            <motion.svg
+              viewBox="0 0 87 87"
+              version="1.1"
+              width={100}
+              height={100}
+              xmlns="http://www.w3.org/2000/svg"
+              xmlnsXlink="http://www.w3.org/1999/xlink"
+              className={`block mx-auto`}
+            >
+              <motion.g
+                id="Page-1"
+                stroke="none"
+                strokeWidth="1"
+                fill="none"
+                fillRule="evenodd"
+              >
+                <motion.g
+                  id="Group-2"
+                  transform="translate(2.000000, 2.000000)"
+                >
+                  <motion.circle
+                    id="Oval-2"
+                    stroke="rgba(252, 191, 191, .5)"
+                    strokeWidth={4}
+                    cx={41.5}
+                    cy={41.5}
+                    r={41.5}
+                  />
+                  <motion.circle
+                    className="ui-error-circle"
+                    stroke="#F74444"
+                    strokeWidth={4}
+                    cx={41.5}
+                    cy={41.5}
+                    r={41.5}
+                    strokeDasharray={260.75219024795285}
+                    strokeDashoffset={260.75219024795285}
+                    transition={{
+                      duration: 1.2,
+                      ease: "linear",
+                      times: [0, 0.35, 0.7, 1],
+                    }}
+                    animate={{
+                      strokeDasharray: [
+                        "0, 260.75219024795285px",
+                        "120px 120px",
+                        "0, 260.75219024795285px",
+                        "260.75219024795285px, 0",
+                      ],
+                      strokeDashoffset: [
+                        "0",
+                        "-120px",
+                        "-260.75219024795285px",
+                        "-260.75219024795285px",
+                      ],
+                    }}
+                  />
+                  <motion.path
+                    className="ui-error-line1"
+                    d="M22.244224,22 L60.4279902,60.1837662"
+                    id="Line"
+                    stroke="#F74444"
+                    strokeWidth={3}
+                    strokeLinecap={"square"}
+                    strokeDasharray={"54px 55px"}
+                    strokeDashoffset={55}
+                    transition={{
+                      duration: 0.15,
+                      delay: 1.2,
+                      ease: "linear",
+                      repeat: 1,
+                    }}
+                    animate={{ strokeDashoffset: 0 }}
+                  />
+                  <motion.path
+                    className="ui-error-line2"
+                    d="M60.755776,21 L23.244224,59.8443492"
+                    id="Line"
+                    stroke="#F74444"
+                    strokeWidth={3}
+                    strokeDasharray={"54px 55px"}
+                    strokeDashoffset={55}
+                    strokeLinecap={"square"}
+                    transition={{
+                      duration: 0.2,
+                      delay: 0.9,
+                      ease: "linear",
+                      repeat: 1,
+                    }}
+                    animate={{ strokeDashoffset: 0 }}
+                  />
+                </motion.g>
+              </motion.g>
+            </motion.svg>
           </div>
         </div>
       );
