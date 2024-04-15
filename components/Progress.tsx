@@ -18,7 +18,10 @@ interface ProgressProps {
   isMinting: boolean;
 }
 
-const ProgressPopup = forwardRef(function (props: ProgressProps, ref) {
+const ProgressPopup = forwardRef(function ProgressPopup(
+  props: ProgressProps,
+  ref
+) {
   const { res, isSuccess, isMinting } = props;
 
   const Monitor = () => {
