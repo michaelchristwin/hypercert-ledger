@@ -79,7 +79,7 @@ async function mintHypercert(
     if (!data) {
       throw errors;
     }
-
+    //console.log("on the other side:", data.image);
     res.allowlistTxHash = await client.createAllowlist(
       allowList,
       data,
@@ -87,24 +87,12 @@ async function mintHypercert(
       TransferRestrictions.FromCreatorOnly
     );
     let provider = new BrowserProvider(walletProvider);
-    const getReceipt = async () => {
-      let receipt: TransactionReceipt | null;
-      try {
-        if (res.allowlistTxHash) {
-          receipt = await provider.getTransactionReceipt(res.allowlistTxHash);
-        } else {
-          throw new Error("Response is undefined");
-        }
-        return receipt;
-      } catch (err) {
-        throw err;
-      }
-    };
+
     if (!res.allowlistTxHash) {
       throw new Error("Method Failed");
     }
     const receipt = await provider.waitForTransaction(res.allowlistTxHash);
-    const { storage, indexer } = client;
+
     let logs = parseLog(receipt as TransactionReceipt);
     console.log(String(logs[0].topics[1]));
     let address = (await provider.getSigner()).address;
@@ -115,7 +103,7 @@ async function mintHypercert(
 
       const tree = parseAllowListEntriesToMerkleTree(allowList);
       // StandardMerkleTree.load(JSON.parse(treeResponse as string));
-      console.log("tree:", tree);
+      // console.log("tree:", tree);
       let defArgs;
       for (const [leaf, value] of tree.entries()) {
         if (value[0] === address) {
@@ -130,7 +118,7 @@ async function mintHypercert(
       if (!defArgs) {
         throw new Error("Arguments are undefined");
       }
-      console.log("defArgs:", defArgs);
+      //console.log("defArgs:", defArgs);
       const { proofs, units, claimId } = defArgs;
       const tx = await client.mintClaimFractionFromAllowlist(
         claimId,

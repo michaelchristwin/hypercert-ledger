@@ -12,13 +12,13 @@ import {
   useWeb3ModalAccount,
   useWeb3ModalProvider,
 } from "@web3modal/ethers/react";
+import html2canvas from "html2canvas";
 import { useState, useRef, useEffect } from "react";
 import { Chain, createWalletClient, custom, WalletClient } from "viem";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { useAppContext } from "@/context/appContext";
-import { uploadImage } from "@/actions/upload";
-import domToImage from "dom-to-image";
+
 import TextArea, { convertArrayToDisplayText } from "@/components/TextArea";
 import MyHypercert from "@/components/MyHypercert";
 import ProgressPopup, { MethRes } from "@/components/Progress";
@@ -35,7 +35,6 @@ function Page({
   params: { slug: string };
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  let raddr = "0x99573d9494cA4bffe5984FfdDB3aD3F92E091920";
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const nftStorageToken = process.env.NEXT_PUBLIC_NFTSTORAGE;
   const [allow, setAllow] = useState(false);
@@ -71,7 +70,15 @@ function Page({
   const { address, chainId } = useWeb3ModalAccount();
   const mychainId = searchParams.chainId as string;
   const roundId = searchParams.roundId as string;
-  const dappChain = optimism;
+  let dappChain: Chain;
+  let account: string;
+  if (process.env.NODE_ENV === "development") {
+    dappChain = sepolia;
+    account = "0x99573d9494cA4bffe5984FfdDB3aD3F92E091920";
+  } else {
+    dappChain = optimism;
+    account = address as string;
+  }
   const initialState: MyMetadata = {
     name: "",
     description: "",
@@ -139,7 +146,7 @@ function Page({
             const myItem: any = Array.from(metaData).find(
               (item: any) =>
                 String(item.metadata.application.recipient).toLowerCase() ===
-                address.toLowerCase()
+                account.toLowerCase()
             );
             if (myItem === undefined) {
               throw new Error("Item not found");
@@ -219,11 +226,10 @@ function Page({
       [name]: value,
     });
   };
-  const covertToBlob = async (ref: React.MutableRefObject<HTMLDivElement>) => {
-    if (ref.current) {
-      const myRef = cardRef.current;
-      const imgBlob = await domToImage.toPng(myRef as HTMLElement);
-      return imgBlob;
+  const convertToDataURL = async () => {
+    if (cardRef.current) {
+      const dataurl = (await html2canvas(cardRef.current)).toDataURL();
+      return dataurl;
     }
   };
   const handleRangeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -239,20 +245,10 @@ function Page({
     let othersPercentage = allowRange / 100;
     let totalUnits = Number(summedAmountUSD) / othersPercentage;
     let recipientUnits = BigInt(totalUnits) - summedAmountUSD;
-    // console.log(
-    //   "recipient units:",
-    //   recipientUnits,
-    //   "\n",
-    //   "total units:",
-    //   totalUnits,
-    //   "Summed:",
-    //   summedAmountUSD
-    // );
     let newAllowlist: AllowlistEntry[] = Array(...allowList, {
       address: address as string,
       units: BigInt(recipientUnits),
     });
-    //console.log("New Allowlist:", newAllowlist);
     let curChainId = await myWalletClient?.getChainId();
     if (myWalletClient && curChainId !== dappChain.id) {
       myWalletClient.switchChain(dappChain);
@@ -261,21 +257,16 @@ function Page({
       setIsMinting(true);
       triggerRef.current.click();
       try {
-        const hyperImage = await covertToBlob(
-          cardRef as React.MutableRefObject<HTMLDivElement>
-        );
-
+        const hyperImage = await convertToDataURL();
         if (!hyperImage) {
           throw new Error("Hypercert image is invalid");
         }
-        // console.log(hyperImage);
-        setFormValues({
-          ...formValues,
-          image: hyperImage,
-        });
+        //console.log(hyperImage);
+        let newvalues: MyMetadata = { ...formValues, image: hyperImage };
+
         console.log("Submit running");
         const res = await mintHypercert(
-          formValues,
+          newvalues,
           hyperClient,
           newAllowlist,
           BigInt(totalUnits),

@@ -6,7 +6,7 @@ import { myChains } from "@/providers/Walletprovider";
 function Hero() {
   return (
     <div
-      className={`lg:grid md:grid block grid-cols-3 w-full h-fit lg:p-[100px] lg:gap-x-[13%] md:gap-x-[13%] md:p-[60px] p-[20px] space-y-2`}
+      className={`lg:grid md:grid block grid-cols-3 w-full h-fit lg:p-[100px] lg:gap-x-[13%] md:gap-x-[13%] md:p-[60px] p-[20px] space-y-2 mt-[90px]`}
     >
       <HyperCertCard
         name="GG19: Climate"

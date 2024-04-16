@@ -8,7 +8,7 @@ function Rounds() {
   const { pgn, polygon, optimism } = myChains;
   return (
     <div
-      className={`w-full flex justify-center items-center h-fit lg:py-[60px] py-[40px] md:py-[90px] lg:my-[120px] md:my-[100px] my-[70px]`}
+      className={`w-full flex justify-center items-center lg:py-[60px] py-[40px] md:py-[90px] lg:my-[100px] md:my-[100px] my-[70px]`}
     >
       <div
         className={`grid lg:grid-cols-4 md:grid-cols-3 grid-cols-1 w-full gap-x-[3%] gap-y-[20px] lg:px-[100px] md:px-[100px] px-[20px]`}

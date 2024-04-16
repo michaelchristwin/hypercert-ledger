@@ -27,7 +27,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} relative nico bg-cover`}>
+      <body
+        className={`${inter.className} relative nico bg-cover min-h-[100vh] flex flex-col`}
+      >
         <WalletProvider>
           <Toaster />
           <Navbar />
@@ -36,7 +38,7 @@ export default function RootLayout({
           >
             The minter is temporarily down for maintenance!
           </div> */}
-          <div className={`mt-[100px] min-h-[80vh]`}>{children}</div>
+          <div className={``}>{children}</div>
           <Footer />
         </WalletProvider>
       </body>
