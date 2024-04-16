@@ -71,7 +71,7 @@ function Page({
   const { address, chainId } = useWeb3ModalAccount();
   const mychainId = searchParams.chainId as string;
   const roundId = searchParams.roundId as string;
-  const dappChain = sepolia;
+  const dappChain = optimism;
   const initialState: MyMetadata = {
     name: "",
     description: "",
