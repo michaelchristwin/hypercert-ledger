@@ -48,7 +48,7 @@ const ProgressPopup = forwardRef(function ProgressPopup(
       return (
         <div className={`w-full items-center space-y-2 h-[70%]`}>
           <div
-            className={`w-[140px] mx-auto flex animate-animateContainr justify-center items-center h-[140px] bg-green-600 rounded-full`}
+            className={`w-[140px] mx-auto flex justify-center items-center h-[140px] rounded-full`}
           >
             <motion.svg
               width={150} // Adjust the width as needed
@@ -102,12 +102,11 @@ const ProgressPopup = forwardRef(function ProgressPopup(
             Tx Hash:
             <Link
               target={`_blank`}
-              href={`${currentChain.blockExplorers.default.url}/tx/${res.allowlistTxHash}`}
+              href={`${currentChain.blockExplorers.default.url}/tx/${res.claimsTxHash}`}
               className={`text-sky-500`}
-            >{` ${res.allowlistTxHash?.slice(
-              0,
-              15
-            )}...${res.allowlistTxHash?.slice(-15)}`}</Link>
+            >{` ${res.claimsTxHash?.slice(0, 15)}...${res.claimsTxHash?.slice(
+              -15
+            )}`}</Link>
           </pre>
         </div>
       );
@@ -115,29 +114,8 @@ const ProgressPopup = forwardRef(function ProgressPopup(
       return (
         <div className={`w-full flex justify-center items-center h-[70%]`}>
           <div
-            className={`w-[140px] flex animate-animateContainer justify-center items-center h-[140px] bg-red-600 rounded-full`}
+            className={`w-[140px] flex justify-center items-center h-[140px] rounded-full`}
           >
-            {/* <svg
-              fill="#ffffff"
-              height="70px"
-              width="70px"
-              version="1.1"
-              id="Capa_1"
-              className={`animate-animateCheck`}
-              xmlns="http://www.w3.org/2000/svg"
-              xmlSpace="preserve"
-              viewBox="0 0 460.775 460.775"
-            >
-              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-              <g
-                id="SVGRepo_tracerCarrier"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              ></g>
-              <g id="SVGRepo_iconCarrier">
-                <path d="M285.08,230.397L456.218,59.27c6.076-6.077,6.076-15.911,0-21.986L423.511,4.565c-2.913-2.911-6.866-4.55-10.992-4.55 c-4.127,0-8.08,1.639-10.993,4.55l-171.138,171.14L59.25,4.565c-2.913-2.911-6.866-4.55-10.993-4.55 c-4.126,0-8.08,1.639-10.992,4.55L4.558,37.284c-6.077,6.075-6.077,15.909,0,21.986l171.138,171.128L4.575,401.505 c-6.074,6.077-6.074,15.911,0,21.986l32.709,32.719c2.911,2.911,6.865,4.55,10.992,4.55c4.127,0,8.08-1.639,10.994-4.55 l171.117-171.12l171.118,171.12c2.913,2.911,6.866,4.55,10.993,4.55c4.128,0,8.081-1.639,10.992-4.55l32.709-32.719 c6.074-6.075,6.074-15.909,0-21.986L285.08,230.397z"></path>
-              </g>
-            </svg> */}
             <motion.svg
               viewBox="0 0 87 87"
               version="1.1"
