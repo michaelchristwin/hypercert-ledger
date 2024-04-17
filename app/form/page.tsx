@@ -228,7 +228,9 @@ function Page({
   };
   const convertToDataURL = async () => {
     if (cardRef.current) {
-      const dataurl = (await html2canvas(cardRef.current)).toDataURL();
+      const dataurl = (
+        await html2canvas(cardRef.current, { useCORS: true })
+      ).toDataURL();
       return dataurl;
     }
   };
@@ -261,7 +263,7 @@ function Page({
         if (!hyperImage) {
           throw new Error("Hypercert image is invalid");
         }
-        //console.log(hyperImage);
+        console.log(hyperImage);
         let newvalues: MyMetadata = { ...formValues, image: hyperImage };
 
         console.log("Submit running");

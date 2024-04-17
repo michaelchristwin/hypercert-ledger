@@ -51,7 +51,7 @@ const MyHypercert = forwardRef(function HyperCertCard2(
           />
         </div>
         <div
-          className={`border-t-2 border-b block border-black min-h-[100px] h-fit mt-[130px]`}
+          className={`border-t-2 border-b block py-[6px] border-black min-h-[100px] h-fit mt-[110px]`}
         >
           <p className={`font-[600] text-[22px]`}>{name}</p>
         </div>
@@ -63,7 +63,7 @@ const MyHypercert = forwardRef(function HyperCertCard2(
                 workScope.map((item, index) => (
                   <div
                     key={index}
-                    className={`border-[2px] border-gray-800 flex justify-around rounded-[4px] min-w-[20px] max-w-[40px] h-[20px] px-[2px]`}
+                    className={`border-[2px] border-gray-800 items-center flex justify-around rounded-[4px] min-w-[20px] max-w-[40px] h-[20px] px-[2px]`}
                   >
                     <p className={`text-[12px] text-center truncate`}>{item}</p>
                   </div>
