@@ -43,7 +43,7 @@ async function mintHypercert(
   allowList: AllowlistEntry[],
   totalUnits: bigint,
   chainId: number,
-  walletProvider: Eip1193Provider
+  walletProvider: Eip1193Provider,
 ) {
   const { data, errors } = formatHypercertData(props);
 
@@ -67,7 +67,7 @@ async function mintHypercert(
       allowList,
       data,
       totalUnits,
-      TransferRestrictions.FromCreatorOnly
+      TransferRestrictions.FromCreatorOnly,
     );
     let provider = new BrowserProvider(walletProvider);
 
@@ -106,7 +106,7 @@ async function mintHypercert(
       const tx = await client.mintClaimFractionFromAllowlist(
         claimId,
         units,
-        proofs as `0x${string}`[] | Uint8Array[]
+        proofs as `0x${string}`[] | Uint8Array[],
       );
       if (!tx) {
         throw new Error("Mint claim fraction failed");
@@ -144,7 +144,7 @@ export function getChain(chainId: number) {
 export const ISOToUNIX = (date: Date) => {
   const isoDateString = date.toISOString();
   const unixTimeInSeconds = Math.floor(
-    new Date(isoDateString).getTime() / 1000
+    new Date(isoDateString).getTime() / 1000,
   );
   return unixTimeInSeconds;
 };
