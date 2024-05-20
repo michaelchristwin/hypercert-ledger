@@ -18,7 +18,7 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { useAppContext } from "@/context/appContext";
 import { uploadImage } from "@/actions/upload";
-import domToImage from "dom-to-image";
+//import domToImage from "dom-to-image";
 import TextArea, { convertArrayToDisplayText } from "@/components/TextArea";
 import MyHypercert from "@/components/MyHypercert";
 import ProgressPopup, { MethRes } from "@/components/Progress";
@@ -220,8 +220,8 @@ function Page({
   };
   const covertToBlob = async (ref: React.MutableRefObject<HTMLDivElement>) => {
     if (ref.current) {
-      const myRef = cardRef.current;
-      const imgBlob = await domToImage.toBlob(myRef as HTMLElement);
+      // const myRef = cardRef.current;
+      const imgBlob = new Blob();
       return imgBlob;
     }
   };

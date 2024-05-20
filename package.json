@@ -12,7 +12,6 @@
     "@apollo/client": "^3.10.4",
     "@hypercerts-org/sdk": "^2.0.0-alpha.1",
     "@radix-ui/react-alert-dialog": "^1.0.5",
-    "@types/dom-to-image": "^2.6.7",
     "@web3modal/ethers": "^3.5.1",
     "@web3modal/wallet": "^3.5.1",
     "axios": "^1.6.5",
@@ -30,22 +29,15 @@
     "viem": "^2.7.6"
   },
   "devDependencies": {
-    "@eslint/compat": "^1.0.1",
-    "@eslint/js": "^9.3.0",
     "@types/bun": "latest",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
-    "eslint": "9.x",
+    "eslint": "8.0.0",
     "eslint-config-next": "14.0.4",
-    "eslint-plugin-react": "^7.34.1",
-    "globals": "^15.3.0",
     "postcss": "^8",
     "tailwindcss": "^3.3.0",
-    "typescript": "^5",
-    "typescript-eslint": "^7.9.0"
-  },
-  "module": "index.ts",
-  "type": "module"
+    "typescript": "^5"
+  }
 }
