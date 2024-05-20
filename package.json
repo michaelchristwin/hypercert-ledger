@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@apollo/client": "^3.10.4",
     "@hypercerts-org/sdk": "^2.0.0-alpha.1",
     "@radix-ui/react-alert-dialog": "^1.0.5",
     "@types/dom-to-image": "^2.6.7",
@@ -18,6 +19,7 @@
     "ethers": "^6.10.0",
     "formik": "^2.4.5",
     "framer-motion": "^11.0.28",
+    "graphql": "^16.8.1",
     "html2canvas": "^1.4.1",
     "next": "^14.1.4",
     "nft.storage": "^7.1.1",

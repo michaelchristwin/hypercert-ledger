@@ -6,12 +6,11 @@ import {
   HypercertMinterAbi,
   parseAllowListEntriesToMerkleTree,
 } from "@hypercerts-org/sdk";
-import { StandardMerkleTree } from "@openzeppelin/merkle-tree";
 import { myChains } from "@/providers/Walletprovider";
 import { parseEventLogs } from "viem";
 import { Eip1193Provider, TransactionReceipt } from "ethers";
 import { BrowserProvider, Interface } from "ethers";
-import { celo, optimism, sepolia } from "viem/chains";
+
 
 interface MyMetadata {
   name: string;
@@ -38,24 +37,6 @@ interface MyMetadata {
   excludedRights: string[];
 }
 
-/**
- * Keeps running an async method till you get a truthy value.
- * @param method - Async method to call.
- * @returns truthy value.
- */
-const getTillTruthy = async (
-  method: () => Promise<TransactionReceipt | null>,
-  interval = 1000
-) => {
-  while (true) {
-    const result = await method();
-    if (result) {
-      return result;
-    }
-    await new Promise((resolve) => setTimeout(resolve, interval));
-  }
-};
-
 async function mintHypercert(
   props: MyMetadata,
   client: HypercertClient,
@@ -64,7 +45,7 @@ async function mintHypercert(
   chainId: number,
   walletProvider: Eip1193Provider
 ) {
-  const { data, errors, valid } = formatHypercertData(props);
+  const { data, errors } = formatHypercertData(props);
 
   let res: {
     claimsTxHash: `0x${string}` | undefined;
@@ -205,24 +186,4 @@ function parseLog(receipt: TransactionReceipt) {
   });
 
   return logs;
-}
-
-function serializeBigint(obj: any) {
-  return JSON.stringify(obj, (key, value) => {
-    if (typeof value === "bigint") {
-      return String(value);
-    } else {
-      return value;
-    }
-  });
-}
-
-async function tryTillTruthy(method: () => Promise<any>, interval = 1000) {
-  while (true) {
-    const result = await method();
-    if (result.claim) {
-      return result;
-    }
-    await new Promise((resolve) => setTimeout(resolve, interval));
-  }
 }

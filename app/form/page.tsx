@@ -16,10 +16,11 @@ import html2canvas from "html2canvas";
 import { useState, useRef, useEffect } from "react";
 import { Chain, createWalletClient, custom, WalletClient } from "viem";
 import toast from "react-hot-toast";
-import axios from "axios";
+import { client } from "@/utils/graphClient";
 import { useAppContext } from "@/context/appContext";
+import { gql } from "@apollo/client";
 
-import TextArea, { convertArrayToDisplayText } from "@/components/TextArea";
+import TextArea from "@/components/TextArea";
 import MyHypercert from "@/components/MyHypercert";
 import ProgressPopup, { MethRes } from "@/components/Progress";
 import { optimism, sepolia } from "viem/chains";
@@ -52,12 +53,14 @@ function Page({
     undefined
   );
   const { walletProvider } = useWeb3ModalProvider();
-  const [contributorsStored, setContributorsStored] = useState<any[]>([]);
+  const [_contributorsStored, setContributorsStored] = useState<any[]>([]);
   const [formImages, setFormImages] = useState({
     logoImage: "",
     bannerImage: "",
   });
+
   const { logoImage, bannerImage } = formImages;
+
   const { setCorrectNetwork, setIsWrongNetwork, roundColor } = useAppContext();
   const [isSuccess, setIsSuccess] = useState(false);
   const [isMinting, setIsMinting] = useState(false);
@@ -67,6 +70,7 @@ function Page({
     impactTimeframeStart: `${cY}-01-01`,
     impactTimeframeEnd: currentYear.toISOString().slice(0, 10),
   });
+
   const { address, chainId } = useWeb3ModalAccount();
   const mychainId = searchParams.chainId as string;
   const roundId = searchParams.roundId as string;
@@ -74,7 +78,7 @@ function Page({
   let account: string;
   if (process.env.NODE_ENV === "development") {
     dappChain = sepolia;
-    account = "0x99573d9494cA4bffe5984FfdDB3aD3F92E091920";
+    account = "0xdce0e1060452a9898ab52ead663f79b429948077";
   } else {
     dappChain = optimism;
     account = address as string;
@@ -132,75 +136,77 @@ function Page({
   const { name, description, external_url } = formValues;
   const [summedAmountUSD, setSumAmountUSD] = useState<bigint>(BigInt(0));
   const cardRef = useRef<HTMLDivElement | undefined>(undefined);
+
+  let GET_APPLICATIONS = gql`
+    query GetApplications($id: String!, $chainId: Int!) {
+      round(id: $id, chainId: $chainId) {
+        projectId
+        createdByAddress
+        roundMetadata
+        uniqueDonorsCount
+        totalAmountDonatedInUsd
+        donations {
+          donorAddress
+          amountInUsd
+        }
+      }
+    }
+  `;
+  const fetchData = async () => {
+    try {
+      let { data, error } = await client.query({
+        query: GET_APPLICATIONS,
+        variables: {
+          id: roundId.toLowerCase(),
+          chainId: Number(mychainId),
+        },
+        fetchPolicy: "network-only",
+      });
+
+      console.log(data);
+      if (data) {
+        if (data.round === null) {
+          return;
+        }
+        if (
+          String(data.round.createdByAddress).toLowerCase() !==
+          account.toLowerCase()
+        ) {
+          throw new Error("Item not found");
+        }
+        setFormValues({
+          ...formValues,
+          name: data.round.roundMetadata.name,
+          description: data.round.roundMetadata.eligibility.description,
+          external_url: data.round.roundMetadata.support.info,
+        });
+        const contributors: AllowlistEntry[] = data.round.donations.map(
+          (donation: any) => {
+            return {
+              address: donation.donorAddress,
+              units: BigInt(Math.round(donation.amountInUsd)),
+            };
+          }
+        );
+        setSumAmountUSD(data.round.totalAmountDonatedInUsd);
+        setallowList(contributors);
+        setContributorsStored(contributors);
+        setAllow(true);
+      } else if (error) {
+        throw error;
+      }
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  };
   useEffect(() => {
     setAllow(false);
-    if (mychainId && roundId && address) {
-      toast.promise(
-        (async () => {
-          try {
-            const res = await axios.get(
-              `https://grants-stack-indexer.gitcoin.co/data/${mychainId}/rounds/${roundId}/applications.json`
-            );
-            const metaData = res.data;
-
-            const myItem: any = Array.from(metaData).find(
-              (item: any) =>
-                String(item.metadata.application.recipient).toLowerCase() ===
-                account.toLowerCase()
-            );
-            if (myItem === undefined) {
-              throw new Error("Item not found");
-            }
-            const votesRes = await axios.get(
-              `https://grants-stack-indexer.gitcoin.co/data/${mychainId}/rounds/${roundId}/votes.json`
-            );
-            const projectData: any = Array.from(votesRes.data).filter(
-              (vote: any) => vote.projectId === myItem.projectId
-            );
-            //console.log("Data:", projectData);
-            //console.log(myItem.projectId);
-            const contributors: AllowlistEntry[] = projectData.map(
-              (vote: any) => {
-                return {
-                  address: vote.voter,
-                  units: BigInt(vote.amountRoundToken),
-                };
-              }
-            );
-
-            let summedAmount: bigint = BigInt(0);
-            for (let index = 0; index < contributors.length; index++) {
-              summedAmount = contributors[index].units + summedAmount;
-            }
-            setSumAmountUSD(summedAmount);
-            setallowList(contributors);
-            setContributorsStored(contributors);
-
-            setFormValues({
-              ...formValues,
-              name: myItem.metadata.application.project.title,
-              external_url: myItem.metadata.application.project.website,
-              description: myItem.metadata.application.project.description,
-            });
-            setFormImages({
-              logoImage: `https://ipfs.io/ipfs/${myItem.metadata.application.project.logoImg}`,
-              bannerImage: `https://ipfs.io/ipfs/${myItem.metadata.application.project.bannerImg}`,
-            });
-            setWorkScopeStored([myItem.metadata.application.project.title]);
-            setWorkScopes(myItem.metadata.application.project.title);
-            setAllow(true);
-          } catch (err) {
-            console.error("Error:", err);
-            throw err;
-          }
-        })(),
-        {
-          loading: "hypercert is being pre-filled.....",
-          success: "Pre-fill Successful",
-          error: "You don't have a grant application",
-        }
-      );
-    }
+    toast.promise(fetchData(), {
+      loading: "hypercert is being pre-filled.....",
+      success: "Pre-fill Successful",
+      error: "You don't have a grant application",
+    });
   }, []);
 
   useEffect(() => {

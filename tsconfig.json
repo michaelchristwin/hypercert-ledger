@@ -11,6 +11,8 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
+
+    "noUnusedLocals": true,
     "downlevelIteration": true,
     "jsx": "preserve",
     "incremental": true,
