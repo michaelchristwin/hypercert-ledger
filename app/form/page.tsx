@@ -13,7 +13,7 @@ import {
   useWeb3ModalProvider,
 } from "@web3modal/ethers/react";
 import html2canvas from "html2canvas";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Chain, createWalletClient, custom, WalletClient } from "viem";
 import toast from "react-hot-toast";
 import { client } from "@/utils/graphClient";
@@ -26,8 +26,8 @@ import ProgressPopup, { MethRes } from "@/components/Progress";
 import { optimism, sepolia } from "viem/chains";
 import { Eip1193Provider } from "ethers";
 
-let currentYear = new Date();
-let cY = currentYear.getFullYear();
+const currentYear = new Date();
+const cY = currentYear.getFullYear();
 
 function Page({
   params,
@@ -106,14 +106,14 @@ function Page({
     (() => {
       try {
         if (walletProvider) {
-          let walletClient = createWalletClient({
+          const walletClient = createWalletClient({
             account: address,
             chain: dappChain,
             transport: custom(walletProvider as Eip1193Provider),
           });
 
           if (walletClient) {
-            let myClient = new HypercertClient({
+            const myClient = new HypercertClient({
               chain: dappChain as any,
               walletClient: walletClient as any,
               nftStorageToken: nftStorageToken,
@@ -137,7 +137,7 @@ function Page({
   const [summedAmountUSD, setSumAmountUSD] = useState<bigint>(BigInt(0));
   const cardRef = useRef<HTMLDivElement | undefined>(undefined);
 
-  let GET_APPLICATIONS = gql`
+  const GET_APPLICATIONS = gql`
     query GetApplications($id: String!, $chainId: Int!) {
       round(id: $id, chainId: $chainId) {
         projectId
@@ -152,9 +152,9 @@ function Page({
       }
     }
   `;
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
-      let { data, error } = await client.query({
+      const { data, error } = await client.query({
         query: GET_APPLICATIONS,
         variables: {
           id: roundId.toLowerCase(),
@@ -174,12 +174,12 @@ function Page({
         ) {
           throw new Error("Item not found");
         }
-        setFormValues({
-          ...formValues,
+        setFormValues((f) => ({
+          ...f,
           name: data.round.roundMetadata.name,
           description: data.round.roundMetadata.eligibility.description,
           external_url: data.round.roundMetadata.support.info,
-        });
+        }));
         const contributors: AllowlistEntry[] = data.round.donations.map(
           (donation: any) => {
             return {
@@ -199,7 +199,7 @@ function Page({
       console.error(err);
       throw err;
     }
-  };
+  }, [mychainId, roundId, account, GET_APPLICATIONS]);
   useEffect(() => {
     setAllow(false);
     toast.promise(fetchData(), {
@@ -207,7 +207,7 @@ function Page({
       success: "Pre-fill Successful",
       error: "You don't have a grant application",
     });
-  }, []);
+  }, [fetchData]);
 
   useEffect(() => {
     if (chainId !== Number(mychainId)) {
@@ -250,14 +250,14 @@ function Page({
       ...formValues,
       workScope: workScopeStored,
     });
-    let othersPercentage = allowRange / 100;
-    let totalUnits = Number(summedAmountUSD) / othersPercentage;
-    let recipientUnits = BigInt(totalUnits) - summedAmountUSD;
-    let newAllowlist: AllowlistEntry[] = Array(...allowList, {
+    const othersPercentage = allowRange / 100;
+    const totalUnits = Number(summedAmountUSD) / othersPercentage;
+    const recipientUnits = BigInt(totalUnits) - summedAmountUSD;
+    const newAllowlist: AllowlistEntry[] = [...allowList, {
       address: address as string,
       units: BigInt(recipientUnits),
-    });
-    let curChainId = await myWalletClient?.getChainId();
+    }];
+    const curChainId = await myWalletClient?.getChainId();
     if (myWalletClient && curChainId !== dappChain.id) {
       myWalletClient.switchChain(dappChain);
     }
@@ -270,7 +270,7 @@ function Page({
           throw new Error("Hypercert image is invalid");
         }
         console.log(hyperImage);
-        let newvalues: MyMetadata = { ...formValues, image: hyperImage };
+        const newvalues: MyMetadata = { ...formValues, image: hyperImage };
 
         console.log("Submit running");
         const res = await mintHypercert(
@@ -307,7 +307,7 @@ function Page({
       ...formDates,
       [name]: value,
     });
-    let newDate = ISOToUNIX(new Date(value));
+    const newDate = ISOToUNIX(new Date(value));
     setFormValues({
       ...formValues,
       [name]: newDate,

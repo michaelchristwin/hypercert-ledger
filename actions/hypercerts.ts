@@ -46,7 +46,7 @@ async function mintHypercert(
 ) {
   const { data, errors } = formatHypercertData(props);
 
-  let res: {
+  const res: {
     claimsTxHash: `0x${string}` | undefined;
     allowlistTxHash: `0x${string}` | undefined;
   } = {
@@ -68,20 +68,20 @@ async function mintHypercert(
       totalUnits,
       TransferRestrictions.FromCreatorOnly
     );
-    let provider = new BrowserProvider(walletProvider);
+    const provider = new BrowserProvider(walletProvider);
 
     if (!res.allowlistTxHash) {
       throw new Error("Method Failed");
     }
     const receipt = await provider.waitForTransaction(res.allowlistTxHash);
 
-    let logs = parseLog(receipt as TransactionReceipt);
+    const logs = parseLog(receipt as TransactionReceipt);
     console.log(String(logs[0].topics[1]));
-    let address = (await provider.getSigner()).address;
-    let hyperInterface = new Interface(HypercertMinterAbi);
-    let details = hyperInterface.parseLog(logs[0]);
+    const address = (await provider.getSigner()).address;
+    const hyperInterface = new Interface(HypercertMinterAbi);
+    const details = hyperInterface.parseLog(logs[0]);
     if (details) {
-      let claim_Id = details.args[0].valueOf();
+      const claim_Id = details.args[0].valueOf();
 
       const tree = parseAllowListEntriesToMerkleTree(allowList);
       // StandardMerkleTree.load(JSON.parse(treeResponse as string));
@@ -110,7 +110,7 @@ async function mintHypercert(
       if (!tx) {
         throw new Error("Mint claim fraction failed");
       }
-      let secondReciept = await provider.waitForTransaction(tx as string);
+      const secondReciept = await provider.waitForTransaction(tx as string);
       if (secondReciept?.status === 0) {
         throw new Error("Transaction reverted");
       }
@@ -150,7 +150,7 @@ export const ISOToUNIX = (date: Date) => {
 
 export const isValid = (formValue: MyMetadata) => {
   try {
-    let genco = [
+    const genco = [
       formValue.name,
       formValue.description,
       formValue.workScope,
