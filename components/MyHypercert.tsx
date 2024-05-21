@@ -4,7 +4,7 @@ import { Chain } from "viem";
 
 import { forwardRef } from "react";
 
-interface HyperCertCardProps {
+export interface HyperCertCardProps {
   name: string;
   logoImg: string;
   bannerImg: string;
@@ -70,9 +70,9 @@ const MyHypercert = forwardRef(function HyperCertCard2(
                 ))}
             </div>
           </div>
-          <div className={`flex`}>
+          <div className={`flex items-center w-fit leading-[14px]`}>
             <p className={`text-[14px]`}>{startDate}</p>
-            <p className={`text-[13px] space-x-1`}>&rarr;</p>
+            <p className={`text-[10px] space-x-[6px]`}>→</p>
             <p className={`text-[14px]`}>{endDate}</p>
           </div>
         </div>

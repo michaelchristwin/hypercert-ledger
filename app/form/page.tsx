@@ -1,5 +1,24 @@
 "use client";
 
+import { HypercertClient, AllowlistEntry } from "@hypercerts-org/sdk";
+import {
+  useWeb3ModalAccount,
+  useWeb3ModalProvider,
+} from "@web3modal/ethers/react";
+import html2canvas from "html2canvas";
+import { useState, useRef, useEffect, useCallback, memo } from "react";
+import { Chain, createWalletClient, custom, WalletClient } from "viem";
+import toast from "react-hot-toast";
+import { client } from "@/utils/graphClient";
+import { useAppContext } from "@/context/appContext";
+import { gql } from "@apollo/client";
+import { optimism, sepolia } from "viem/chains";
+import { Eip1193Provider } from "ethers";
+
+const Card = memo(MyHypercert);
+
+import TextArea from "@/components/TextArea";
+import MyHypercert from "@/components/MyHypercert";
 import {
   MyMetadata,
   mintHypercert,
@@ -7,24 +26,8 @@ import {
   isValid,
   getChain,
 } from "@/actions/hypercerts";
-import { HypercertClient, AllowlistEntry } from "@hypercerts-org/sdk";
-import {
-  useWeb3ModalAccount,
-  useWeb3ModalProvider,
-} from "@web3modal/ethers/react";
-import html2canvas from "html2canvas";
-import { useState, useRef, useEffect, useCallback } from "react";
-import { Chain, createWalletClient, custom, WalletClient } from "viem";
-import toast from "react-hot-toast";
-import { client } from "@/utils/graphClient";
-import { useAppContext } from "@/context/appContext";
-import { gql } from "@apollo/client";
-
-import TextArea from "@/components/TextArea";
-import MyHypercert from "@/components/MyHypercert";
 import ProgressPopup, { MethRes } from "@/components/Progress";
-import { optimism, sepolia } from "viem/chains";
-import { Eip1193Provider } from "ethers";
+import Spinner from "@/components/Spinner";
 
 const currentYear = new Date();
 const cY = currentYear.getFullYear();
@@ -180,6 +183,12 @@ function Page({
           description: data.round.roundMetadata.eligibility.description,
           external_url: data.round.roundMetadata.support.info,
         }));
+        setFormImages({
+          logoImage:
+            "https://images.unsplash.com/photo-1707391464204-47fa6cc35d22?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxleHBsb3JlLWZlZWR8NXx8fGVufDB8fHx8fA%3D%3D",
+          bannerImage:
+            "https://images.unsplash.com/photo-1707391464204-47fa6cc35d22?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxleHBsb3JlLWZlZWR8NXx8fGVufDB8fHx8fA%3D%3D",
+        });
         const contributors: AllowlistEntry[] = data.round.donations.map(
           (donation: any) => {
             return {
@@ -253,10 +262,13 @@ function Page({
     const othersPercentage = allowRange / 100;
     const totalUnits = Number(summedAmountUSD) / othersPercentage;
     const recipientUnits = BigInt(totalUnits) - summedAmountUSD;
-    const newAllowlist: AllowlistEntry[] = [...allowList, {
-      address: address as string,
-      units: BigInt(recipientUnits),
-    }];
+    const newAllowlist: AllowlistEntry[] = [
+      ...allowList,
+      {
+        address: address as string,
+        units: BigInt(recipientUnits),
+      },
+    ];
     const curChainId = await myWalletClient?.getChainId();
     if (myWalletClient && curChainId !== dappChain.id) {
       myWalletClient.switchChain(dappChain);
@@ -313,7 +325,79 @@ function Page({
       [name]: newDate,
     });
   };
-
+  const checkImage = (url: string): Promise<boolean> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(true);
+      img.onerror = () => reject(false);
+      img.src = url;
+    });
+  };
+  const Validity = memo(({ url }: { url: string }) => {
+    const [isValid, setIsValid] = useState<boolean>();
+    useEffect(() => {
+      console.log("Effect ran 1");
+      if (url) {
+        (async () => {
+          try {
+            let valid = await checkImage(url);
+            console.log("Effect ran 2");
+            setIsValid(valid);
+            console.log("isvalid:", valid);
+          } catch (err) {
+            setIsValid(false);
+            console.log(err);
+          }
+        })();
+      } else {
+        setIsValid(undefined);
+      }
+    }, [url]);
+    if (url && isValid === undefined) {
+      return <Spinner className={`absolute top-[28%] right-2`} />;
+    } else if (url && isValid) {
+      return (
+        <svg
+          className={`absolute top-[28%] right-1`}
+          fill="#43eb62"
+          width={16}
+          height={16}
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M12 0a12 12 0 1012 12A12.014 12.014 0 0012 0z"
+            fill="#ffffff"
+          />
+          <path
+            fill="#43eb62"
+            d="M12 0a12 12 0 1012 12A12.014 12.014 0 0012 0zm6.927 8.2l-6.845 9.289a1.011 1.011 0 01-1.43.188l-4.888-3.908a1 1 0 111.25-1.562l4.076 3.261 6.227-8.451a1 1 0 111.61 1.183z"
+          />
+        </svg>
+      );
+    } else if (url && !isValid) {
+      return (
+        <svg
+          className={`absolute top-[28%] right-2`}
+          width={16}
+          height={16}
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M11.983 0a12.206 12.206 0 00-8.51 3.653A11.8 11.8 0 000 12.207 11.779 11.779 0 0011.8 24h.214A12.111 12.111 0 0024 11.791 11.766 11.766 0 0011.983 0zM10.5 16.542a1.476 1.476 0 011.449-1.53h.027a1.527 1.527 0 011.523 1.47 1.475 1.475 0 01-1.449 1.53h-.027a1.529 1.529 0 01-1.523-1.47zM11 12.5v-6a1 1 0 012 0v6a1 1 0 11-2 0z"
+            fill="#FF0000" // Red fill color for the outer shape
+          />
+          <path
+            d="M11 12.5v-6a1 1 0 012 0v6a1 1 0 11-2 0z"
+            fill="#FFFFFF" // White fill color for the line
+          />
+        </svg>
+      );
+    } else {
+      return null; // Assuming you want to return nothing when url is present but isValid is false or undefined, and when url is not present
+    }
+  });
   return (
     <>
       <div
@@ -365,16 +449,19 @@ function Page({
             >
               Logo Image
             </label>
-            <input
-              type="text"
-              id="logoImage"
-              required
-              name="logoImage"
-              value={logoImage}
-              onChange={handleImages}
-              placeholder="Image URL"
-              className={`w-[100%] h-[45px] peer ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
-            />
+            <div className={`w-[100%] h-fit relative`}>
+              <input
+                type="text"
+                id="logoImage"
+                required
+                name="logoImage"
+                value={logoImage}
+                onChange={handleImages}
+                placeholder="Image URL"
+                className={`w-[100%] h-[45px] peer ps-2 pe-6 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
+              />
+              <Validity url={logoImage} />
+            </div>
             <p
               className={`text-red-600 italic invisible peer-required:visible`}
             >
@@ -388,15 +475,18 @@ function Page({
             >
               Banner Image
             </label>
-            <input
-              type="text"
-              id="bannerImage"
-              name="bannerImage"
-              value={bannerImage}
-              onChange={handleImages}
-              placeholder="Banner Image URL"
-              className={`w-[100%] h-[45px] ps-2 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
-            />
+            <div className={`w-[100%] h-fit relative`}>
+              <input
+                type="text"
+                id="bannerImage"
+                name="bannerImage"
+                value={bannerImage}
+                onChange={handleImages}
+                placeholder="Banner Image URL"
+                className={`w-[100%] h-[45px] ps-2 pe-7 bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
+              />
+              <Validity url={bannerImage} />
+            </div>
           </fieldset>
           <fieldset className={`w-[100%]`}>
             <label
@@ -669,7 +759,7 @@ function Page({
             allow ? "block" : "hidden"
           } h-fit sticky top-[100px] p-[40px] lg:mx-0 md:mx-0 mx-auto`}
         >
-          <MyHypercert
+          <Card
             startDate={formDates.workTimeframeStart}
             bannerPattern={roundColor.pattern}
             endDate={formDates.workTimeframeEnd}
