@@ -9,7 +9,7 @@ import html2canvas from "html2canvas";
 import { useState, useRef, useEffect, useCallback, memo } from "react";
 import { Chain, createWalletClient, custom, WalletClient } from "viem";
 import toast from "react-hot-toast";
-import { client } from "@/utils/graphClient";
+import { client } from "@/utils/indexer/graphClient";
 import { useAppContext } from "@/context/appContext";
 import { gql } from "@apollo/client";
 import { optimism, sepolia } from "viem/chains";
@@ -64,7 +64,7 @@ function Page({
 
   const { logoImage, bannerImage } = formImages;
 
-  const { setCorrectNetwork, setIsWrongNetwork, roundColor } = useAppContext();
+  const { setCorrectNetwork, setIsWrongNetwork } = useAppContext();
   const [isSuccess, setIsSuccess] = useState(false);
   const [isMinting, setIsMinting] = useState(false);
   const [formDates, setFormDates] = useState({
@@ -139,6 +139,7 @@ function Page({
   const { name, description, external_url } = formValues;
   const [summedAmountUSD, setSumAmountUSD] = useState<bigint>(BigInt(0));
   const cardRef = useRef<HTMLDivElement | undefined>(undefined);
+  const [seed, setSeed] = useState("");
 
   const GET_APPLICATIONS = gql`
     query GetApplications($id: String!, $chainId: Int!) {
@@ -216,6 +217,14 @@ function Page({
       success: "Pre-fill Successful",
       error: "You don't have a grant application",
     });
+    const buffer = new Uint8Array(20);
+    crypto.getRandomValues(buffer);
+    const randomHex = Array.from(buffer)
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join("");
+    const _seed = "0x" + randomHex;
+    console.log(_seed);
+    setSeed(_seed);
   }, [fetchData]);
 
   useEffect(() => {
@@ -281,7 +290,7 @@ function Page({
         if (!hyperImage) {
           throw new Error("Hypercert image is invalid");
         }
-        console.log(hyperImage);
+        // console.log(hyperImage);
         const newvalues: MyMetadata = { ...formValues, image: hyperImage };
 
         console.log("Submit running");
@@ -315,15 +324,15 @@ function Page({
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = event.target;
-    setFormDates({
-      ...formDates,
+    setFormDates((f) => ({
+      ...f,
       [name]: value,
-    });
+    }));
     const newDate = ISOToUNIX(new Date(value));
-    setFormValues({
-      ...formValues,
+    setFormValues((f) => ({
+      ...f,
       [name]: newDate,
-    });
+    }));
   };
   const checkImage = (url: string): Promise<boolean> => {
     return new Promise((resolve, reject) => {
@@ -336,14 +345,14 @@ function Page({
   const Validity = memo(({ url }: { url: string }) => {
     const [isValid, setIsValid] = useState<boolean>();
     useEffect(() => {
-      console.log("Effect ran 1");
+      // console.log("Effect ran 1");
       if (url) {
         (async () => {
           try {
             let valid = await checkImage(url);
-            console.log("Effect ran 2");
+            // console.log("Effect ran 2");
             setIsValid(valid);
-            console.log("isvalid:", valid);
+            // console.log("isvalid:", valid);
           } catch (err) {
             setIsValid(false);
             console.log(err);
@@ -760,17 +769,16 @@ function Page({
           } h-fit sticky top-[100px] p-[40px] lg:mx-0 md:mx-0 mx-auto`}
         >
           <Card
+            name={name}
+            logoImg={logoImage}
+            bannerImg={bannerImage}
             startDate={formDates.workTimeframeStart}
-            bannerPattern={roundColor.pattern}
             endDate={formDates.workTimeframeEnd}
             chain={getChain(Number(mychainId))}
-            logoImg={logoImage}
             ref={cardRef}
-            bannerImg={bannerImage}
             roundId={roundId as string}
-            name={name}
             workScope={workScopeStored}
-            gradient={roundColor.color}
+            seed={seed}
           />
         </div>
       </div>

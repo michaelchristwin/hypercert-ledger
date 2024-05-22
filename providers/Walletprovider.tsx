@@ -12,7 +12,7 @@ import {
   polygon,
 } from "viem/chains";
 import { ApolloProvider } from "@apollo/client";
-import { client } from "@/utils/graphClient";
+import { client } from "@/utils/indexer/graphClient";
 
 const projectId = process.env.NEXT_PUBLIC_PROJECT_ID as string;
 const metadata = {
