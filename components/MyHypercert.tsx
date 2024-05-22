@@ -4,6 +4,7 @@ import { Chain } from "viem";
 import { forwardRef } from "react";
 import { impactCertProps } from "@/utils/randomizer/props";
 import { Patterns } from "@/utils/randomizer/styles/patterns";
+import { Colors } from "@/utils/randomizer/styles/colors";
 
 export interface HyperCertCardProps {
   name: string;
@@ -28,7 +29,7 @@ const MyHypercert = forwardRef(function HyperCertCard2(
   }: HyperCertCardProps,
   ref
 ) {
-  const { patternIndex, color } = impactCertProps(seed);
+  const { patternIndex, colorIndex } = impactCertProps(seed);
   return (
     <div
       className={`block max-w-[300px] relative lg:mx-0 md:mx-0 mx-auto w-[300px] h-[380px] rounded-[12px]`}
@@ -41,7 +42,7 @@ const MyHypercert = forwardRef(function HyperCertCard2(
       <div
         className={`w-full h-[100%] absolute bottom-[0px] rounded-[12px] p-3`}
         style={{
-          background: `linear-gradient(to bottom, rgba(226,188,245,0.25) 15%, ${color} 75%), url("${Patterns[patternIndex]}") center/cover no-repeat`,
+          background: `linear-gradient(to bottom, rgba(226,188,245,0.25) 15%, ${Colors[colorIndex]} 75%), url("${Patterns[patternIndex]}") center/cover no-repeat`,
         }}
       >
         <div className={`flex justify-start`}>
