@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.10.4",
-    "@hypercerts-org/sdk": "^2.0.0-alpha.1",
+    "@hypercerts-org/sdk": "^2.0.0-alpha.5",
     "@radix-ui/react-alert-dialog": "^1.0.5",
     "@web3modal/ethers": "^3.5.1",
     "@web3modal/wallet": "^3.5.1",
