@@ -42,7 +42,7 @@ function Page({
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const nftStorageToken = process.env.NEXT_PUBLIC_NFTSTORAGE;
   const [allow, setAllow] = useState(false);
-  const [allowList, setallowList] = useState<AllowlistEntry[]>([]);
+  const [allowList, setAllowList] = useState<AllowlistEntry[]>([]);
   const [myworkScope, setWorkScopes] = useState<string>("");
   const [allowRange, setAllowRange] = useState<number>(50);
   const [myContributors, setContributors] = useState<string>("");
@@ -75,13 +75,13 @@ function Page({
   });
 
   const { address, chainId } = useWeb3ModalAccount();
-  const mychainId = searchParams.chainId as string;
-  const roundId = searchParams.roundId as string;
+  const mychainId = 42161; // searchParams.chainId as string;
+  const roundId = "29"; // searchParams.roundId as string;
   let dappChain: Chain;
   let account: string;
   if (process.env.NODE_ENV === "development") {
     dappChain = sepolia;
-    account = "0xdce0e1060452a9898ab52ead663f79b429948077";
+    account = "0xdc2a4bf46ef158f86274c02bd7f027f31da9ebc1"; // "0xdce0e1060452a9898ab52ead663f79b429948077";
   } else {
     dappChain = optimism;
     account = address as string;
@@ -142,13 +142,20 @@ function Page({
   const [seed, setSeed] = useState("");
 
   const GET_APPLICATIONS = gql`
-    query GetApplications($id: String!, $chainId: Int!) {
-      round(id: $id, chainId: $chainId) {
-        projectId
+    query GetApplications($id: String!, $chainId: Int!, $creator: String!) {
+      applications(
+        condition: {
+          roundId: $id
+          chainId: $chainId
+          createdByAddress: $creator
+        }
+      ) {
         createdByAddress
-        roundMetadata
         uniqueDonorsCount
         totalAmountDonatedInUsd
+        project {
+          metadata
+        }
         donations {
           donorAddress
           amountInUsd
@@ -163,34 +170,34 @@ function Page({
         variables: {
           id: roundId.toLowerCase(),
           chainId: Number(mychainId),
+          creator: account,
         },
         fetchPolicy: "network-only",
       });
 
       console.log(data);
       if (data) {
-        if (data.round === null) {
+        const application = data.applications[0];
+        if (application === null) {
           return;
         }
         if (
-          String(data.round.createdByAddress).toLowerCase() !==
+          String(application.createdByAddress).toLowerCase() !==
           account.toLowerCase()
         ) {
           throw new Error("Item not found");
         }
         setFormValues((f) => ({
           ...f,
-          name: data.round.roundMetadata.name,
-          description: data.round.roundMetadata.eligibility.description,
-          external_url: data.round.roundMetadata.support.info,
+          name: application.project.metadata.title,
+          description: application.project.metadata.description,
+          external_url: application.project.metadata.website,
         }));
         setFormImages({
-          logoImage:
-            "https://images.unsplash.com/photo-1707391464204-47fa6cc35d22?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxleHBsb3JlLWZlZWR8NXx8fGVufDB8fHx8fA%3D%3D",
-          bannerImage:
-            "https://images.unsplash.com/photo-1707391464204-47fa6cc35d22?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxleHBsb3JlLWZlZWR8NXx8fGVufDB8fHx8fA%3D%3D",
+          logoImage: `https://ipfs.io/ipfs/${application.project.metadata.logoImg}`,
+          bannerImage: `https://ipfs.io/ipfs/${application.project.metadata.bannerImg}`,
         });
-        const contributors: AllowlistEntry[] = data.round.donations.map(
+        const contributors: AllowlistEntry[] = application.donations.map(
           (donation: any) => {
             return {
               address: donation.donorAddress,
@@ -198,8 +205,8 @@ function Page({
             };
           }
         );
-        setSumAmountUSD(data.round.totalAmountDonatedInUsd);
-        setallowList(contributors);
+        setSumAmountUSD(application.totalAmountDonatedInUsd);
+        setAllowList(contributors);
         setContributorsStored(contributors);
         setAllow(true);
       } else if (error) {
