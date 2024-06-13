@@ -6,9 +6,8 @@ import {
   HypercertMinterAbi,
   parseAllowListEntriesToMerkleTree,
 } from "@hypercerts-org/sdk";
-import { StandardMerkleTree } from "@openzeppelin/merkle-tree";
 import { myChains } from "@/providers/Walletprovider";
-import { parseEventLogs, toHex } from "viem";
+import { parseEventLogs } from "viem";
 import { Eip1193Provider, TransactionReceipt } from "ethers";
 import { BrowserProvider, Interface } from "ethers";
 
@@ -37,23 +36,6 @@ interface MyMetadata {
   excludedRights: string[];
 }
 
-/**
- * Keeps running an async method till you get a truthy value.
- * @param method - Async method to call.
- * @returns truthy value.
- */
-const getTillTruthy = async (
-  method: () => Promise<TransactionReceipt | null>,
-  interval = 1000
-) => {
-  while (true) {
-    const result = await method();
-    if (result) {
-      return result;
-    }
-    await new Promise((resolve) => setTimeout(resolve, interval));
-  }
-};
 async function mintHypercert(
   props: MyMetadata,
   client: HypercertClient,
@@ -62,9 +44,9 @@ async function mintHypercert(
   chainId: number,
   walletProvider: Eip1193Provider
 ) {
-  const { data, errors, valid } = formatHypercertData(props);
+  const { data, errors } = formatHypercertData(props);
 
-  let res: {
+  const res: {
     claimsTxHash: `0x${string}` | undefined;
     allowlistTxHash: `0x${string}` | undefined;
   } = {
@@ -86,20 +68,20 @@ async function mintHypercert(
       totalUnits,
       TransferRestrictions.FromCreatorOnly
     );
-    let provider = new BrowserProvider(walletProvider);
+    const provider = new BrowserProvider(walletProvider);
 
     if (!res.allowlistTxHash) {
       throw new Error("Method Failed");
     }
     const receipt = await provider.waitForTransaction(res.allowlistTxHash);
 
-    let logs = parseLog(receipt as TransactionReceipt);
+    const logs = parseLog(receipt as TransactionReceipt);
     console.log(String(logs[0].topics[1]));
-    let address = (await provider.getSigner()).address;
-    let hyperInterface = new Interface(HypercertMinterAbi);
-    let details = hyperInterface.parseLog(logs[0]);
+    const address = (await provider.getSigner()).address;
+    const hyperInterface = new Interface(HypercertMinterAbi);
+    const details = hyperInterface.parseLog(logs[0]);
     if (details) {
-      let claim_Id = details.args[0].valueOf();
+      const claim_Id = details.args[0].valueOf();
 
       const tree = parseAllowListEntriesToMerkleTree(allowList);
       // StandardMerkleTree.load(JSON.parse(treeResponse as string));
@@ -128,7 +110,7 @@ async function mintHypercert(
       if (!tx) {
         throw new Error("Mint claim fraction failed");
       }
-      let secondReciept = await provider.waitForTransaction(tx as string);
+      const secondReciept = await provider.waitForTransaction(tx as string);
       if (secondReciept?.status === 0) {
         throw new Error("Transaction reverted");
       }
@@ -168,7 +150,7 @@ export const ISOToUNIX = (date: Date) => {
 
 export const isValid = (formValue: MyMetadata) => {
   try {
-    let genco = [
+    const genco = [
       formValue.name,
       formValue.description,
       formValue.workScope,
@@ -203,24 +185,4 @@ function parseLog(receipt: TransactionReceipt) {
   });
 
   return logs;
-}
-
-function serializeBigint(obj: any) {
-  return JSON.stringify(obj, (key, value) => {
-    if (typeof value === "bigint") {
-      return String(value);
-    } else {
-      return value;
-    }
-  });
-}
-
-async function tryTillTruthy(method: () => Promise<any>, interval = 1000) {
-  while (true) {
-    const result = await method();
-    if (result.claim) {
-      return result;
-    }
-    await new Promise((resolve) => setTimeout(resolve, interval));
-  }
 }

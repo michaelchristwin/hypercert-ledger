@@ -1,10 +1,12 @@
 "use client";
 
 import { Chain } from "viem";
-
 import { forwardRef } from "react";
+import { impactCertProps } from "@/utils/randomizer/props";
+import { Patterns } from "@/utils/randomizer/styles/patterns";
+import { Colors } from "@/utils/randomizer/styles/colors";
 
-interface HyperCertCardProps {
+export interface HyperCertCardProps {
   name: string;
   logoImg: string;
   bannerImg: string;
@@ -13,8 +15,7 @@ interface HyperCertCardProps {
   startDate?: string;
   endDate?: string;
   workScope?: string[];
-  bannerPattern: string;
-  gradient: string;
+  seed: string;
 }
 const MyHypercert = forwardRef(function HyperCertCard2(
   {
@@ -24,11 +25,11 @@ const MyHypercert = forwardRef(function HyperCertCard2(
     workScope,
     startDate,
     endDate,
-    gradient,
-    bannerPattern,
+    seed,
   }: HyperCertCardProps,
   ref
 ) {
+  const { patternIndex, colorIndex } = impactCertProps(seed);
   return (
     <div
       className={`block max-w-[300px] relative lg:mx-0 md:mx-0 mx-auto w-[300px] h-[380px] rounded-[12px]`}
@@ -41,7 +42,7 @@ const MyHypercert = forwardRef(function HyperCertCard2(
       <div
         className={`w-full h-[100%] absolute bottom-[0px] rounded-[12px] p-3`}
         style={{
-          background: `linear-gradient(to bottom, rgba(226,188,245,0.25) 15%, ${gradient} 75%), url("${bannerPattern}") center/cover no-repeat`,
+          background: `linear-gradient(to bottom, rgba(226,188,245,0.25) 15%, ${Colors[colorIndex]} 75%), url("${Patterns[patternIndex]}") center/cover no-repeat`,
         }}
       >
         <div className={`flex justify-start`}>
@@ -70,9 +71,9 @@ const MyHypercert = forwardRef(function HyperCertCard2(
                 ))}
             </div>
           </div>
-          <div className={`flex`}>
+          <div className={`flex items-center w-fit leading-[14px]`}>
             <p className={`text-[14px]`}>{startDate}</p>
-            <p className={`text-[13px] space-x-1`}>&rarr;</p>
+            <p className={`text-[10px] space-x-[6px]`}>→</p>
             <p className={`text-[14px]`}>{endDate}</p>
           </div>
         </div>

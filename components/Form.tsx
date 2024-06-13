@@ -13,21 +13,20 @@ import {
   useWeb3ModalProvider,
 } from "@web3modal/ethers/react";
 import { useState, useRef, useEffect } from "react";
-import { Chain, createWalletClient, custom, WalletClient } from "viem";
+import { createWalletClient, custom, WalletClient } from "viem";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { useAppContext } from "@/context/appContext";
 import { uploadImage } from "@/actions/upload";
-import domToImage from "dom-to-image";
 import TextArea, { convertArrayToDisplayText } from "@/components/TextArea";
 import MyHypercert from "@/components/MyHypercert";
 import ProgressPopup, { MethRes } from "@/components/Progress";
-import { optimism, sepolia } from "viem/chains";
+import { optimism } from "viem/chains";
 import { Eip1193Provider } from "ethers";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 
-let currentYear = new Date();
-let cY = currentYear.getFullYear();
+const currentYear = new Date();
+const cY = currentYear.getFullYear();
 
 function Page({
   params,
@@ -42,7 +41,7 @@ function Page({
   const [allowList, setallowList] = useState<AllowlistEntry[]>([]);
   const [myworkScope, setWorkScopes] = useState<string>("");
   const [allowRange, setAllowRange] = useState<number>(50);
-  const [myContributors, setContributors] = useState<string>("");
+  const [_myContributors, setContributors] = useState<string>("");
   const [workScopeStored, setWorkScopeStored] = useState<string[]>([]);
   const [hyperClient, setHyperClient] = useState<HypercertClient | undefined>(
     undefined
@@ -53,13 +52,13 @@ function Page({
     undefined
   );
   const { walletProvider } = useWeb3ModalProvider();
-  const [contributorsStored, setContributorsStored] = useState<any[]>([]);
+  const [_contributorsStored, setContributorsStored] = useState<any[]>([]);
   const [formImages, setFormImages] = useState({
     logoImage: "",
     bannerImage: "",
   });
   const { logoImage, bannerImage } = formImages;
-  const { setCorrectNetwork, setIsWrongNetwork, roundColor } = useAppContext();
+  const { setCorrectNetwork, setIsWrongNetwork } = useAppContext();
   const [isSuccess, setIsSuccess] = useState(false);
   const [isMinting, setIsMinting] = useState(false);
   const [formDates, setFormDates] = useState({
@@ -95,14 +94,14 @@ function Page({
     (() => {
       try {
         if (walletProvider) {
-          let walletClient = createWalletClient({
+          const walletClient = createWalletClient({
             account: address,
             chain: dappChain,
             transport: custom(walletProvider as Eip1193Provider),
           });
 
           if (walletClient) {
-            let myClient = new HypercertClient({
+            const myClient = new HypercertClient({
               chain: dappChain as any,
               walletClient: walletClient as any,
               nftStorageToken: nftStorageToken,
@@ -168,12 +167,12 @@ function Page({
             const options = convertArrayToDisplayText(contributors);
             setContributors(options);
 
-            setFormValues({
-              ...formValues,
+            setFormValues((f) => ({
+              ...f,
               name: myItem.metadata.application.project.title,
               external_url: myItem.metadata.application.project.website,
               description: myItem.metadata.application.project.description,
-            });
+            }));
             setFormImages({
               logoImage: `https://ipfs.io/ipfs/${myItem.metadata.application.project.logoImg}`,
               bannerImage: `https://ipfs.io/ipfs/${myItem.metadata.application.project.bannerImg}`,
@@ -193,7 +192,7 @@ function Page({
         }
       );
     }
-  }, []);
+  }, [address, mychainId, roundId]);
 
   useEffect(() => {
     if (chainId !== Number(mychainId)) {
@@ -220,8 +219,8 @@ function Page({
   };
   const covertToBlob = async (ref: React.MutableRefObject<HTMLDivElement>) => {
     if (ref.current) {
-      const myRef = cardRef.current;
-      const imgBlob = await domToImage.toBlob(myRef as HTMLElement);
+      // const myRef = cardRef.current;
+      const imgBlob = new Blob();
       return imgBlob;
     }
   };
@@ -231,22 +230,22 @@ function Page({
   };
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    let percentage = allowRange / 100;
-    let totalUnits = summedAmountUSD / percentage;
-    let recipientUnits = totalUnits - summedAmountUSD;
+    const percentage = allowRange / 100;
+    const totalUnits = summedAmountUSD / percentage;
+    const recipientUnits = totalUnits - summedAmountUSD;
 
     setFormValues({
       ...formValues,
       workScope: workScopeStored,
     });
-    let newAllowlist: AllowlistEntry[] = [
+    const newAllowlist: AllowlistEntry[] = [
       ...allowList,
       {
         address: address as string,
         units: BigInt(recipientUnits),
       },
     ];
-    let curChainId = await myWalletClient?.getChainId();
+    const curChainId = await myWalletClient?.getChainId();
     if (myWalletClient && curChainId !== dappChain.id) {
       myWalletClient.switchChain(dappChain);
     }
@@ -304,7 +303,7 @@ function Page({
       ...formDates,
       [name]: value,
     });
-    let newDate = ISOToUNIX(new Date(value));
+    const newDate = ISOToUNIX(new Date(value));
     setFormValues({
       ...formValues,
       [name]: newDate,
@@ -323,7 +322,7 @@ function Page({
         <Formik
           initialValues={initialState}
           validate={(values) => {
-            let errors: any = {};
+            const errors: any = {};
             if (!values.name) {
               errors.name = "Required";
             } else if (!values.image) {
@@ -681,8 +680,9 @@ function Page({
           } h-fit sticky top-[100px] p-[40px] lg:mx-0 md:mx-0 mx-auto`}
         >
           <MyHypercert
+          seed={Date.now().toLocaleString()}
             startDate={formDates.workTimeframeStart}
-            bannerPattern={roundColor.pattern}
+            //bannerPattern={roundColor.pattern}
             endDate={formDates.workTimeframeEnd}
             chain={getChain(Number(mychainId))}
             logoImg={logoImage}
@@ -691,7 +691,7 @@ function Page({
             roundId={roundId as string}
             name={name}
             workScope={workScopeStored}
-            gradient={roundColor.color}
+           // gradient={roundColor.color}
           />
         </div>
       </div>

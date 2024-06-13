@@ -11,6 +11,8 @@ import {
   sepolia,
   polygon,
 } from "viem/chains";
+import { ApolloProvider } from "@apollo/client";
+import { client } from "@/utils/indexer/graphClient";
 
 const projectId = process.env.NEXT_PUBLIC_PROJECT_ID as string;
 const metadata = {
@@ -56,7 +58,11 @@ createWeb3Modal({
 });
 
 function WalletProvider({ children }: { children: React.ReactNode }) {
-  return <AppContext>{children}</AppContext>;
+  return (
+    <AppContext>
+      <ApolloProvider client={client}>{children}</ApolloProvider>
+    </AppContext>
+  );
 }
 
 export default WalletProvider;
