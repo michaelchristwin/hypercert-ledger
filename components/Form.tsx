@@ -18,7 +18,6 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { useAppContext } from "@/context/appContext";
 import { uploadImage } from "@/actions/upload";
-//import domToImage from "dom-to-image";
 import TextArea, { convertArrayToDisplayText } from "@/components/TextArea";
 import MyHypercert from "@/components/MyHypercert";
 import ProgressPopup, { MethRes } from "@/components/Progress";
@@ -349,7 +348,9 @@ function Page({
               >
                 Hypercert Name
               </label>
-
+<p>ksskkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+  
+</p>
               <Field
                 type="text"
                 id="name"
@@ -681,8 +682,9 @@ function Page({
           } h-fit sticky top-[100px] p-[40px] lg:mx-0 md:mx-0 mx-auto`}
         >
           <MyHypercert
+          seed={Date.now().toLocaleString()}
             startDate={formDates.workTimeframeStart}
-            bannerPattern={roundColor.pattern}
+            //bannerPattern={roundColor.pattern}
             endDate={formDates.workTimeframeEnd}
             chain={getChain(Number(mychainId))}
             logoImg={logoImage}
@@ -691,7 +693,7 @@ function Page({
             roundId={roundId as string}
             name={name}
             workScope={workScopeStored}
-            gradient={roundColor.color}
+           // gradient={roundColor.color}
           />
         </div>
       </div>
