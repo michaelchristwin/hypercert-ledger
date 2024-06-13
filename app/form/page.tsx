@@ -137,9 +137,7 @@ function Page({
 
   const [formValues, setFormValues] = useState<MyMetadata>(initialState);
   const { name, description, external_url } = formValues;
-  const [summedAmountUSD, setSumAmountUSD] = useState<bigint>(BigInt(0));
   const cardRef = useRef<HTMLDivElement | undefined>(undefined);
-  const [seed, setSeed] = useState("");
 
   const GET_APPLICATIONS = gql`
     query GetApplications($id: String!, $chainId: Int!, $creator: String!) {
@@ -201,11 +199,11 @@ function Page({
           (donation: any) => {
             return {
               address: donation.donorAddress,
-              units: BigInt(Math.round(donation.amountInUsd)),
+              units: BigInt(Math.round(donation.amountInUsd * 1e8)),
             };
           }
         );
-        setSumAmountUSD(application.totalAmountDonatedInUsd);
+
         setAllowList(contributors);
         setContributorsStored(contributors);
         setAllow(true);
@@ -224,14 +222,6 @@ function Page({
       success: "Pre-fill Successful",
       error: "You don't have a grant application",
     });
-    const buffer = new Uint8Array(20);
-    crypto.getRandomValues(buffer);
-    const randomHex = Array.from(buffer)
-      .map((byte) => byte.toString(16).padStart(2, "0"))
-      .join("");
-    const _seed = "0x" + randomHex;
-    console.log(_seed);
-    setSeed(_seed);
   }, [fetchData]);
 
   useEffect(() => {
@@ -275,9 +265,13 @@ function Page({
       ...formValues,
       workScope: workScopeStored,
     });
+    let summedAmount = 0;
+    const _total = allowList.map((item) => {
+      summedAmount += Number(item.units);
+    });
     const othersPercentage = allowRange / 100;
-    const totalUnits = Number(summedAmountUSD) / othersPercentage;
-    const recipientUnits = BigInt(Math.round(totalUnits)) - summedAmountUSD;
+    const totalUnits = summedAmount / othersPercentage;
+    const recipientUnits = totalUnits - summedAmount;
     const newAllowlist: AllowlistEntry[] = [
       ...allowList,
       {
@@ -285,6 +279,13 @@ function Page({
         units: BigInt(recipientUnits),
       },
     ];
+
+    console.log(
+      "Compare equality: ",
+      summedAmount + recipientUnits === totalUnits
+    );
+    console.log("SummedAmount", summedAmount + recipientUnits);
+    console.log("Totalunits", totalUnits);
     const curChainId = await myWalletClient?.getChainId();
     if (myWalletClient && curChainId !== dappChain.id) {
       myWalletClient.switchChain(dappChain);
@@ -414,7 +415,7 @@ function Page({
       return null; // Assuming you want to return nothing when url is present but isValid is false or undefined, and when url is not present
     }
   });
-  Validity.displayName = "Validity"
+  Validity.displayName = "Validity";
   return (
     <>
       <div
@@ -786,7 +787,7 @@ function Page({
             ref={cardRef}
             roundId={roundId as string}
             workScope={workScopeStored}
-            seed={seed}
+            seed={roundId}
           />
         </div>
       </div>

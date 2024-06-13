@@ -27,6 +27,7 @@ function HyperCertCard({
 }: HyperCertCardProps) {
   const { isConnected, chainId } = useWeb3ModalAccount();
   const { patternIndex, colorIndex } = impactCertProps(seed);
+  console.log("seed:", seed);
   const [isClicked, setIsClicked] = useState(false);
   const { open } = useWeb3Modal();
   const router = useRouter();

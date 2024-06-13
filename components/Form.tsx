@@ -70,6 +70,7 @@ function Page({
   const { address, chainId } = useWeb3ModalAccount();
   const mychainId = searchParams.chainId as string;
   const roundId = searchParams.roundId as string;
+  console.log("search params", searchParams.roundId);
   const dappChain = optimism;
   const initialState: MyMetadata = {
     name: "",
