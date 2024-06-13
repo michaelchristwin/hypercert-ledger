@@ -680,9 +680,8 @@ function Page({
           } h-fit sticky top-[100px] p-[40px] lg:mx-0 md:mx-0 mx-auto`}
         >
           <MyHypercert
-          seed={Date.now().toLocaleString()}
+            seed={roundId}
             startDate={formDates.workTimeframeStart}
-            //bannerPattern={roundColor.pattern}
             endDate={formDates.workTimeframeEnd}
             chain={getChain(Number(mychainId))}
             logoImg={logoImage}
@@ -691,7 +690,6 @@ function Page({
             roundId={roundId as string}
             name={name}
             workScope={workScopeStored}
-           // gradient={roundColor.color}
           />
         </div>
       </div>

@@ -150,7 +150,7 @@ export const ISOToUNIX = (date: Date) => {
 
 export const isValid = (formValue: MyMetadata) => {
   try {
-    const genco = [
+    const values = [
       formValue.name,
       formValue.description,
       formValue.workScope,
@@ -164,11 +164,11 @@ export const isValid = (formValue: MyMetadata) => {
       formValue.version,
     ];
 
-    const isValid = genco.every((item) => item);
+    const isValid = values.every((item) => item);
 
     if (!isValid) {
       const invalidProperty =
-        Object.keys(formValue)[genco.findIndex((item) => !item)];
+        Object.keys(formValue)[values.findIndex((item) => !item)];
       throw new Error(`${invalidProperty} is invalid`);
     } else return isValid;
     // If no errors were thrown, all values in genco are truthy

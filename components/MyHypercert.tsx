@@ -17,7 +17,7 @@ export interface HyperCertCardProps {
   workScope?: string[];
   seed: string;
 }
-const MyHypercert = forwardRef(function HyperCertCard2(
+const MyHypercert = forwardRef(function HyperCertCard(
   {
     name,
     bannerImg,

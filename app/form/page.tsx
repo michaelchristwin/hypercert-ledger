@@ -277,7 +277,7 @@ function Page({
     });
     const othersPercentage = allowRange / 100;
     const totalUnits = Number(summedAmountUSD) / othersPercentage;
-    const recipientUnits = BigInt(totalUnits) - summedAmountUSD;
+    const recipientUnits = BigInt(Math.round(totalUnits)) - summedAmountUSD;
     const newAllowlist: AllowlistEntry[] = [
       ...allowList,
       {
