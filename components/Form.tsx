@@ -58,7 +58,7 @@ function Page({
     bannerImage: "",
   });
   const { logoImage, bannerImage } = formImages;
-  const { setCorrectNetwork, setIsWrongNetwork, roundColor } = useAppContext();
+  const { setCorrectNetwork, setIsWrongNetwork } = useAppContext();
   const [isSuccess, setIsSuccess] = useState(false);
   const [isMinting, setIsMinting] = useState(false);
   const [formDates, setFormDates] = useState({
@@ -348,9 +348,7 @@ function Page({
               >
                 Hypercert Name
               </label>
-<p>ksskkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-  
-</p>
+
               <Field
                 type="text"
                 id="name"
