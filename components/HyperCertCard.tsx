@@ -5,46 +5,39 @@ import { useRouter } from "next/navigation";
 import { useAppContext } from "@/context/appContext";
 import { Chain } from "viem";
 import { useEffect, useState } from "react";
+import { impactCertProps } from "@/utils/randomizer/props";
+import { Colors } from "@/utils/randomizer/styles/colors";
+import { Patterns } from "@/utils/randomizer/styles/patterns";
 
 interface HyperCertCardProps {
   name: string;
   logoImg: string;
+  seed: string;
   bannerImg: string;
-  roundId: string;
+  roundId: number;
   chain: Chain;
-  bannerPattern: string;
-  gradient: string;
 }
 function HyperCertCard({
   name,
   bannerImg,
   logoImg,
   roundId,
+  seed,
   chain,
-  gradient,
-  bannerPattern,
 }: HyperCertCardProps) {
   const { isConnected, chainId } = useWeb3ModalAccount();
+  const { patternIndex, colorIndex } = impactCertProps(seed);
   const [isClicked, setIsClicked] = useState(false);
   const { open } = useWeb3Modal();
   const router = useRouter();
-  const { setCorrectNetwork, setIsWrongNetwork, setRoundColor } =
-    useAppContext();
+  const { setCorrectNetwork, setIsWrongNetwork } = useAppContext();
   const handleClick = async () => {
-    setRoundColor({
-      pattern: "",
-      color: "",
-    });
     setIsClicked(false);
     if (!isConnected) {
       setIsClicked(true);
       open();
     } else if (isConnected) {
       router.push(`/form?chainId=${chain?.id}&roundId=${roundId}`);
-      setRoundColor({
-        pattern: bannerPattern,
-        color: gradient,
-      });
     }
   };
 
@@ -52,16 +45,8 @@ function HyperCertCard({
     (async () => {
       try {
         if (isClicked && isConnected && chain) {
-          setRoundColor({
-            pattern: "",
-            color: "",
-          });
-
           router.push(`/form?chainId=${chain.id}&roundId=${roundId}`);
-          setRoundColor({
-            pattern: bannerPattern,
-            color: gradient,
-          });
+
           setIsClicked(false);
         }
       } catch (err) {
@@ -74,9 +59,7 @@ function HyperCertCard({
     roundId,
     chain,
     router,
-    bannerPattern,
-    gradient,
-    setRoundColor,
+
     chainId,
     setCorrectNetwork,
     setIsWrongNetwork,
@@ -92,7 +75,7 @@ function HyperCertCard({
       <div
         className={`w-full h-[100%] absolute bottom-[0px] rounded-[12px] p-3`}
         style={{
-          background: `linear-gradient(to bottom, rgba(226,188,245,0.25) 15%, ${gradient} 75%), url("${bannerPattern}") center/cover no-repeat`,
+          background: `linear-gradient(to bottom, rgba(226,188,245,0.25) 15%, ${Colors[colorIndex]} 75%), url("${Patterns[patternIndex]}") center/cover no-repeat`,
         }}
       >
         <div className={`flex justify-start`}>
@@ -118,7 +101,7 @@ function HyperCertCard({
           </div>
         </div> */}
         <button
-          className={`text-black mx-auto disabled:bg-gray-300 disabled:text-gray-300 disabled:opacity-100 disabled:active:opacity-100 bg-["${gradient}"] backdrop-filter backdrop-brightness-150 block mt-[40px] w-fit hover:opacity-60 hover:border active:opacity-50 px-2 h-[35px] rounded-lg`}
+          className={`text-black mx-auto disabled:bg-gray-300 disabled:text-gray-300 disabled:opacity-100 disabled:active:opacity-100 bg-["${Colors[colorIndex]}"] backdrop-filter backdrop-brightness-150 block mt-[40px] w-fit hover:opacity-60 hover:border active:opacity-50 px-2 h-[35px] rounded-lg`}
           type="button"
           //disabled
           onClick={handleClick}

@@ -2,15 +2,7 @@
 
 import { AppContext } from "@/context/appContext";
 import { createWeb3Modal, defaultConfig } from "@web3modal/ethers/react";
-import {
-  arbitrum,
-  fantom,
-  pgn,
-  mainnet,
-  optimism,
-  sepolia,
-  polygon,
-} from "viem/chains";
+import { arbitrum, optimism, sepolia } from "viem/chains";
 import { ApolloProvider } from "@apollo/client";
 import { client } from "@/utils/indexer/graphClient";
 
@@ -25,7 +17,7 @@ const metadata = {
 createWeb3Modal({
   ethersConfig: defaultConfig({
     metadata,
-    defaultChainId: 10,
+    defaultChainId: 42161,
     enableEIP6963: true,
     enableInjected: true,
     enableCoinbase: true,
@@ -45,6 +37,13 @@ createWeb3Modal({
       explorerUrl: optimism.blockExplorers.default.url,
       chainId: optimism.id,
       currency: optimism.nativeCurrency.symbol,
+    },
+    {
+      ...arbitrum,
+      rpcUrl: arbitrum.rpcUrls.default.http[0],
+      explorerUrl: arbitrum.blockExplorers.default.url,
+      chainId: arbitrum.id,
+      currency: arbitrum.nativeCurrency.symbol,
     },
   ],
   projectId,
@@ -68,10 +67,6 @@ function WalletProvider({ children }: { children: React.ReactNode }) {
 export default WalletProvider;
 export const myChains = {
   arbitrum,
-  fantom,
-  pgn,
-  mainnet,
   sepolia,
   optimism,
-  polygon,
 };
