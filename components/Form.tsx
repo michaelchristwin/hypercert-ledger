@@ -103,9 +103,8 @@ function Page({
 
           if (walletClient) {
             const myClient = new HypercertClient({
-              chain: dappChain as any,
+              environment: "test",
               walletClient: walletClient as any,
-              nftStorageToken: nftStorageToken,
             });
             setWalletClient(walletClient);
             setHyperClient(myClient);
