@@ -117,9 +117,8 @@ function Page({
 
           if (walletClient) {
             const myClient = new HypercertClient({
-              chain: dappChain as any,
               walletClient: walletClient as any,
-              nftStorageToken: nftStorageToken,
+              environment: "test",
             });
             setWalletClient(walletClient);
             setHyperClient(myClient);
@@ -266,9 +265,9 @@ function Page({
       workScope: workScopeStored,
     });
     let summedAmount = 0;
-    const _total = allowList.map((item) => {
-      summedAmount += Number(item.units);
-    });
+    for (let index = 0; index < allowList.length; index++) {
+      summedAmount += Number(allowList[index].units);
+    }
     const othersPercentage = allowRange / 100;
     const totalUnits = summedAmount / othersPercentage;
     const recipientUnits = totalUnits - summedAmount;
