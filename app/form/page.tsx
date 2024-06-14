@@ -14,6 +14,7 @@ import { useAppContext } from "@/context/appContext";
 import { gql } from "@apollo/client";
 import { optimism, sepolia } from "viem/chains";
 import { Eip1193Provider } from "ethers";
+//import Bun from "bun";
 
 const Card = memo(MyHypercert);
 
@@ -285,6 +286,19 @@ function Page({
     );
     console.log("SummedAmount", summedAmount + recipientUnits);
     console.log("Totalunits", totalUnits);
+    console.log(
+      "Allowlist",
+      JSON.stringify(allowList, (_, v) =>
+        typeof v === "bigint" ? v.toString() : v
+      )
+    );
+    // await Bun.write(
+    //   "allowlist.json",
+    //   JSON.stringify(allowList, (_, v) =>
+    //     typeof v === "bigint" ? v.toString() : v
+    //   )
+    // );
+    //console.log("New Allowlist", JSON.stringify(newAllowlist));
     const curChainId = await myWalletClient?.getChainId();
     if (myWalletClient && curChainId !== dappChain.id) {
       myWalletClient.switchChain(dappChain);

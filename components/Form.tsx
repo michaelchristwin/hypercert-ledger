@@ -245,6 +245,8 @@ function Page({
         units: BigInt(recipientUnits),
       },
     ];
+    console.log("Allowlist", allowList);
+    console.log("New Allowlist", newAllowlist);
     const curChainId = await myWalletClient?.getChainId();
     if (myWalletClient && curChainId !== dappChain.id) {
       myWalletClient.switchChain(dappChain);
