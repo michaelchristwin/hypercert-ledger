@@ -117,7 +117,6 @@ async function mintHypercert(
       res.claimsTxHash = tx;
     }
   } catch (err) {
-    console.error("Mint process failed", { cause: err });
     throw err;
   }
   return res;

@@ -14,9 +14,9 @@ import { useAppContext } from "@/context/appContext";
 import { gql } from "@apollo/client";
 import { optimism, sepolia } from "viem/chains";
 import { Eip1193Provider } from "ethers";
-//import Bun from "bun";
 
 const Card = memo(MyHypercert);
+Card.displayName = "Card";
 
 import TextArea from "@/components/TextArea";
 import MyHypercert from "@/components/MyHypercert";
@@ -334,7 +334,6 @@ function Page({
         setIsSuccess(false);
         setIsMinting(false);
         console.error("An error occurred:", err);
-        throw err;
       }
     } else {
       console.error("A form value is invalid");
