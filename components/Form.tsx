@@ -70,6 +70,7 @@ function Page({
   const { address, chainId } = useWeb3ModalAccount();
   const mychainId = searchParams.chainId as string;
   const roundId = searchParams.roundId as string;
+  console.log("search params", searchParams.roundId);
   const dappChain = optimism;
   const initialState: MyMetadata = {
     name: "",
@@ -102,9 +103,8 @@ function Page({
 
           if (walletClient) {
             const myClient = new HypercertClient({
-              chain: dappChain as any,
+              environment: "test",
               walletClient: walletClient as any,
-              nftStorageToken: nftStorageToken,
             });
             setWalletClient(walletClient);
             setHyperClient(myClient);
@@ -245,6 +245,8 @@ function Page({
         units: BigInt(recipientUnits),
       },
     ];
+    console.log("Allowlist", allowList);
+    console.log("New Allowlist", newAllowlist);
     const curChainId = await myWalletClient?.getChainId();
     if (myWalletClient && curChainId !== dappChain.id) {
       myWalletClient.switchChain(dappChain);

@@ -38,13 +38,6 @@ createWeb3Modal({
       chainId: optimism.id,
       currency: optimism.nativeCurrency.symbol,
     },
-    {
-      ...arbitrum,
-      rpcUrl: arbitrum.rpcUrls.default.http[0],
-      explorerUrl: arbitrum.blockExplorers.default.url,
-      chainId: arbitrum.id,
-      currency: arbitrum.nativeCurrency.symbol,
-    },
   ],
   projectId,
   themeMode: "light",

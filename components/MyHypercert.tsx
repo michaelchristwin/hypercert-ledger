@@ -29,7 +29,10 @@ const MyHypercert = forwardRef(function HyperCertCard(
   }: HyperCertCardProps,
   ref
 ) {
+  console.log("seed:", seed);
   const { patternIndex, colorIndex } = impactCertProps(seed);
+  console.log("Pattern index C: ", patternIndex);
+  console.log("Color index C: ", colorIndex);
   return (
     <div
       className={`block max-w-[300px] relative lg:mx-0 md:mx-0 mx-auto w-[300px] h-[380px] rounded-[12px]`}

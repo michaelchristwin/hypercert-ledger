@@ -61,7 +61,7 @@ async function mintHypercert(
     if (!data) {
       throw errors;
     }
-    //console.log("on the other side:", data.image);
+
     res.allowlistTxHash = await client.createAllowlist(
       allowList,
       data,
@@ -117,7 +117,6 @@ async function mintHypercert(
       res.claimsTxHash = tx;
     }
   } catch (err) {
-    console.error("Mint process failed", { cause: err });
     throw err;
   }
   return res;
