@@ -92,19 +92,19 @@ function HyperCertCard({
         </div>
         {/* <div className={`flex justify-between w-full pt-2 text-black`}>
           <div className={`block`}>
-            <p className={`font-bold text-[13px]`}>Work</p>
+            <p className={`font-bold text-[13px] text-transparent`}>Work</p>
             <div className={`grid grid-cols-2 gap-2`}></div>
           </div>
           <div className={`flex items-cente`}>
-            <p className={`text-[14px]`}>work-start</p>
-            <p className={`text-[13px] space-x-1`}>&rarr;</p>
-            <p className={`text-[14px]`}>work-end</p>
+            <p className={`text-[14px] text-transparent`}>work-start</p>
+            <p className={`text-[13px] text-transparent space-x-1`}>&rarr;</p>
+            <p className={`text-[14px] text-transparent`}>work-end</p>
           </div>
         </div> */}
         <button
           className={`text-black mx-auto disabled:bg-gray-300 disabled:text-gray-300 disabled:opacity-100 disabled:active:opacity-100 bg-["${Colors[colorIndex]}"] backdrop-filter backdrop-brightness-150 block mt-[40px] w-fit hover:opacity-60 hover:border active:opacity-50 px-2 h-[35px] rounded-lg`}
           type="button"
-          //disabled
+          disabled
           onClick={handleClick}
         >
           Mint Hypercert

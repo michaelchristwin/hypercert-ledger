@@ -33,11 +33,11 @@ export default function RootLayout({
         <WalletProvider>
           <Toaster />
           <Navbar />
-          {/* <div
+          <div
             className={`fixed top-[90px] left-0 h-[35px] z-[24] text-white bg-blue-500 flex w-full text-center justify-center items-center`}
           >
             The minter is temporarily down for maintenance!
-          </div> */}
+          </div>
           <div className={``}>{children}</div>
           <Footer />
         </WalletProvider>
