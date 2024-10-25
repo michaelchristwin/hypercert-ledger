@@ -1,23 +1,12 @@
 "use client";
 
 import { HypercertClient, AllowlistEntry } from "@hypercerts-org/sdk";
-import {
-  useWeb3ModalAccount,
-  useWeb3ModalProvider,
-} from "@web3modal/ethers/react";
+import { useAccount, useWalletClient } from "wagmi";
 import html2canvas from "html2canvas";
-import { useState, useRef, useEffect, useCallback, memo } from "react";
-import { Chain, createWalletClient, custom, WalletClient } from "viem";
-import toast from "react-hot-toast";
-import { client } from "@/utils/indexer/graphClient";
-import { useAppContext } from "@/context/appContext";
-import { gql } from "@apollo/client";
+import { useState, useRef, useEffect, memo } from "react";
+import { Chain } from "viem";
+import { fetchData } from "@/utils/indexer/graph";
 import { optimism, sepolia } from "viem/chains";
-import { Eip1193Provider } from "ethers";
-
-const Card = memo(MyHypercert);
-Card.displayName = "Card";
-
 import TextArea from "@/components/TextArea";
 import MyHypercert from "@/components/MyHypercert";
 import {
@@ -29,7 +18,10 @@ import {
 } from "@/actions/hypercerts";
 import ProgressPopup, { MethRes } from "@/components/Progress";
 import Spinner from "@/components/Spinner";
-
+import { useQuery } from "@tanstack/react-query";
+import { prepareAllowlist } from "@/utils/mint-utils";
+const Card = memo(MyHypercert);
+Card.displayName = "Card";
 const currentYear = new Date();
 const cY = currentYear.getFullYear();
 
@@ -41,9 +33,7 @@ function Page({
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
   const triggerRef = useRef<HTMLButtonElement | null>(null);
-  const nftStorageToken = process.env.NEXT_PUBLIC_NFTSTORAGE;
   const [allow, setAllow] = useState(false);
-  const [allowList, setAllowList] = useState<AllowlistEntry[]>([]);
   const [myworkScope, setWorkScopes] = useState<string>("");
   const [allowRange, setAllowRange] = useState<number>(50);
   const [myContributors, setContributors] = useState<string>("");
@@ -53,10 +43,6 @@ function Page({
   );
   const [res, setRes] = useState<MethRes>();
 
-  const [myWalletClient, setWalletClient] = useState<WalletClient | undefined>(
-    undefined
-  );
-  const { walletProvider } = useWeb3ModalProvider();
   const [_contributorsStored, setContributorsStored] = useState<any[]>([]);
   const [formImages, setFormImages] = useState({
     logoImage: "",
@@ -65,7 +51,6 @@ function Page({
 
   const { logoImage, bannerImage } = formImages;
 
-  const { setCorrectNetwork, setIsWrongNetwork } = useAppContext();
   const [isSuccess, setIsSuccess] = useState(false);
   const [isMinting, setIsMinting] = useState(false);
   const [formDates, setFormDates] = useState({
@@ -75,9 +60,11 @@ function Page({
     impactTimeframeEnd: currentYear.toISOString().slice(0, 10),
   });
 
-  const { address, chainId } = useWeb3ModalAccount();
-  const mychainId = 42161; // searchParams.chainId as string;
-  const roundId = "29"; // searchParams.roundId as string;
+  const { address, chainId } = useAccount();
+  const { data: WalletClient } = useWalletClient();
+
+  const mychainId = searchParams.chainId as string;
+  const roundId = searchParams.roundId as string;
   let dappChain: Chain;
   let account: string;
   if (process.env.NODE_ENV === "development") {
@@ -106,130 +93,61 @@ function Page({
     rights: ["Public Display"],
     excludedRights: [],
   };
+
   useEffect(() => {
-    (() => {
-      try {
-        if (walletProvider) {
-          const walletClient = createWalletClient({
-            account: address,
-            chain: dappChain,
-            transport: custom(walletProvider as Eip1193Provider),
-          });
+    if (!WalletClient) return;
 
-          if (walletClient) {
-            const myClient = new HypercertClient({
-              walletClient: walletClient as any,
-              environment: "test",
-            });
-            setWalletClient(walletClient);
-            setHyperClient(myClient);
-          } else {
-            console.error("Failed to create wallet client.");
-          }
-        } else {
-          console.error("wallet provider is not available.");
-        }
-      } catch (err) {
-        console.error("Failed to create client:", err);
-      }
-    })();
-  }, [address, nftStorageToken, walletProvider, dappChain]);
+    try {
+      const myClient = new HypercertClient({
+        walletClient: WalletClient,
+        environment:
+          process.env.NODE_ENV === "development" ? "test" : "production",
+      });
 
+      setHyperClient(myClient);
+      console.log("Hypercert client set");
+    } catch (err) {
+      console.error("Failed to create client:", err);
+    }
+  }, [WalletClient]);
   const [formValues, setFormValues] = useState<MyMetadata>(initialState);
   const { name, description, external_url } = formValues;
   const cardRef = useRef<HTMLDivElement | undefined>(undefined);
 
-  const GET_APPLICATIONS = gql`
-    query GetApplications($id: String!, $chainId: Int!, $creator: String!) {
-      applications(
-        condition: {
-          roundId: $id
-          chainId: $chainId
-          createdByAddress: $creator
-        }
-      ) {
-        createdByAddress
-        uniqueDonorsCount
-        totalAmountDonatedInUsd
-        project {
-          metadata
-        }
-        donations {
-          donorAddress
-          amountInUsd
-        }
+  const { data } = useQuery({
+    queryKey: ["applications"],
+    queryFn: () => fetchData(roundId, Number(mychainId), account),
+  });
+
+  useEffect(() => {
+    if (data) {
+      //@ts-ignore
+      console.log("data.applications: ", data.applications);
+      //@ts-ignore
+      const application = data.applications[0];
+      if (application === null) {
+        return;
       }
-    }
-  `;
-  const fetchData = useCallback(async () => {
-    try {
-      const { data, error } = await client.query({
-        query: GET_APPLICATIONS,
-        variables: {
-          id: roundId.toLowerCase(),
-          chainId: Number(mychainId),
-          creator: account,
-        },
-        fetchPolicy: "network-only",
+      if (
+        String(application.createdByAddress).toLowerCase() !==
+        account.toLowerCase()
+      ) {
+        throw new Error("Item not found");
+      }
+      setFormValues((f) => ({
+        ...f,
+        name: application.project.metadata.title,
+        description: application.project.metadata.description,
+        external_url: application.project.metadata.website,
+      }));
+      setFormImages({
+        logoImage: `https://ipfs.io/ipfs/${application.project.metadata.logoImg}`,
+        bannerImage: `https://ipfs.io/ipfs/${application.project.metadata.bannerImg}`,
       });
 
-      console.log(data);
-      if (data) {
-        const application = data.applications[0];
-        if (application === null) {
-          return;
-        }
-        if (
-          String(application.createdByAddress).toLowerCase() !==
-          account.toLowerCase()
-        ) {
-          throw new Error("Item not found");
-        }
-        setFormValues((f) => ({
-          ...f,
-          name: application.project.metadata.title,
-          description: application.project.metadata.description,
-          external_url: application.project.metadata.website,
-        }));
-        setFormImages({
-          logoImage: `https://ipfs.io/ipfs/${application.project.metadata.logoImg}`,
-          bannerImage: `https://ipfs.io/ipfs/${application.project.metadata.bannerImg}`,
-        });
-        const contributors: AllowlistEntry[] = application.donations.map(
-          (donation: any) => {
-            return {
-              address: donation.donorAddress,
-              units: BigInt(Math.round(donation.amountInUsd * 1e8)),
-            };
-          }
-        );
-
-        setAllowList(contributors);
-        setContributorsStored(contributors);
-        setAllow(true);
-      } else if (error) {
-        throw error;
-      }
-    } catch (err) {
-      console.error(err);
-      throw err;
+      setAllow(true);
     }
-  }, [mychainId, roundId, account, GET_APPLICATIONS]);
-  useEffect(() => {
-    setAllow(false);
-    toast.promise(fetchData(), {
-      loading: "hypercert is being pre-filled.....",
-      success: "Pre-fill Successful",
-      error: "You don't have a grant application",
-    });
-  }, [fetchData]);
-
-  useEffect(() => {
-    if (chainId !== Number(mychainId)) {
-      setIsWrongNetwork(true);
-      setCorrectNetwork(getChain(Number(mychainId)));
-    }
-  }, [chainId, mychainId, setCorrectNetwork, setIsWrongNetwork]);
+  }, [data]);
 
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -240,6 +158,7 @@ function Page({
       [name]: value,
     });
   };
+
   const handleImages = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setFormImages({
@@ -247,10 +166,15 @@ function Page({
       [name]: value,
     });
   };
+
+  //Convert image to Data URL
   const convertToDataURL = async () => {
     if (cardRef.current) {
       const dataurl = (
-        await html2canvas(cardRef.current, { useCORS: true })
+        await html2canvas(cardRef.current, {
+          useCORS: true,
+          backgroundColor: null,
+        })
       ).toDataURL();
       return dataurl;
     }
@@ -259,19 +183,20 @@ function Page({
     const { value } = event.target;
     setAllowRange(Number(value));
   };
+
+  //Mint By Allowlist
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFormValues({
       ...formValues,
       workScope: workScopeStored,
     });
-    let summedAmount = 0;
-    for (let index = 0; index < allowList.length; index++) {
-      summedAmount += Number(allowList[index].units);
-    }
-    const othersPercentage = allowRange / 100;
-    const totalUnits = summedAmount / othersPercentage;
-    const recipientUnits = totalUnits - summedAmount;
+    const { allowList, recipientUnits } = prepareAllowlist(
+      //@ts-ignore
+      data.applications[0],
+      allowRange
+    );
+
     const newAllowlist: AllowlistEntry[] = [
       ...allowList,
       {
@@ -279,29 +204,8 @@ function Page({
         units: BigInt(recipientUnits),
       },
     ];
-
-    console.log(
-      "Compare equality: ",
-      summedAmount + recipientUnits === totalUnits
-    );
-    console.log("SummedAmount", summedAmount + recipientUnits);
-    console.log("Totalunits", totalUnits);
-    console.log(
-      "Allowlist",
-      JSON.stringify(allowList, (_, v) =>
-        typeof v === "bigint" ? v.toString() : v
-      )
-    );
-    // await Bun.write(
-    //   "allowlist.json",
-    //   JSON.stringify(allowList, (_, v) =>
-    //     typeof v === "bigint" ? v.toString() : v
-    //   )
-    // );
-    //console.log("New Allowlist", JSON.stringify(newAllowlist));
-    const curChainId = await myWalletClient?.getChainId();
-    if (myWalletClient && curChainId !== dappChain.id) {
-      myWalletClient.switchChain(dappChain);
+    if (WalletClient && chainId !== dappChain.id) {
+      WalletClient.switchChain(dappChain);
     }
     if (isValid(formValues) && hyperClient && triggerRef.current) {
       setIsMinting(true);
@@ -311,23 +215,16 @@ function Page({
         if (!hyperImage) {
           throw new Error("Hypercert image is invalid");
         }
-        // console.log(hyperImage);
         const newvalues: MyMetadata = { ...formValues, image: hyperImage };
 
         console.log("Submit running");
-        const res = await mintHypercert(
+        const response = await mintHypercert(
           newvalues,
           hyperClient,
-          newAllowlist,
-          BigInt(totalUnits),
-          chainId as number,
-          walletProvider as Eip1193Provider
+          newAllowlist
         );
 
-        if (!res.allowlistTxHash) {
-          throw new Error("Response is undefined");
-        }
-        setRes(res);
+        setRes(response);
         setIsSuccess(true);
         setIsMinting(false);
       } catch (err) {
@@ -365,14 +262,11 @@ function Page({
   const Validity = memo(({ url }: { url: string }) => {
     const [isValid, setIsValid] = useState<boolean>();
     useEffect(() => {
-      // console.log("Effect ran 1");
       if (url) {
         (async () => {
           try {
             let valid = await checkImage(url);
-            // console.log("Effect ran 2");
             setIsValid(valid);
-            // console.log("isvalid:", valid);
           } catch (err) {
             setIsValid(false);
             console.log(err);

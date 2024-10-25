@@ -1,8 +1,9 @@
 import { Raleway } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import { headers } from "next/headers";
 import { Metadata } from "next";
-import WalletProvider from "../providers/Walletprovider";
+import ContextProvider from "@/context";
 import { Toaster } from "react-hot-toast";
 import Footer from "@/components/Footer";
 
@@ -25,12 +26,13 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const cookies = headers().get("cookie");
   return (
     <html lang="en">
       <body
         className={`${inter.className} relative nico bg-cover min-h-[100vh] flex flex-col`}
       >
-        <WalletProvider>
+        <ContextProvider cookies={cookies}>
           <Toaster />
           <Navbar />
           {/* <div
@@ -38,9 +40,9 @@ export default function RootLayout({
           >
             The minter is temporarily down for maintenance!
           </div> */}
-          <div className={``}>{children}</div>
+          <div>{children}</div>
           <Footer />
-        </WalletProvider>
+        </ContextProvider>
       </body>
     </html>
   );

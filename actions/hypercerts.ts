@@ -6,10 +6,14 @@ import {
   HypercertMinterAbi,
   parseAllowListEntriesToMerkleTree,
 } from "@hypercerts-org/sdk";
-import { myChains } from "@/providers/Walletprovider";
-import { parseEventLogs } from "viem";
-import { Eip1193Provider, TransactionReceipt } from "ethers";
-import { BrowserProvider, Interface } from "ethers";
+import { ProjectChains, config } from "@/config";
+import { parseEventLogs, decodeEventLog } from "viem";
+import {
+  waitForTransactionReceipt,
+  getAccount,
+  WaitForTransactionReceiptReturnType,
+} from "@wagmi/core";
+import { TOTAL_UNITS } from "@/utils/mint-utils";
 
 interface MyMetadata {
   name: string;
@@ -39,10 +43,7 @@ interface MyMetadata {
 async function mintHypercert(
   props: MyMetadata,
   client: HypercertClient,
-  allowList: AllowlistEntry[],
-  totalUnits: bigint,
-  chainId: number,
-  walletProvider: Eip1193Provider
+  allowList: AllowlistEntry[]
 ) {
   const { data, errors } = formatHypercertData(props);
 
@@ -61,61 +62,70 @@ async function mintHypercert(
     if (!data) {
       throw errors;
     }
-
+    console.log("Create allowlist");
     res.allowlistTxHash = await client.createAllowlist(
       allowList,
       data,
-      totalUnits,
+      BigInt(TOTAL_UNITS),
       TransferRestrictions.FromCreatorOnly
     );
-    const provider = new BrowserProvider(walletProvider);
 
     if (!res.allowlistTxHash) {
       throw new Error("Method Failed");
     }
-    const receipt = await provider.waitForTransaction(res.allowlistTxHash);
 
-    const logs = parseLog(receipt as TransactionReceipt);
+    const receipt = await waitForTransactionReceipt(config, {
+      hash: res.allowlistTxHash,
+    });
+
+    const logs = parseLog(receipt);
     console.log(String(logs[0].topics[1]));
-    const address = (await provider.getSigner()).address;
-    const hyperInterface = new Interface(HypercertMinterAbi);
-    const details = hyperInterface.parseLog(logs[0]);
-    if (details) {
-      const claim_Id = details.args[0].valueOf();
-
-      const tree = parseAllowListEntriesToMerkleTree(allowList);
-      // StandardMerkleTree.load(JSON.parse(treeResponse as string));
-      // console.log("tree:", tree);
-      let defArgs;
-      for (const [leaf, value] of tree.entries()) {
-        if (value[0] === address) {
-          defArgs = {
-            proofs: tree.getProof(leaf),
-            units: BigInt(value[1]),
-            claimId: claim_Id,
-          };
-          break;
-        }
-      }
-      if (!defArgs) {
-        throw new Error("Arguments are undefined");
-      }
-      //console.log("defArgs:", defArgs);
-      const { proofs, units, claimId } = defArgs;
-      const tx = await client.mintClaimFractionFromAllowlist(
-        claimId,
-        units,
-        proofs as `0x${string}`[] | Uint8Array[]
-      );
-      if (!tx) {
-        throw new Error("Mint claim fraction failed");
-      }
-      const secondReciept = await provider.waitForTransaction(tx as string);
-      if (secondReciept?.status === 0) {
-        throw new Error("Transaction reverted");
-      }
-      res.claimsTxHash = tx;
+    const { address } = getAccount(config);
+    const details = decodeEventLog({
+      abi: HypercertMinterAbi,
+      data: logs[0].data,
+      topics: logs[0].topics,
+    });
+    if (!details.args) {
+      throw new Error("details.args is undefined");
     }
+    //@ts-ignore
+    const claim_Id = details.args.claimID;
+
+    const tree = parseAllowListEntriesToMerkleTree(allowList);
+    // StandardMerkleTree.load(JSON.parse(treeResponse as string));
+    // console.log("tree:", tree);
+    let defArgs;
+    for (const [leaf, value] of tree.entries()) {
+      if (value[0] === address) {
+        defArgs = {
+          proofs: tree.getProof(leaf),
+          units: BigInt(value[1]),
+          claimId: claim_Id,
+        };
+        break;
+      }
+    }
+    if (!defArgs) {
+      throw new Error("Arguments are undefined");
+    }
+    //console.log("defArgs:", defArgs);
+    const { proofs, units, claimId } = defArgs;
+    const tx = await client.mintClaimFractionFromAllowlist(
+      claimId,
+      units,
+      proofs as `0x${string}`[] | Uint8Array[]
+    );
+    if (!tx) {
+      throw new Error("Mint claim fraction failed");
+    }
+    const secondReciept = await waitForTransactionReceipt(config, {
+      hash: tx,
+    });
+    if (secondReciept.status === "reverted") {
+      throw new Error("Transaction reverted");
+    }
+    res.claimsTxHash = tx;
   } catch (err) {
     throw err;
   }
@@ -130,7 +140,7 @@ export { mintHypercert, type MyMetadata };
  * @returns Viem's chain object.
  */
 export function getChain(chainId: number) {
-  for (const chain of Object.values(myChains)) {
+  for (const chain of Object.values(ProjectChains)) {
     if (chain.id === chainId) {
       return chain;
     }
@@ -168,6 +178,7 @@ export const isValid = (formValue: MyMetadata) => {
     if (!isValid) {
       const invalidProperty =
         Object.keys(formValue)[values.findIndex((item) => !item)];
+      console.error(`${invalidProperty} is invalid`);
       throw new Error(`${invalidProperty} is invalid`);
     } else return isValid;
     // If no errors were thrown, all values in genco are truthy
@@ -176,7 +187,7 @@ export const isValid = (formValue: MyMetadata) => {
   }
 };
 
-function parseLog(receipt: TransactionReceipt) {
+function parseLog(receipt: WaitForTransactionReceiptReturnType) {
   const logs = parseEventLogs({
     abi: HypercertMinterAbi,
     eventName: "ClaimStored",

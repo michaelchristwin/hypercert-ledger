@@ -1,8 +1,8 @@
 "use client";
 
-import { useWeb3Modal, useWeb3ModalAccount } from "@web3modal/ethers/react";
+import { useAccount } from "wagmi";
+import { useAppKit } from "@reown/appkit/react";
 import { useRouter } from "next/navigation";
-import { useAppContext } from "@/context/appContext";
 import { Chain } from "viem";
 import { useEffect, useState } from "react";
 import { impactCertProps } from "@/utils/randomizer/props";
@@ -25,13 +25,13 @@ function HyperCertCard({
   seed,
   chain,
 }: HyperCertCardProps) {
-  const { isConnected, chainId } = useWeb3ModalAccount();
+  const { isConnected, chainId } = useAccount();
   const { patternIndex, colorIndex } = impactCertProps(seed);
   console.log("seed:", seed);
   const [isClicked, setIsClicked] = useState(false);
-  const { open } = useWeb3Modal();
+  const { open } = useAppKit();
   const router = useRouter();
-  const { setCorrectNetwork, setIsWrongNetwork } = useAppContext();
+
   const handleClick = async () => {
     setIsClicked(false);
     if (!isConnected) {
@@ -54,17 +54,7 @@ function HyperCertCard({
         console.error(err);
       }
     })();
-  }, [
-    isClicked,
-    isConnected,
-    roundId,
-    chain,
-    router,
-
-    chainId,
-    setCorrectNetwork,
-    setIsWrongNetwork,
-  ]);
+  }, [isClicked, isConnected, roundId, chain, router, chainId]);
   return (
     <div
       className={`block min-w-[260px] relative w-[100%] h-[400px] rounded-[12px]`}
