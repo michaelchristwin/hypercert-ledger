@@ -12,7 +12,21 @@ const inter = Raleway({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Hyperminter",
   description: "A tool for minting project based Hypercerts onchain.",
-
+  applicationName: "Hperminter",
+  authors: [
+    { name: "Michael Christwin", url: "https://github.com/michaelchristwin" },
+  ],
+  generator: "Next.js",
+  keywords: [
+    "hypercerts",
+    "hyperminter",
+    "impact",
+    "impactcerts",
+    "gitcoin",
+    "public goods",
+    "optimism",
+  ],
+  publisher: "Michael Christwin",
   openGraph: {
     type: "website",
     title: "Hyperminter",

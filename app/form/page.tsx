@@ -93,6 +93,9 @@ function Page({
     rights: ["Public Display"],
     excludedRights: [],
   };
+  const [formValues, setFormValues] = useState<MyMetadata>(initialState);
+  const { name, description, external_url } = formValues;
+  const cardRef = useRef<HTMLDivElement | undefined>(undefined);
 
   useEffect(() => {
     if (!WalletClient) return;
@@ -110,9 +113,6 @@ function Page({
       console.error("Failed to create client:", err);
     }
   }, [WalletClient]);
-  const [formValues, setFormValues] = useState<MyMetadata>(initialState);
-  const { name, description, external_url } = formValues;
-  const cardRef = useRef<HTMLDivElement | undefined>(undefined);
 
   const { data } = useQuery({
     queryKey: ["applications"],
