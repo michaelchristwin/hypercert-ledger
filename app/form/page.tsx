@@ -4,7 +4,6 @@ import { HypercertClient, AllowlistEntry } from "@hypercerts-org/sdk";
 import { useAccount, useWalletClient } from "wagmi";
 import html2canvas from "html2canvas";
 import { useState, useRef, useEffect, memo } from "react";
-import { Chain } from "viem";
 import { fetchData } from "@/utils/indexer/graph";
 import { optimism, sepolia } from "viem/chains";
 import TextArea from "@/components/TextArea";
@@ -48,7 +47,6 @@ function Page({
     logoImage: "",
     bannerImage: "",
   });
-
   const { logoImage, bannerImage } = formImages;
 
   const [isSuccess, setIsSuccess] = useState(false);
@@ -65,15 +63,12 @@ function Page({
 
   const mychainId = searchParams.chainId as string;
   const roundId = searchParams.roundId as string;
-  let dappChain: Chain;
-  let account: string;
-  if (process.env.NODE_ENV === "development") {
-    dappChain = sepolia;
-    account = "0xdc2a4bf46ef158f86274c02bd7f027f31da9ebc1"; // "0xdce0e1060452a9898ab52ead663f79b429948077";
-  } else {
-    dappChain = optimism;
-    account = address as string;
-  }
+  let dappChain = process.env.NODE_ENV === "development" ? sepolia : optimism;
+  let account =
+    process.env.NODE_ENV === "development"
+      ? "0xdc2a4bf46ef158f86274c02bd7f027f31da9ebc1"
+      : (address as string);
+
   const initialState: MyMetadata = {
     name: "",
     description: "",
@@ -147,7 +142,7 @@ function Page({
 
       setAllow(true);
     }
-  }, [data]);
+  }, [data, account]);
 
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -425,7 +420,7 @@ function Page({
               value={description}
               required
               onChange={handleChange}
-              className={`w-[100%] p-2 peer h-[150px] bg-white/50 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
+              className={`w-[100%] p-2 peer h-[150px] bg-white/50 placeholder:text-black/60 rounded-[6px] focus:outline-none text-black`}
             ></textarea>
             <p
               className={`text-red-600 italic invisible peer-required:visible`}

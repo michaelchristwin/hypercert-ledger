@@ -2,6 +2,13 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 function Navbar() {
   return (
@@ -22,7 +29,18 @@ function Navbar() {
           HYPERMINTER
         </p>
       </Link>
-      <div className={`block`}>
+      <div className={`flex justify-center space-x-2`}>
+        <Select>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Year" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="2020">2020</SelectItem>
+            <SelectItem value="2021">2021</SelectItem>
+            <SelectItem value="2022">2022</SelectItem>
+          </SelectContent>
+        </Select>
+
         <w3m-button size="sm" />
       </div>
     </nav>
