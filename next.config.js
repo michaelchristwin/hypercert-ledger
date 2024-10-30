@@ -4,6 +4,7 @@ const nextConfig = {
     config.externals.push("pino-pretty", "lokijs", "encoding");
     return config;
   },
+
   images: {
     dangerouslyAllowSVG: true,
     remotePatterns: [
@@ -13,7 +14,9 @@ const nextConfig = {
       },
     ],
   },
-  experimental: {},
+  experimental: {
+    turbo: {},
+  },
   reactStrictMode: true,
 };
 

@@ -34,9 +34,9 @@ const MyHypercert = forwardRef(function HyperCertCard(
   console.log("Pattern index C: ", patternIndex);
   console.log("Color index C: ", colorIndex);
   return (
-    <div
+    (<div
       className={`block max-w-[300px] relative lg:mx-0 md:mx-0 mx-auto w-[300px] h-[380px] rounded-[12px]`}
-      ref={ref as React.LegacyRef<HTMLDivElement>}
+      ref={ref as React.Ref<HTMLDivElement>}
     >
       <div
         className={`bg-cover bg-center w-[100%] rounded-[12px] h-full`}
@@ -81,7 +81,7 @@ const MyHypercert = forwardRef(function HyperCertCard(
           </div>
         </div>
       </div>
-    </div>
+    </div>)
   );
 });
 

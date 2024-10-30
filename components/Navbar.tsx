@@ -9,8 +9,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import useStore from "@/context/store";
 
 function Navbar() {
+  const { setProgram, program } = useStore();
+
+  const updateYear = (program: string) => {
+    setProgram(program);
+  };
+
   return (
     <nav
       className={`flex w-full h-[90px] lg:px-9 md:px-7 px-2 items-center justify-between z-20 fixed top-0 shadow bg-[#ffffff] backdrop-filter backdrop-blur-[20px] bg-opacity-10`}
@@ -30,18 +37,22 @@ function Navbar() {
         </p>
       </Link>
       <div className={`flex justify-center space-x-2`}>
-        <Select>
-          <SelectTrigger className="w-[180px]">
+        <Select value={program || "GG20"} onValueChange={updateYear}>
+          <SelectTrigger
+            className={`w-[180px] bg-white bg-opacity-10 backdrop-blur-sm text-white focus:ring-white focus:ring-2 border border-white border-opacity-20 focus:ring-opacity-30 hover:bg-opacity-15 transition-all`}
+            aria-label="Year"
+            aria-labelledby=""
+          >
             <SelectValue placeholder="Year" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="2020">2020</SelectItem>
-            <SelectItem value="2021">2021</SelectItem>
-            <SelectItem value="2022">2022</SelectItem>
+            <SelectItem value="GG20">2020</SelectItem>
+            <SelectItem value="GG21">2021</SelectItem>
+            <SelectItem value="GG22">2022</SelectItem>
           </SelectContent>
         </Select>
-
-        <w3m-button size="sm" />
+        {/*@ts-ignore */}
+        <w3m-button />
       </div>
     </nav>
   );

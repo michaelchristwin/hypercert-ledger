@@ -3,7 +3,7 @@
 import { HypercertClient, AllowlistEntry } from "@hypercerts-org/sdk";
 import { useAccount, useWalletClient } from "wagmi";
 import html2canvas from "html2canvas";
-import { useState, useRef, useEffect, memo } from "react";
+import { useState, useRef, useEffect, memo, use } from "react";
 import { fetchData } from "@/utils/indexer/graph";
 import { optimism, sepolia } from "viem/chains";
 import TextArea from "@/components/TextArea";
@@ -24,13 +24,11 @@ Card.displayName = "Card";
 const currentYear = new Date();
 const cY = currentYear.getFullYear();
 
-function Page({
-  params,
-  searchParams,
-}: {
-  params: { slug: string };
-  searchParams: { [key: string]: string | string[] | undefined };
+function Page(props: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+  const searchParams = use(props.searchParams);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const [allow, setAllow] = useState(false);
   const [myworkScope, setWorkScopes] = useState<string>("");
@@ -324,7 +322,7 @@ function Page({
           allow
             ? "lg:justify-center md:justify-center lg:space-x-[10%] md:space-x-[7%] mx-auto"
             : "lg:justify-center md:justify-center"
-        }  h-fit py-[20px] w-full relative`}
+        }  h-fit py-[100px] w-full relative`}
       >
         <form
           className={`${

@@ -57,7 +57,7 @@ function HyperCertCard({
   }, [isClicked, isConnected, roundId, chain, router, chainId]);
   return (
     <div
-      className={`block min-w-[260px] relative w-[100%] h-[400px] rounded-[12px]`}
+      className={`block min-w-[260px] max-w-[300px] relative w-[100%] h-[400px] rounded-[12px]`}
     >
       <div
         className={`bg-cover bg-center w-[100%] rounded-[12px] h-full`}

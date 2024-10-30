@@ -1,3 +1,4 @@
+//@ts-nocheck
 import React, { forwardRef } from "react";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import { motion } from "framer-motion";
@@ -227,7 +228,7 @@ const ProgressPopup = forwardRef(function ProgressPopup(
   return (
     <AlertDialog.Root>
       <AlertDialog.Trigger asChild>
-        <button ref={ref as React.LegacyRef<HTMLButtonElement>}></button>
+        <button ref={ref as React.Ref<HTMLButtonElement>}></button>
       </AlertDialog.Trigger>
       <AlertDialog.Portal>
         <AlertDialog.Overlay>
