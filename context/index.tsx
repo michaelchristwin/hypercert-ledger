@@ -8,7 +8,17 @@ import React, { type ReactNode } from "react";
 import { cookieToInitialState, WagmiProvider, type Config } from "wagmi";
 
 // Set up queryClient
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      networkMode: "online",
+      staleTime: 0,
+      gcTime: 0,
+      refetchOnMount: true,
+      refetchOnReconnect: true,
+    },
+  },
+});
 
 if (!projectId) {
   throw new Error("Project ID is not defined");

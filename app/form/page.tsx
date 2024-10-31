@@ -4,7 +4,6 @@ import { HypercertClient, AllowlistEntry } from "@hypercerts-org/sdk";
 import { useAccount, useWalletClient } from "wagmi";
 import html2canvas from "html2canvas";
 import { useState, useRef, useEffect, memo, use } from "react";
-import { fetchData } from "@/utils/indexer/graph";
 import { optimism, sepolia } from "viem/chains";
 import TextArea from "@/components/TextArea";
 import MyHypercert from "@/components/MyHypercert";
@@ -15,22 +14,23 @@ import {
   isValid,
   getChain,
 } from "@/actions/hypercerts";
+import { CgSpinner } from "react-icons/cg";
 import ProgressPopup, { MethRes } from "@/components/Progress";
 import Spinner from "@/components/Spinner";
-import { useQuery } from "@tanstack/react-query";
 import { prepareAllowlist } from "@/utils/mint-utils";
-const Card = memo(MyHypercert);
-Card.displayName = "Card";
-const currentYear = new Date();
-const cY = currentYear.getFullYear();
+import useApplicationQuery from "@/hooks/useApplicationQuery";
+import { useRouter } from "next/navigation";
 
 function Page(props: {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+  const ProjectCard = memo(MyHypercert);
+  ProjectCard.displayName = "ProjectCard";
+  const router = useRouter();
   const searchParams = use(props.searchParams);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
-  const [allow, setAllow] = useState(false);
+
   const [myworkScope, setWorkScopes] = useState<string>("");
   const [allowRange, setAllowRange] = useState<number>(50);
   const [myContributors, setContributors] = useState<string>("");
@@ -41,20 +41,9 @@ function Page(props: {
   const [res, setRes] = useState<MethRes>();
 
   const [_contributorsStored, setContributorsStored] = useState<any[]>([]);
-  const [formImages, setFormImages] = useState({
-    logoImage: "",
-    bannerImage: "",
-  });
-  const { logoImage, bannerImage } = formImages;
 
   const [isSuccess, setIsSuccess] = useState(false);
   const [isMinting, setIsMinting] = useState(false);
-  const [formDates, setFormDates] = useState({
-    workTimeframeStart: `${cY}-01-01`,
-    workTimeframeEnd: currentYear.toISOString().slice(0, 10),
-    impactTimeframeStart: `${cY}-01-01`,
-    impactTimeframeEnd: currentYear.toISOString().slice(0, 10),
-  });
 
   const { address, chainId } = useAccount();
   const { data: WalletClient } = useWalletClient();
@@ -67,27 +56,6 @@ function Page(props: {
       ? "0xdc2a4bf46ef158f86274c02bd7f027f31da9ebc1"
       : (address as string);
 
-  const initialState: MyMetadata = {
-    name: "",
-    description: "",
-    external_url: "",
-    image: "",
-    version: "1.0",
-    properties: undefined,
-    impactScope: ["All"],
-    excludedImpactScope: [],
-    workScope: [],
-    excludedWorkScope: [],
-    workTimeframeStart: ISOToUNIX(new Date(formDates.workTimeframeStart)),
-    workTimeframeEnd: ISOToUNIX(new Date(formDates.workTimeframeEnd)),
-    impactTimeframeStart: ISOToUNIX(new Date(formDates.impactTimeframeStart)),
-    impactTimeframeEnd: ISOToUNIX(new Date(formDates.impactTimeframeEnd)),
-    contributors: [],
-    rights: ["Public Display"],
-    excludedRights: [],
-  };
-  const [formValues, setFormValues] = useState<MyMetadata>(initialState);
-  const { name, description, external_url } = formValues;
   const cardRef = useRef<HTMLDivElement | undefined>(undefined);
 
   useEffect(() => {
@@ -107,41 +75,20 @@ function Page(props: {
     }
   }, [WalletClient]);
 
-  const { data } = useQuery({
-    queryKey: ["applications"],
-    queryFn: () => fetchData(roundId, Number(mychainId), account),
-  });
-
-  useEffect(() => {
-    if (data) {
-      //@ts-ignore
-      console.log("data.applications: ", data.applications);
-      //@ts-ignore
-      const application = data.applications[0];
-      if (application === null) {
-        return;
-      }
-      if (
-        String(application.createdByAddress).toLowerCase() !==
-        account.toLowerCase()
-      ) {
-        throw new Error("Item not found");
-      }
-      setFormValues((f) => ({
-        ...f,
-        name: application.project.metadata.title,
-        description: application.project.metadata.description,
-        external_url: application.project.metadata.website,
-      }));
-      setFormImages({
-        logoImage: `https://ipfs.io/ipfs/${application.project.metadata.logoImg}`,
-        bannerImage: `https://ipfs.io/ipfs/${application.project.metadata.bannerImg}`,
-      });
-
-      setAllow(true);
-    }
-  }, [data, account]);
-
+  const {
+    formValues,
+    formImages,
+    formDates,
+    setFormValues,
+    setFormDates,
+    setFormImages,
+    allow,
+    isLoading,
+    isError,
+    applications,
+  } = useApplicationQuery(roundId, Number(mychainId), account);
+  const { name, description, external_url } = formValues;
+  const { logoImage, bannerImage } = formImages;
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -244,6 +191,7 @@ function Page(props: {
       [name]: newDate,
     }));
   };
+
   const checkImage = (url: string): Promise<boolean> => {
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -252,6 +200,7 @@ function Page(props: {
       img.src = url;
     });
   };
+
   const Validity = memo(({ url }: { url: string }) => {
     const [isValid, setIsValid] = useState<boolean>();
     useEffect(() => {
@@ -314,7 +263,66 @@ function Page(props: {
       return null; // Assuming you want to return nothing when url is present but isValid is false or undefined, and when url is not present
     }
   });
+
   Validity.displayName = "Validity";
+
+  if (isLoading) {
+    return (
+      <div
+        className={`fixed z-40 top-0 left-0 h-[300px] w-full
+        transition-all duration-300 pointer-events-none
+         dark:h-[200px] dark:!bg-white/10 dark:rounded-[100%] ${
+           isLoading
+             ? "delay-0 opacity-1 -translate-y-1/2"
+             : "delay-300 opacity-0 -translate-y-full"
+         }`}
+        style={{
+          background: `radial-gradient(closest-side, rgba(0,10,40,0.2) 0%, rgba(0,0,0,0) 100%)`,
+        }}
+      >
+        <div
+          className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[30px] p-2 bg-white/80 dark:bg-gray-800
+        rounded-lg shadow-lg`}
+        >
+          <CgSpinner className="text-3xl animate-spin" />
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div
+        className={`w-full h-[600px] py-[100px] block text-center space-y-2`}
+      >
+        <p className={`text-[17px] text-white`}>
+          Failed to load project data, please wait and try again
+        </p>
+        <p
+          className={`underline hover:no-underline hover:cursor-pointer text-blue-600`}
+          onClick={() => router.refresh()}
+        >
+          Try again
+        </p>
+      </div>
+    );
+  }
+
+  if (applications.length === 0) {
+    return (
+      <div className={`w-full h-[600px] space-y-2 py-[100px] text-center`}>
+        <p className={`text-white text-[17px]`}>
+          This project has no applications
+        </p>
+        <p
+          className={`underline hover:no-underline hover:cursor-pointer text-blue-600`}
+          onClick={() => router.push("/")}
+        >
+          Go back home
+        </p>
+      </div>
+    );
+  }
   return (
     <>
       <div
@@ -504,133 +512,7 @@ function Page(props: {
             name="contributors"
             displayText={myContributors}
           />
-          {/* <div className={`w-[100%] rounded-[6px] bg-white/50 text-black p-3`}>
-          <div
-            className={`flex justify-between hover:cursor-pointer`}
-            onClick={() => setIsOpen((prevOpen) => !prevOpen)}
-          >
-            <p className={`text-[23px] text-violet-800 font-semibold`}>
-              Advanced Fields
-            </p>
 
-            {isOpen ? (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                width="24"
-                height="24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polyline points="18 15 12 9 6 15"></polyline>
-              </svg>
-            ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                width="24"
-                height="24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            )}
-          </div>
-          <div className={`${isOpen ? "block space-y-2" : "hidden"}`}>
-            <p className={`text-[13px] italic text-black`}>
-              Advanced fields are currently not available for editing.
-            </p>
-            <div className={`w-[100%]`}>
-              <fieldset className={`w-[100%]`}>
-                <label
-                  htmlFor="impactScope"
-                  className={`text-white font-bold text-[16px] block mb-1`}
-                >
-                  Impact Scope
-                </label>
-                <select
-                  name="impactScope"
-                  id="impactScope"
-                  disabled
-                  multiple
-                  value={impactScope}
-                  className={`w-[100%] h-[45px] p-2 bg-white/40 placeholder:text-black/60  rounded-[6px] focus:outline-none border text-black`}
-                >
-                  <option value="all">All</option>
-                </select>
-              </fieldset>
-
-              <div
-                className={`w-[100%] flex justify-center items-center space-x-2 h-[130px]`}
-              >
-                <fieldset className={`w-[48%]`}>
-                  <label
-                    htmlFor="workTimeframeStart"
-                    className={`text-white font-bold text-[16px] block mb-1`}
-                  >
-                    Impact Start Date
-                  </label>
-                  <input
-                    type="date"
-                    name="workTimeframeStart"
-                    id="workTimeframeStart"
-                    value={formDates.impactTimeframeStart}
-                    disabled
-                    onChange={handleDates}
-                    className={`w-[100%] h-[45px] border ps-2 bg-white/40 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
-                  />
-                </fieldset>
-                <fieldset className={`w-[48%]`}>
-                  <label
-                    htmlFor="workTimeframeEnd"
-                    className={`text-white font-bold text-[16px] block mb-1`}
-                  >
-                    Impact End Date
-                  </label>
-                  <input
-                    type="date"
-                    name="workTimeframeEnd"
-                    id="workTimeframeEnd"
-                    value={formDates.impactTimeframeEnd}
-                    onChange={handleDates}
-                    disabled
-                    className={`w-[100%] h-[45px] border ps-2 bg-white/40 placeholder:text-black/60  rounded-[6px] focus:outline-none text-black`}
-                  />
-                </fieldset>
-              </div>
-              <fieldset className={`w-[100%]`}>
-                <label
-                  htmlFor="rights"
-                  className={`text-white font-bold text-[16px] block mb-1`}
-                >
-                  Usage Rights
-                </label>
-                <select
-                  name="rights"
-                  id="rights"
-                  disabled
-                  multiple
-                  value={impactScope}
-                  className={`w-[100%] h-[45px] p-2 rounded-[6px] bg-white/40 placeholder:text-black/60  focus:outline-none border text-black`}
-                >
-                  <option value="Public Display">Public Display</option>
-                </select>
-                <p
-                  className={`text-red-600 italic invisible peer-required:visible`}
-                >
-                  *
-                </p>
-              </fieldset>
-            </div>
-          </div>
-        </div> */}
           <hr />
           <p className={`text-[23px] text-violet-800 font-semibold`}>
             Distribution
@@ -676,7 +558,7 @@ function Page(props: {
             allow ? "block" : "hidden"
           } h-fit sticky top-[100px] p-[40px] lg:mx-0 md:mx-0 mx-auto`}
         >
-          <Card
+          <ProjectCard
             name={name}
             logoImg={logoImage}
             bannerImg={bannerImage}

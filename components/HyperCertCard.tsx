@@ -27,7 +27,6 @@ function HyperCertCard({
 }: HyperCertCardProps) {
   const { isConnected, chainId } = useAccount();
   const { patternIndex, colorIndex } = impactCertProps(seed);
-  console.log("seed:", seed);
   const [isClicked, setIsClicked] = useState(false);
   const { open } = useAppKit();
   const router = useRouter();

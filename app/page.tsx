@@ -11,7 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 function Home() {
   const program = useStore((s) => s.program);
   const data = RoundsData.filter((round) => round.program === program);
-  console.log("len: ", data.length);
+
   if (data.length === 0) {
     return (
       <div className="h-screen w-full flex items-center justify-center px-4">
@@ -68,7 +68,7 @@ function Home() {
             Mint Your Hypercerts
           </motion.p>
           <div
-            className={`w-[95%] block lg:px-7 md:px-4 px-3 lg:text-[1.3em] md:text-[1em] text-[0.5em]`}
+            className={`w-[95%] block lg:px-7 md:px-4 px-3 lg:text-[1.3em] md:text-[1em] text-[0.6em]`}
           >
             <p className={``}>
               HyperMinter is a tool for minting a Hypercert to make an onchain
