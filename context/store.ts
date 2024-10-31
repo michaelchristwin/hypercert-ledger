@@ -6,7 +6,7 @@ interface State {
 }
 
 const useStore = create<State>((set) => ({
-  program: "",
+  program: "GG20",
   setProgram: (newProgram: string) => set({ program: newProgram }),
 }));
 

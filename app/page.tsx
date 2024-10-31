@@ -1,22 +1,32 @@
-//@ts-nocheck
 "use client";
 
-import { use, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import HyperCertCard from "@/components/HyperCertCard";
 import RoundsData from "@/rounds-data.json";
 import { getChain } from "@/actions/hypercerts";
-import { useRouter } from "next/navigation";
+
 import useStore from "@/context/store";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-function Home(props: {
-  params: Promise<{ slug: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
+function Home() {
   const program = useStore((s) => s.program);
-
   const data = RoundsData.filter((round) => round.program === program);
-
+  console.log("len: ", data.length);
+  if (data.length === 0) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center px-4">
+        <Alert className="max-w-lg">
+          <AlertTitle className="text-lg font-semibold">
+            No Rounds Found
+          </AlertTitle>
+          <AlertDescription>
+            There are currently no available rounds for this program. Please
+            check back later or select a different program.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
   return (
     <motion.main
       initial={{ opacity: 0 }}
@@ -37,7 +47,7 @@ function Home(props: {
             <HyperCertCard
               name={data[0].name}
               roundId={data[0].round_id}
-              bannerImg="/pg1.webp"
+              bannerImg={data[0].bannerImg}
               logoImg="/logo.webp"
               chain={getChain(data[0].chain_id)}
               seed={data[0].seed}
@@ -47,18 +57,18 @@ function Home(props: {
 
         {/* Info section with stagger animation */}
         <motion.div
-          className={`col-span-2 lg:h-[380px] md:h-[350px] h-[330px] flex-grow flex-col flex lg:space-y-1 md:space-y-3 morph p-[10px] lg:mx-0 md:mx-0 mx-auto`}
+          className={`col-span-2 lg:h-[380px] md:h-[350px] h-[330px] flex-grow flex-col flex lg:space-y-3 md:space-y-3 morph p-[30px] lg:mx-0 md:mx-0 mx-auto`}
         >
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className={`bg-gradient-to-r from-black via-slate-700 to-gray-500 text-transparent text-center inline-block bg-clip-text lg:text-[55px] md:text-[45px] text-[25px] font-extrabold`}
+            className={`bg-gradient-to-r from-black via-slate-700 to-gray-500 text-transparent text-center inline-block bg-clip-text lg:text-[3em] md:text-[2.5em] text-[2em] font-extrabold`}
           >
             Mint Your Hypercerts
           </motion.p>
           <div
-            className={`w-[95%] block lg:p-7 md:p-4 p-3 lg:text-[20px] md:text-[17px] text-[16px]`}
+            className={`w-[95%] block lg:px-7 md:px-4 px-3 lg:text-[1.3em] md:text-[1em] text-[0.5em]`}
           >
             <p className={``}>
               HyperMinter is a tool for minting a Hypercert to make an onchain
@@ -97,7 +107,7 @@ function Home(props: {
                 <HyperCertCard
                   name={round.name}
                   chain={getChain(round.chain_id)}
-                  bannerImg="/pg1.webp"
+                  bannerImg={round.bannerImg}
                   logoImg="/logo.webp"
                   roundId={round.round_id}
                   seed={round.seed}

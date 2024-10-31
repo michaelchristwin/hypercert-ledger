@@ -1,4 +1,3 @@
-//@ts-nocheck
 import React, { forwardRef } from "react";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import { motion } from "framer-motion";
