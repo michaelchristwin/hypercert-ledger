@@ -1,13 +1,19 @@
 import { create } from "zustand";
 
 interface State {
-  program: string;
-  setProgram: (arg: string) => void;
+  year: string;
+  setYear: (arg: string) => void;
+  props: string;
+  setProps: (arg: string) => void;
 }
 
 const useStore = create<State>((set) => ({
-  program: "GG20",
-  setProgram: (newProgram: string) => set({ program: newProgram }),
+  year: "",
+  setYear: (newYear: string) => set({ year: newYear }),
+  props: "",
+  setProps(arg) {
+    set({ props: arg });
+  },
 }));
 
 export default useStore;

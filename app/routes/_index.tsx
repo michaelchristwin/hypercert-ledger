@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import useStore from "~/store";
 import RoundsData from "~/rounds-data.json";
 import HyperCertCard from "~/components/HypercertCard";
-import { getChain } from "~/actions/hypercerts";
 import { Dot } from "lucide-react";
 import {
   Select,
@@ -12,6 +11,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { useEffect, useState } from "react";
+
+interface RoundData {
+  program: string;
+  name: string;
+  round_id: number;
+  chain_id: number;
+  bannerImg: string;
+  seed: string;
+}
 
 export const meta: MetaFunction = () => {
   return [
@@ -24,8 +33,15 @@ export const meta: MetaFunction = () => {
 };
 
 function Index() {
-  const program = useStore((s) => s.program);
-  const data = RoundsData.filter((round) => round.program === program);
+  const { year, setYear, props, setProps } = useStore();
+  const data = RoundsData.filter((round) => round.program === year);
+  const [round, setRound] = useState<RoundData | null>(null);
+  useEffect(() => {
+    if (props) {
+      const rd = JSON.parse(props);
+      setRound(rd);
+    }
+  }, [props]);
 
   return (
     <motion.main
@@ -64,13 +80,13 @@ function Index() {
                   strokeWidth={3}
                 />
                 <div
-                  className={`w-full h-full text-[17px] flex pl-6 items-center rounded-[6px] bg-white/10 text-white hover:bg-white/20 active:bg-white/30 transition-colors`}
+                  className={`w-full h-full font-bold text-[17px] flex pl-6 items-center rounded-[6px] bg-white/10 text-white hover:bg-white/20 active:bg-white/30 transition-colors`}
                 >
                   Connect the grant payout wallet
                 </div>
               </div>
               <div className={`relative w-[350px] h-[50px] flex items-center`}>
-                <Select>
+                <Select onValueChange={setYear} value={year || ""}>
                   <SelectTrigger className={`w-full z-20`}>
                     <SelectValue placeholder="Select year" />
                   </SelectTrigger>
@@ -83,16 +99,17 @@ function Index() {
               </div>
               <div className={`relative w-[350px] h-[50px] flex items-center`}>
                 <div className="absolute left-5 -top-4 bg-white/10 backdrop-blur-sm w-0.5 h-8 " />
-                <Select>
+                <Select value={props} onValueChange={setProps} disabled={!year}>
                   <SelectTrigger className={`w-full z-20`}>
                     <SelectValue placeholder="Select your project" />
                   </SelectTrigger>
                   <SelectContent>
-                    {data.map((item, i) => (
-                      <SelectItem key={i} value={item.name}>
-                        {item.name}
-                      </SelectItem>
-                    ))}
+                    {data !== undefined &&
+                      data.map((item, i) => (
+                        <SelectItem key={i} value={JSON.stringify(item)}>
+                          {item.name}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -107,24 +124,17 @@ function Index() {
             </ul> */}
           </div>
         </motion.div>
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={program} // This forces a re-render when program changes
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-          >
-            <HyperCertCard
-              name={data[0].name}
-              roundId={data[0].round_id}
-              bannerImg={data[0].bannerImg}
-              logoImg="/logo.webp"
-              chain_id={data[0].chain_id}
-              seed={data[0].seed}
-            />
-          </motion.div>
-        </AnimatePresence>
+        <div>
+          <HyperCertCard
+            year={(year && year) || ""}
+            name={(round && round.name) || ""}
+            roundId={(round && round.round_id) || 0}
+            bannerImg={`pg1.webp`}
+            logoImg="/logo.webp"
+            chain_id={(round && round.chain_id) || 0}
+            seed={"45"}
+          />
+        </div>
       </div>
     </motion.main>
   );

@@ -9,6 +9,7 @@ import { Patterns } from "~/utils/randomizer/styles/patterns";
 
 interface HyperCertCardProps {
   name: string;
+  year: string;
   logoImg: string;
   seed: string;
   bannerImg: string;
@@ -20,6 +21,7 @@ function HyperCertCard({
   bannerImg,
   logoImg,
   roundId,
+  year,
   seed,
   chain_id,
 }: HyperCertCardProps) {
@@ -60,7 +62,7 @@ function HyperCertCard({
   }, [isClicked, isConnected, roundId, chain_id, navigate]);
   return (
     <div
-      className={`block min-w-[260px] max-w-[300px] relative w-[100%] h-[400px] rounded-[12px]`}
+      className={`block min-w-[260px] max-w-[300px] relative w-[330px] h-[400px] rounded-[12px]`}
     >
       <div
         className={`bg-cover bg-center w-[100%] rounded-[12px] h-full`}
@@ -81,7 +83,9 @@ function HyperCertCard({
         <div
           className={`border-t-2 border-b block border-black min-h-[100px] h-fit mt-[130px]`}
         >
-          <p className={`font-[600] text-[22px]`}>{name}</p>
+          <p className={`font-[600] text-[20px]`}>
+            {year}: {name && <span>{name}</span>}
+          </p>
         </div>
         {/* <div className={`flex justify-between w-full pt-2 text-black`}>
           <div className={`block`}>
@@ -97,7 +101,7 @@ function HyperCertCard({
         <button
           className={`text-black mx-auto disabled:bg-gray-300 disabled:text-gray-300 disabled:opacity-100 disabled:active:opacity-100 bg-["${Colors[colorIndex]}"] backdrop-filter backdrop-brightness-150 block mt-[40px] w-fit hover:opacity-60 hover:border active:opacity-50 px-2 h-[35px] rounded-lg`}
           type="button"
-          //disabled
+          disabled={!(chain_id && roundId)}
           onClick={handleClick}
         >
           Mint Hypercert
