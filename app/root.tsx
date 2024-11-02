@@ -40,7 +40,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <AppKitProvider>
           <Navbar />
           <div
-            className={`p-[100px] min-h-screen w-full bg-gradient-to-br from-blue-600 via-blue-800 to-purple-900 text-black`}
+            className={`lg:p-[100px] md:p-[100px] p-[10px] min-h-screen w-full bg-gradient-to-br from-blue-600 via-blue-800 to-purple-900 text-black`}
           >
             {children}
           </div>

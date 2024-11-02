@@ -99,7 +99,10 @@ function HyperCertCard({
           </div>
         </div> */}
         <button
-          className={`text-black mx-auto disabled:bg-gray-300 disabled:text-gray-300 disabled:opacity-100 disabled:active:opacity-100 bg-["${Colors[colorIndex]}"] backdrop-filter backdrop-brightness-150 block mt-[40px] w-fit hover:opacity-60 hover:border disabled:hover:border-0 active:opacity-50 px-2 h-[35px] rounded-lg`}
+          className={`text-black mx-auto bg-white/10 backdrop-blur-sm ${
+            !(chain_id && roundId) &&
+            "cursor-not-allowed hover:opacity-100 active:opacity-100 hover:border-0 text-transparent"
+          } backdrop-filter backdrop-brightness-150 block mt-[40px] w-fit hover:opacity-60 hover:border active:opacity-50 px-2 h-[35px] rounded-lg`}
           type="button"
           disabled={!(chain_id && roundId)}
           onClick={handleClick}
