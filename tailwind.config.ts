@@ -65,6 +65,19 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      animation: {
+        rotate: "rotate 1.2s linear infinite",
+      },
+      keyframes: {
+        rotate: {
+          "0%": {
+            transform: "translate(-50%, -50%) scale(1.4) rotate(0turn)",
+          },
+          "100%": {
+            transform: "translate(-50%, -50%) scale(1.4) rotate(1turn)",
+          },
+        },
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],
