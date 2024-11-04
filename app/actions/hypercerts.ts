@@ -16,7 +16,7 @@ import {
 import { TOTAL_UNITS } from "~/utils/mint-utils";
 
 // Client-side minting function that interacts with web3
-interface MyMetadata {
+export interface MyMetadata {
   name: string;
   description: string;
   external_url?: string | undefined;
