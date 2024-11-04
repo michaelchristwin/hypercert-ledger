@@ -1,6 +1,6 @@
 export const Colors = [
   "rgb(153,50,204)", // Original color
-  "rgb(255,102,102)", // Original color
+  //"rgb(255,102,102)", // Original color
   "rgb(34,61,104)", // Original color
   "rgb(223,221,67)", // Original color
   "rgb(0,128,128)", // Teal

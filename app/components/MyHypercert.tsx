@@ -16,6 +16,7 @@ export interface HyperCertCardProps {
   endDate?: string;
   workScope?: string[];
   seed: string;
+  color: string;
 }
 const MyHypercert = forwardRef(function HyperCertCard(
   {
@@ -26,6 +27,7 @@ const MyHypercert = forwardRef(function HyperCertCard(
     startDate,
     endDate,
     seed,
+    color,
   }: HyperCertCardProps,
   ref
 ) {
@@ -33,7 +35,7 @@ const MyHypercert = forwardRef(function HyperCertCard(
 
   return (
     <div
-      className={`block max-w-[300px] relative lg:mx-0 md:mx-0 mx-auto w-[300px] h-[380px] rounded-[12px]`}
+      className={`block min-w-[300px] relative lg:mx-0 md:mx-0 mx-auto w-[300px] h-[380px] rounded-[12px]`}
       ref={ref as React.Ref<HTMLDivElement>}
     >
       <div
@@ -43,7 +45,7 @@ const MyHypercert = forwardRef(function HyperCertCard(
       <div
         className={`w-full h-[100%] absolute bottom-[0px] rounded-[12px] p-3`}
         style={{
-          background: `linear-gradient(to bottom, rgba(226,188,245,0.25) 15%, ${Colors[colorIndex]} 75%), url("${Patterns[patternIndex]}") center/cover no-repeat`,
+          background: `linear-gradient(to bottom, rgba(226,188,245,0.25) 15%, ${color} 75%), url("${Patterns[patternIndex]}") center/cover no-repeat`,
         }}
       >
         <div className={`flex justify-start`}>

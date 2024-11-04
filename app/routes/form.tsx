@@ -3,6 +3,7 @@ import { useSearchParams } from "@remix-run/react";
 import { json, useLoaderData } from "@remix-run/react";
 import { fetchData } from "~/utils/indexer/graph.server";
 import html2canvas from "html2canvas";
+import { Colors } from "~/utils/randomizer/styles/colors";
 import {
   getChain,
   ISOToUNIX,
@@ -118,6 +119,7 @@ function Form() {
   const [isMinting, setIsMinting] = useState(false);
   const [_contributorsStored, setContributorsStored] = useState<any[]>([]);
   const [myContributors, setContributors] = useState<string>("");
+  const [selectedColorIndex, setSelectedColorIndex] = useState(0);
   const ProjectCard = memo(MyHypercert);
   let dappChain = process.env.NODE_ENV === "development" ? sepolia : optimism;
   const { name, description, external_url } = formValues;
@@ -277,7 +279,7 @@ function Form() {
   return (
     <>
       <div
-        className={`lg:flex md:flex block ${
+        className={`lg:flex md:flex block relative ${
           allow
             ? "lg:justify-center md:justify-center lg:space-x-[10%] md:space-x-[7%] mx-auto"
             : "lg:justify-center md:justify-center"
@@ -520,7 +522,29 @@ function Form() {
             roundId={roundId as string}
             workScope={workScopeStored}
             seed={roundId}
+            color={Colors[selectedColorIndex]}
           />
+        </div>
+        <div
+          className={`lg:w-[500px] md:w-[500px] w-[300px] fixed lg:bottom-1 lg:right-5 md:bottom-1 md:right-5 bottom-1 right-[50%] lgtranslate-x-[0%] md:translate-x-[0%] translate-x-[50%] p-[20px] rounded-[12px] bg-black/30 backdrop-blur-lg`}
+        >
+          <p className={`text-white text-center font-semibold`}>
+            Choose a color
+          </p>
+          <div
+            className={`lg:p-[20px] md:p-[10px] w-full items-center gap-2 flex flex-wrap`}
+          >
+            {Colors.map((color, i) => (
+              <button
+                key={i}
+                onClick={() => setSelectedColorIndex(i)}
+                style={{ backgroundColor: color }}
+                className={`w-[50px] h-[30px] rounded-[30px] ${
+                  selectedColorIndex === i ? "ring-2 ring-blue-500" : ""
+                }`}
+              ></button>
+            ))}
+          </div>
         </div>
       </div>
       <ProgressPopup
