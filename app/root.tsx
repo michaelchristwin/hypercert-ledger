@@ -5,11 +5,13 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import type { LinksFunction } from "@remix-run/node";
+import type { LinksFunction } from "@vercel/remix";
+import { useNavigation } from "@remix-run/react";
 
 import "./tailwind.css";
 import Navbar from "~/components/Navbar";
 import { AppKitProvider } from "./web3modal";
+import LoadingOverlay from "./components/LoadingOverlay";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -28,6 +30,8 @@ const rootStyles = {
 };
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const navigation = useNavigation();
+  const isLoading = navigation.state === "loading";
   return (
     <html lang="en">
       <head>
@@ -39,6 +43,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body style={rootStyles}>
         <AppKitProvider>
           <Navbar />
+          {isLoading && <LoadingOverlay />}
           <div
             className={`lg:p-[100px] md:p-[100px] p-[10px] min-h-screen w-full bg-gradient-to-br from-blue-600 via-blue-800 to-purple-900 text-black`}
           >

@@ -1,7 +1,6 @@
 import { useAccount } from "wagmi";
 import { useAppKit } from "@reown/appkit/react";
 import { useNavigate } from "@remix-run/react";
-import { Chain } from "viem";
 import { useEffect, useState } from "react";
 import { impactCertProps } from "~/utils/randomizer/props";
 import { Colors } from "~/utils/randomizer/styles/colors";
@@ -25,7 +24,7 @@ function HyperCertCard({
   seed,
   chain_id,
 }: HyperCertCardProps) {
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
   const { patternIndex, colorIndex } = impactCertProps(seed);
   const [isClicked, setIsClicked] = useState(false);
   const { open } = useAppKit();
@@ -39,7 +38,7 @@ function HyperCertCard({
     } else if (isConnected) {
       navigate({
         pathname: "/form",
-        search: `?chanId=${chain_id}&roundId=${roundId}`,
+        search: `?chainId=${chain_id}&roundId=${roundId}&address=${address}`,
       });
     }
   };
@@ -50,7 +49,7 @@ function HyperCertCard({
         if (isClicked && isConnected && chain_id) {
           navigate({
             pathname: "/form",
-            search: `?chanId=${chain_id}&roundId=${roundId}`,
+            search: `?chainId=${chain_id}&roundId=${roundId}&address=${address}`,
           });
 
           setIsClicked(false);

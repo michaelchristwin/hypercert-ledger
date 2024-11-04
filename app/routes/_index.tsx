@@ -98,12 +98,12 @@ function Index() {
               >
                 <Select onValueChange={onYearChange} value={program}>
                   <SelectTrigger className={`w-full z-20`}>
-                    <SelectValue placeholder="Select year" />
+                    <SelectValue placeholder="Select Gitcoin round" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="GG22">2022</SelectItem>
-                    <SelectItem value="GG21">2021</SelectItem>
-                    <SelectItem value="GG20">2020</SelectItem>
+                    <SelectItem value="GG20">GG20</SelectItem>
+                    <SelectItem value="GG21">GG21</SelectItem>
+                    <SelectItem value="GG22">GG22</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
