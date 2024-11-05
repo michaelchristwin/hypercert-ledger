@@ -27,16 +27,6 @@ import {
   AccordionTrigger,
 } from "~/components/ui/accordion";
 
-export const meta: MetaFunction = () => {
-  return [
-    { title: "Hyperminter" },
-    {
-      name: "description",
-      content: "A tool for minting project based Hypercerts onchain.",
-    },
-  ];
-};
-
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const chainId = url.searchParams.get("chainId");
@@ -294,7 +284,7 @@ function Form() {
         <form
           className={`${
             allow ? "block" : "hidden"
-          } lg:p-[40px] md:p-[30px] p-[20px] lg:w-[45%] md:w-[45%] w-[94%] space-y-3 rounded-[15px] morph lg:mx-0 md:mx-0 mx-auto`}
+          } lg:p-[40px] md:p-[30px] p-[20px] lg:w-[45%] md:w-[45%] w-[94%] space-y-3 rounded-[15px] bg-white/10 backdrop-blur-sm lg:mx-0 md:mx-0 mx-auto`}
           onSubmit={onSubmit}
         >
           <hr />
@@ -497,9 +487,9 @@ function Form() {
                 className={`w-[90%] border-0 bg-white outline-none`}
               />
               <div
-                className={`w-[35px] flex justify-center items-center h-[35px] border border-gray-500`}
+                className={`w-[35px] flex justify-center items-center h-[35px] rounded-[6px] border-[#f5f5f5] border-[1.5px]`}
               >
-                <p>{allowRange}</p>
+                <p className={`text-white`}>{allowRange}</p>
               </div>
             </div>
           </fieldset>
@@ -539,9 +529,9 @@ function Form() {
         >
           <AccordionItem value="color" className={`border-none`}>
             <AccordionTrigger
-              className={`text-white bg-black/30 backdrop-blur-lg px-[20px] rounded-t-[12px] w-[180px] transition-all duration-300 data-[state=open]:lg:w-[500px] data-[state=open]:md:w-[500px] data-[state=open]:w-[300px]`}
+              className={`text-white bg-black/30 backdrop-blur-lg px-[20px] data-[state=open]:rounded-t-[12px] data-[state=closed]:rounded-[12px] w-[250px] transition-all duration-300 data-[state=open]:lg:w-[500px] data-[state=open]:md:w-[500px] data-[state=open]:w-[300px]`}
             >
-              Change color
+              Change hypercert color
             </AccordionTrigger>
             <AccordionContent>
               <div

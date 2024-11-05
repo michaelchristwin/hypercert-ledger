@@ -1,6 +1,7 @@
 import {
   Links,
   Meta,
+  MetaFunction,
   Outlet,
   Scripts,
   ScrollRestoration,
@@ -12,7 +13,42 @@ import "./tailwind.css";
 import Navbar from "~/components/Navbar";
 import { AppKitProvider } from "./web3modal";
 import LoadingOverlay from "./components/LoadingOverlay";
+import Footer from "./components/Footer";
 
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Hyperminter" },
+    {
+      name: "description",
+      content: "A tool for minting project based Hypercerts onchain.",
+    },
+    {
+      property: "og:title",
+      content: "Hyperminter",
+    },
+    {
+      property: "og:description",
+      content: "A tool for minting project based Hypercerts onchain.",
+    },
+    {
+      property: "og:type",
+      content: "website",
+    },
+    {
+      property: "og:url",
+      content: "https://hyperminter.xyz",
+    },
+    {
+      name: "keywords",
+      content:
+        "hypercerts, hyperminter, impact, impactcerts, gitcoin, public goods, optimism",
+    },
+    {
+      name: "author",
+      content: "Jon Ruth, Michael Christwin",
+    },
+  ];
+};
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
@@ -40,7 +76,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body style={rootStyles}>
+      <body style={rootStyles} className={`relative`}>
         <AppKitProvider>
           <Navbar />
           {isLoading && <LoadingOverlay />}
@@ -52,6 +88,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <ScrollRestoration />
           <Scripts />
         </AppKitProvider>
+        <Footer />
       </body>
     </html>
   );
