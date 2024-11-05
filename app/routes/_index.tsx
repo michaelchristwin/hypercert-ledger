@@ -152,7 +152,7 @@ function Index() {
             bannerImg={`pg1.webp`}
             logoImg="/logo.webp"
             chain_id={chain_id || 0}
-            seed={"45"}
+            seed={"30"}
           />
         </div>
       </div>
