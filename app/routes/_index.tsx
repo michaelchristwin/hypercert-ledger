@@ -1,6 +1,4 @@
-import type { MetaFunction } from "@vercel/remix";
-import { motion, AnimatePresence } from "framer-motion";
-import RoundsData from "~/rounds-data.json";
+import { motion } from "framer-motion";
 import HyperCertCard from "~/components/HypercertCard";
 import { Dot } from "lucide-react";
 import {
@@ -10,8 +8,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { useEffect, useState } from "react";
-
+import { useMemo, useState } from "react";
+import { json, useLoaderData } from "@remix-run/react";
+type Round = {
+  program: string;
+  name: string;
+  round_id: number;
+  chain_id: number;
+  bannerImg: string;
+  seed: string;
+};
 interface RoundData {
   program: string;
   name: string;
@@ -19,18 +25,13 @@ interface RoundData {
   chain_id: number | undefined;
   seed: string;
 }
-
-export const meta: MetaFunction = () => {
-  return [
-    { title: "Hyperminter" },
-    {
-      name: "description",
-      content: "A tool for minting project based Hypercerts onchain.",
-    },
-  ];
+export const loader = async () => {
+  const RoundsData: Round[] = (await import(`~/rounds-data.json`))
+    .default as Round[];
+  return json({ RoundsData });
 };
-
 function Index() {
+  const [year, setYear] = useState("");
   const [round, setRound] = useState<RoundData>({
     program: "",
     name: "",
@@ -39,11 +40,21 @@ function Index() {
     seed: "",
   });
   const { program, name, chain_id, round_id } = round;
-  const data = RoundsData.filter((r) => r.program === program);
-
+  const { RoundsData } = useLoaderData<typeof loader>();
   const onYearChange = (value: string) => {
-    setRound((p) => ({ ...p, program: value }));
+    setYear(value);
+    setRound({
+      program: "",
+      name: "",
+      round_id: undefined,
+      chain_id: undefined,
+      seed: "",
+    });
   };
+  const data = useMemo(() => {
+    return RoundsData.filter((r) => r.program === year);
+  }, [RoundsData, year]);
+
   const onRoundChange = (value: string) => {
     const round = data.find((item) => item.name === value);
     if (round) {
@@ -96,7 +107,7 @@ function Index() {
               <div
                 className={`relative lg:w-[350px] md:w-[350px] w-[270px] h-[50px] flex items-center`}
               >
-                <Select onValueChange={onYearChange} value={program}>
+                <Select onValueChange={onYearChange} value={year}>
                   <SelectTrigger className={`w-full z-20`}>
                     <SelectValue placeholder="Select Gitcoin round" />
                   </SelectTrigger>
@@ -114,11 +125,11 @@ function Index() {
                 <Select
                   value={name}
                   onValueChange={onRoundChange}
-                  disabled={!program}
+                  disabled={!year}
                 >
                   <SelectTrigger
                     className={`w-full z-20 ${
-                      !program ? "opacity-50 cursor-not-allowed" : ""
+                      !year ? "opacity-50 cursor-not-allowed" : ""
                     }`}
                   >
                     <SelectValue placeholder="Select your project" />
