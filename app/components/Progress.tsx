@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Link } from "@remix-run/react";
 import { useAccount } from "wagmi";
 import { getChain } from "~/actions/hypercerts";
+import { useNavigate } from "@remix-run/react";
 
 export type MethRes = {
   allowlistTxHash: `0x${string}` | undefined;
@@ -21,6 +22,12 @@ const ProgressPopup = forwardRef(function ProgressPopup(
   ref
 ) {
   const { res, isSuccess, isMinting } = props;
+  const navigate = useNavigate();
+  const handleClick = () => {
+    if (isSuccess) {
+      navigate("/");
+    }
+  };
 
   const Monitor = () => {
     const { chainId } = useAccount();
@@ -218,12 +225,6 @@ const ProgressPopup = forwardRef(function ProgressPopup(
     }
   };
 
-  const handleClick = () => {
-    if (isSuccess) {
-      window.location.assign("/");
-    }
-  };
-
   return (
     <AlertDialog.Root>
       <AlertDialog.Trigger asChild>
@@ -272,7 +273,7 @@ const ProgressPopup = forwardRef(function ProgressPopup(
                       height="20"
                       viewBox="0 0 24 24"
                       fill="none"
-                      stroke="currentColor"
+                      stroke="black"
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"

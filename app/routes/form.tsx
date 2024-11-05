@@ -20,6 +20,12 @@ import ProgressPopup, { MethRes } from "~/components/Progress";
 import Validity from "~/components/ValidImage";
 import TextArea from "~/components/TextArea";
 import MyHypercert from "~/components/MyHypercert";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "~/components/ui/accordion";
 
 export const meta: MetaFunction = () => {
   return [
@@ -525,27 +531,36 @@ function Form() {
             color={Colors[selectedColorIndex]}
           />
         </div>
-        <div
-          className={`lg:w-[500px] md:w-[500px] w-[300px] fixed lg:bottom-1 lg:right-5 md:bottom-1 md:right-5 bottom-1 right-[50%] lgtranslate-x-[0%] md:translate-x-[0%] translate-x-[50%] p-[20px] rounded-[12px] bg-black/30 backdrop-blur-lg`}
+        <Accordion
+          type="single"
+          collapsible
+          defaultValue="color"
+          className={`fixed lg:bottom-1 lg:right-5 md:bottom-1 md:right-5 bottom-1 right-[50%] lg:translate-x-[0%] md:translate-x-[0%] translate-x-[50%]`}
         >
-          <p className={`text-white text-center font-semibold`}>
-            Choose a color
-          </p>
-          <div
-            className={`lg:p-[20px] md:p-[10px] w-full items-center gap-2 flex flex-wrap`}
-          >
-            {Colors.map((color, i) => (
-              <button
-                key={i}
-                onClick={() => setSelectedColorIndex(i)}
-                style={{ backgroundColor: color }}
-                className={`w-[50px] h-[30px] rounded-[30px] ${
-                  selectedColorIndex === i ? "ring-2 ring-blue-500" : ""
-                }`}
-              ></button>
-            ))}
-          </div>
-        </div>
+          <AccordionItem value="color" className={`border-none`}>
+            <AccordionTrigger
+              className={`text-white bg-black/30 backdrop-blur-lg px-[20px] rounded-t-[12px] w-[180px] transition-all duration-300 data-[state=open]:lg:w-[500px] data-[state=open]:md:w-[500px] data-[state=open]:w-[300px]`}
+            >
+              Change color
+            </AccordionTrigger>
+            <AccordionContent>
+              <div
+                className={`lg:w-[500px] md:w-[500px] w-[300px] lg:p-[20px] rounded-b-[12px] bg-black/30 backdrop-blur-lg md:p-[20px] p-[15px] items-center grid grid-cols-4 lg:grid-cols-6 md:grid-cols-5 gap-2 justify-items-center`}
+              >
+                {Colors.map((color, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setSelectedColorIndex(i)}
+                    style={{ backgroundColor: color }}
+                    className={`w-[50px] h-[30px] rounded-[30px] ${
+                      selectedColorIndex === i ? "ring-2 ring-blue-500" : ""
+                    }`}
+                  ></button>
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </div>
       <ProgressPopup
         ref={triggerRef}
