@@ -1,6 +1,5 @@
-import type { MetaFunction, LoaderFunctionArgs } from "@vercel/remix";
-import { useSearchParams } from "@remix-run/react";
-import { json, useLoaderData } from "@remix-run/react";
+import type { LoaderFunctionArgs } from "@vercel/remix";
+import { useSearchParams, json, useLoaderData } from "@remix-run/react";
 import { fetchData } from "~/utils/indexer/graph.server";
 import html2canvas from "html2canvas";
 import { Colors } from "~/utils/randomizer/styles/colors";
@@ -41,7 +40,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   if (!address) {
     return json({ error: "Invalid or missing address" }, { status: 400 });
   }
-  let account =
+  const account =
     process.env.NODE_ENV === "development"
       ? "0xdc2a4bf46ef158f86274c02bd7f027f31da9ebc1"
       : address;
@@ -61,7 +60,7 @@ function Form() {
     const { error } = dataRes;
     console.error(error);
   }
-  //@ts-ignore
+  //@ts-expect-error"ddd"
   const { data } = dataRes;
   const { address } = useAccount();
   const { data: WalletClient } = useWalletClient();
@@ -113,14 +112,14 @@ function Form() {
   );
   const [isSuccess, setIsSuccess] = useState(false);
   const [isMinting, setIsMinting] = useState(false);
-  const [_contributorsStored, setContributorsStored] = useState<any[]>([]);
+  const [_contributorsStored, setContributorsStored] = useState<string[]>([]);
   const [myContributors, setContributors] = useState<string>("");
   const [selectedColorIndex, setSelectedColorIndex] = useState(0);
   const ProjectCard = memo(MyHypercert);
-  let dappChain = process.env.NODE_ENV === "development" ? sepolia : optimism;
+  const dappChain = process.env.NODE_ENV === "development" ? sepolia : optimism;
   const { name, description, external_url } = formValues;
   const { logoImage, bannerImage } = formImages;
-  let account =
+  const account =
     process.env.NODE_ENV === "development"
       ? "0xdc2a4bf46ef158f86274c02bd7f027f31da9ebc1"
       : (address as string);
@@ -141,11 +140,9 @@ function Form() {
       console.error("Failed to create client:", err);
     }
   }, [WalletClient]);
-
+  console.log(_contributorsStored);
   useEffect(() => {
-    // @ts-ignore
     if (data && data.applications && data.applications.length > 0) {
-      //@ts-ignore
       const application = data.applications[0];
       console.log("Effect ran");
       if (
@@ -212,7 +209,6 @@ function Form() {
       workScope: workScopeStored,
     }));
     const { allowList, recipientUnits } = prepareAllowlist(
-      //@ts-ignore
       data.applications[0],
       allowRange
     );

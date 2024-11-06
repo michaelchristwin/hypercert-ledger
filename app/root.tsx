@@ -5,10 +5,9 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useNavigation,
 } from "@remix-run/react";
 import type { LinksFunction } from "@vercel/remix";
-import { useNavigation } from "@remix-run/react";
-
 import "./tailwind.css";
 import Navbar from "~/components/Navbar";
 import { AppKitProvider } from "./web3modal";
@@ -81,7 +80,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <Navbar />
           {isLoading && <LoadingOverlay />}
           <div
-            className={`lg:p-[100px] md:p-[100px] p-[10px] min-h-screen w-full bg-gradient-to-br from-blue-600 via-blue-800 to-purple-900 text-black`}
+            className={`lg:px-[150px] md:px-[120px] px-[90px] min-h-screen w-full bg-white text-black`}
           >
             {children}
           </div>

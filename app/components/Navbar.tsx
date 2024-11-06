@@ -1,6 +1,5 @@
 import { Link } from "@remix-run/react";
-import { useAppKit } from "@reown/appkit/react";
-import { useAppKitState } from "@reown/appkit/react";
+import { useAppKit, useAppKitState } from "@reown/appkit/react";
 import { LoaderCircle } from "lucide-react";
 import { useAccount } from "wagmi";
 
@@ -11,21 +10,21 @@ function Navbar() {
 
   return (
     <nav
-      className={`flex w-full h-[60px] px-2 sm:px-4 md:px-7 
-      lg:px-9 items-center justify-between z-20 fixed top-0 shadow bg-white/10 backdrop-blur-sm bg-opacity-10`}
+      className={`flex w-full h-[60px] lg:px-[150px] md:px-[120px] px-[90px] items-center justify-between z-20 fixed top-0 bg-white/10 backdrop-blur-sm bg-opacity-10 mt-[10px]`}
     >
       <Link to={`/`} className={`flex shrink-0 items-center space-x-1.5`}>
         <img
           src={`/brandlogo.webp`}
           alt={`Hyperminter Logo`}
-          className="rounded-full w-[22px] h-[22px] sm:w-[26px] sm:h-[26px] 
+          className="rounded-full w-[22px] h-[22px] sm:w-[26px] sm:h-[26px]
           md:w-[30px] md:h-[30px]"
         />
         <p
-          className="text-[13px] lg:inline-block md:inline-block hidden sm:text-[16px] md:text-[20px] lg:text-[23px] 
-          font-semibold text-white text-center whitespace-nowrap"
+          className="lg:inline-block md:inline-block hidden text-[20px] md:text-[25px] lg:text-[28px]
+          text-white concert-one text-center whitespace-nowrap"
         >
-          Hyperminter
+          <span className={`text-purple-500`}>hyper</span>
+          <span className={`text-neutral-700`}>minter</span>
         </p>
       </Link>
       <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3">
@@ -33,7 +32,7 @@ function Navbar() {
           <button
             type="button"
             onClick={() => open()}
-            className={`w-fit flex justify-center items-center hover:opacity-[0.8] text-black rounded-[8px] font-semibold lg:p-2 md:p-2 p-[6px] lg:h-[38px] md:h-[38px] h-[35px] bg-white`}
+            className={`flex justify-center items-center hover:opacity-[0.8] text-neutral-700 text-[17px] rounded-[20px] font-semibold w-[150px] lg:h-[38px] md:h-[38px] h-[30px] bg-purple-500`}
           >
             {!isOpen ? (
               "Connect Wallet"

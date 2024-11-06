@@ -20,6 +20,7 @@
     "strict": true,
     "allowJs": true,
     "skipLibCheck": true,
+    "noUnusedLocals": true,
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
