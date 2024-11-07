@@ -58,10 +58,10 @@ function HyperCertCard({
         console.error(err);
       }
     })();
-  }, [isClicked, isConnected, roundId, chain_id, navigate]);
+  }, [isClicked, isConnected, roundId, address, chain_id, navigate]);
   return (
     <div
-      className={`block min-w-[260px] max-w-[300px] relative w-[330px] h-[400px] rounded-[12px] mx-auto`}
+      className={`block min-w-[260px] max-w-[300px] relative w-[330px] h-[400px] rounded-[12px] lg:mx-0 md:mx-0 mx-auto`}
     >
       <div
         className={`bg-cover bg-center w-[100%] rounded-[12px] h-full`}

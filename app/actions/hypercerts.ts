@@ -52,85 +52,81 @@ export async function mintHypercert(
     allowlistTxHash: undefined as `0x${string}` | undefined,
   };
 
-  try {
-    if (client === undefined) {
-      throw new Error("Client is undefined");
-    }
-    if (!data) {
-      throw errors;
-    }
-
-    console.log("Create allowlist");
-    res.allowlistTxHash = await client.createAllowlist(
-      allowList,
-      data,
-      BigInt(TOTAL_UNITS),
-      TransferRestrictions.FromCreatorOnly
-    );
-
-    if (!res.allowlistTxHash) {
-      throw new Error("Method Failed");
-    }
-
-    const receipt = await waitForTransactionReceipt(config, {
-      hash: res.allowlistTxHash,
-    });
-
-    const logs = parseLog(receipt);
-    const { address } = getAccount(config);
-    const details = decodeEventLog({
-      abi: HypercertMinterAbi,
-      data: logs[0].data,
-      topics: logs[0].topics,
-    });
-
-    if (!details.args) {
-      throw new Error("details.args is undefined");
-    }
-    //@ts-ignore
-    const claim_Id = details.args.claimID;
-
-    const tree = parseAllowListEntriesToMerkleTree(allowList);
-    let defArgs;
-
-    for (const [leaf, value] of tree.entries()) {
-      if (value[0] === address) {
-        defArgs = {
-          proofs: tree.getProof(leaf),
-          units: BigInt(value[1]),
-          claimId: claim_Id,
-        };
-        break;
-      }
-    }
-
-    if (!defArgs) {
-      throw new Error("Arguments are undefined");
-    }
-
-    const { proofs, units, claimId } = defArgs;
-    const tx = await client.mintClaimFractionFromAllowlist(
-      claimId,
-      units,
-      proofs as `0x${string}`[] | Uint8Array[]
-    );
-
-    if (!tx) {
-      throw new Error("Mint claim fraction failed");
-    }
-
-    const secondReciept = await waitForTransactionReceipt(config, {
-      hash: tx,
-    });
-
-    if (secondReciept.status === "reverted") {
-      throw new Error("Transaction reverted");
-    }
-
-    res.claimsTxHash = tx;
-  } catch (err) {
-    throw err;
+  if (client === undefined) {
+    throw new Error("Client is undefined");
   }
+  if (!data) {
+    throw errors;
+  }
+
+  console.log("Create allowlist");
+  res.allowlistTxHash = await client.createAllowlist(
+    allowList,
+    data,
+    BigInt(TOTAL_UNITS),
+    TransferRestrictions.FromCreatorOnly
+  );
+
+  if (!res.allowlistTxHash) {
+    throw new Error("Method Failed");
+  }
+
+  const receipt = await waitForTransactionReceipt(config, {
+    hash: res.allowlistTxHash,
+  });
+
+  const logs = parseLog(receipt);
+  const { address } = getAccount(config);
+  const details = decodeEventLog({
+    abi: HypercertMinterAbi,
+    data: logs[0].data,
+    topics: logs[0].topics,
+  });
+
+  if (!details.args) {
+    throw new Error("details.args is undefined");
+  }
+  //@ts-expect-error"lol"
+  const claim_Id = details.args.claimID;
+
+  const tree = parseAllowListEntriesToMerkleTree(allowList);
+  let defArgs;
+
+  for (const [leaf, value] of tree.entries()) {
+    if (value[0] === address) {
+      defArgs = {
+        proofs: tree.getProof(leaf),
+        units: BigInt(value[1]),
+        claimId: claim_Id,
+      };
+      break;
+    }
+  }
+
+  if (!defArgs) {
+    throw new Error("Arguments are undefined");
+  }
+
+  const { proofs, units, claimId } = defArgs;
+  const tx = await client.mintClaimFractionFromAllowlist(
+    claimId,
+    units,
+    proofs as `0x${string}`[] | Uint8Array[]
+  );
+
+  if (!tx) {
+    throw new Error("Mint claim fraction failed");
+  }
+
+  const secondReciept = await waitForTransactionReceipt(config, {
+    hash: tx,
+  });
+
+  if (secondReciept.status === "reverted") {
+    throw new Error("Transaction reverted");
+  }
+
+  res.claimsTxHash = tx;
 
   return res;
 }
@@ -139,7 +135,7 @@ function parseLog(receipt: WaitForTransactionReceiptReturnType) {
   const logs = parseEventLogs({
     abi: HypercertMinterAbi,
     eventName: "ClaimStored",
-    logs: receipt.logs as any,
+    logs: receipt.logs,
   });
   return logs;
 }
@@ -185,4 +181,14 @@ export const isValid = (formValue: MyMetadata) => {
     console.error("Validation Error", err);
     throw err;
   }
+};
+
+export const formatDate = (isoString: string) => {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  })
+    .format(new Date(isoString))
+    .toUpperCase();
 };
