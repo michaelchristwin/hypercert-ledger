@@ -1,5 +1,6 @@
 import { json, useLoaderData } from "@remix-run/react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   Select,
   SelectContent,
@@ -7,7 +8,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import CardSkeleton from "~/components/CardSkeleton";
+import { useAccount } from "wagmi";
+import CardSkeleton from "~/components/cards/CardSkeleton";
+import { fetchData } from "~/utils/indexer/graph.client";
+import CardOutline from "~/components/cards/CardOutline";
+import { Info } from "lucide-react";
+import ProjectCard from "~/components/cards/ProjectCard";
 
 type Round = {
   program: string;
@@ -54,6 +60,16 @@ function MintPage() {
     });
   };
   console.log(program, chain_id, round_id);
+  const { address, isConnected } = useAccount();
+  const account =
+    process.env.NODE_ENV === "development"
+      ? "0xdc2a4bf46ef158f86274c02bd7f027f31da9ebc1"
+      : address;
+  const [projectDetails, setProjectDetails] = useState({
+    name: "",
+    logoImage: "",
+    bannerImage: "",
+  });
   const data = useMemo(() => {
     return RoundsData.filter((r) => r.program === year);
   }, [RoundsData, year]);
@@ -64,15 +80,47 @@ function MintPage() {
       setRound(round);
     }
   };
+  const {
+    data: pData,
+    fetchStatus,
+    status,
+  } = useQuery({
+    queryKey: ["applications", round_id, chain_id, account],
+    queryFn: () =>
+      fetchData({
+        id: round_id?.toString() || "",
+        chainId: chain_id || 0,
+        creator: account || "",
+      }),
+    enabled: Boolean(round_id && chain_id && account),
+  });
+  console.log(pData);
+  useEffect(() => {
+    //@ts-expect-error"type unnown"
+    if (pData && pData.applications && pData.applications.length > 0) {
+      //@ts-expect-error"type unnown"
+      const application = pData.applications[0];
+      const { metadata } = application.project;
 
+      setProjectDetails((p) => ({
+        ...p,
+        name: metadata.title,
+        logoImage: `https://ipfs.io/ipfs/${metadata.logoImg}`,
+        bannerImage: `https://ipfs.io/ipfs/${metadata.bannerImg}`,
+      }));
+    } else {
+      setProjectDetails({ name: "", logoImage: "", bannerImage: "" });
+    }
+  }, [pData]);
   return (
     <div
-      className={`flex justify-between w-full pt-[90px] items-center h-[500px]`}
+      className={`flex justify-between w-[900px] mx-auto pt-[90px] h-[90vh] items-center`}
     >
-      <div className={`w-[500px]`}>
+      <div className={`w-[350px]`}>
         <p className={`text-neutral-700 font-semibold text-[20px] mb-[33px]`}>
           Enter your round details
         </p>
+
         <Select onValueChange={onYearChange} value={year}>
           <SelectTrigger
             className={`lg:w-[350px] md:w-[350px] border border-neutral-700 w-[270px] h-[50px] text-purple-500`}
@@ -87,7 +135,7 @@ function MintPage() {
         </Select>
         <Select value={name} onValueChange={onRoundChange} disabled={!year}>
           <SelectTrigger
-            className={`lg:w-[350px] md:w-[350px] text-purple-500 border border-neutral-700 w-[270px] h-[50px] mt-[40px] ${
+            className={`lg:w-[350px] md:w-[350px] text-purple-500 border border-neutral-700 w-[270px] h-[50px] mt-[30px] ${
               !year ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
@@ -102,8 +150,37 @@ function MintPage() {
               ))}
           </SelectContent>
         </Select>
+        {!isConnected && (
+          <div
+            className={`flex items-center justify-between p-3 rounded-lg border bg-blue-100 border-blue-200 lg:w-[350px] md:w-[350px] w-[270px] h-[35px] mt-3`}
+          >
+            <div className="flex items-center space-x-2">
+              <span className={`text-blue-800`}>
+                <Info size={18} />
+              </span>
+              <span className={`text-blue-800 font-medium`}>
+                Connect your payout wallet
+              </span>
+            </div>
+          </div>
+        )}
+        <button
+          disabled={!(chain_id && round_id && projectDetails.name)}
+          className={`text-neutral-700 hover:bg-opacity-[0.8] disabled:opacity-[0.5] disabled:bg-gray-300 disabled:cursor-not-allowed bg-purple-500 rounded-lg mx-auto mt-[50px] flex justify-center items-center p-2`}
+        >
+          Mint Hypercert
+        </button>
       </div>
-      <CardSkeleton />
+      {fetchStatus === "idle" && status === "pending" && <CardOutline />}
+      {fetchStatus === "fetching" && status === "pending" && <CardSkeleton />}
+      {fetchStatus === "idle" &&
+        status === "success" &&
+        projectDetails.name && <ProjectCard {...projectDetails} />}
+      {fetchStatus === "idle" &&
+        status === "success" &&
+        !projectDetails.name && (
+          <CardOutline msg="Project not found for this account" />
+        )}
     </div>
   );
 }

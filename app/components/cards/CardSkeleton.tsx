@@ -1,4 +1,4 @@
-import { Skeleton } from "./ui/skeleton";
+import { Skeleton } from "~/components/ui/skeleton";
 
 function CardSkeleton() {
   return (
@@ -26,7 +26,7 @@ function CardSkeleton() {
           />
         </div>
         <div className={`flex w-full flex-wrap mt-[20px] gap-[6px]`}>
-          {[Array(5)].map((v, i) => (
+          {[1, 2, 3, 4].map((_, i) => (
             <Skeleton
               key={i}
               className={`custom-skeleton w-[50px] h-[15px] rounded-[6px]`}

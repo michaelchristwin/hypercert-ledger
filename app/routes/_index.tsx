@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "@remix-run/react";
-import HeroCard from "~/components/HeroCard";
+import HeroCard from "~/components/cards/HeroCard";
 
 function Index() {
   const navigate = useNavigate();
