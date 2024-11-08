@@ -1,4 +1,4 @@
-import { json, useLoaderData } from "@remix-run/react";
+import { json, useLoaderData, useNavigate } from "@remix-run/react";
 import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -112,6 +112,7 @@ function MintPage() {
       setProjectDetails({ name: "", logoImage: "", bannerImage: "" });
     }
   }, [pData]);
+  const navigate = useNavigate();
   return (
     <div
       className={`flex justify-between w-[900px] mx-auto pt-[90px] h-[90vh] items-center`}
@@ -165,6 +166,7 @@ function MintPage() {
           </div>
         )}
         <button
+          onClick={() => navigate("/form")}
           disabled={!(chain_id && round_id && projectDetails.name)}
           className={`text-neutral-700 hover:bg-opacity-[0.8] disabled:opacity-[0.5] disabled:bg-gray-300 disabled:cursor-not-allowed bg-purple-500 rounded-lg mx-auto mt-[50px] flex justify-center items-center p-2`}
         >
