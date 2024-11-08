@@ -32,7 +32,7 @@ function Navbar() {
           <button
             type="button"
             onClick={() => open()}
-            className={`flex justify-center items-center hover:opacity-[0.8] text-neutral-700 text-[17px] rounded-[20px] font-semibold w-[150px] lg:h-[38px] md:h-[38px] h-[30px] bg-purple-500`}
+            className={`flex justify-center items-center hover:opacity-[0.8] text-white text-[17px] rounded-[20px] font-semibold w-[150px] lg:h-[38px] md:h-[38px] h-[30px] bg-purple-500`}
           >
             {!isOpen ? (
               "Connect Wallet"
