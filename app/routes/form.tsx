@@ -2,7 +2,7 @@ import FormComponent from "~/components/Form";
 
 function Form() {
   return (
-    <div className={`w-full pt-[130px] h-[150vh]`}>
+    <div className={`w-full pt-[130px] h-fit py-[40px] flex justify-center`}>
       <FormComponent />
     </div>
   );
