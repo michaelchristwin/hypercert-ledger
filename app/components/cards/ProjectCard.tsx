@@ -1,22 +1,33 @@
+import { cn } from "~/lib/utils";
+
 interface ProjectCardProps {
   name: string;
   bannerImage: string;
   logoImage: string;
+  className?: string;
 }
 
-function ProjectCard({ name, logoImage, bannerImage }: ProjectCardProps) {
+function ProjectCard({
+  name,
+  logoImage,
+  bannerImage,
+  className,
+}: ProjectCardProps) {
   console.log(bannerImage);
   const tags = [name];
   return (
     <div
-      className={`block min-w-[260px] max-w-[300px] relative w-[330px] h-[380px] rounded-[12px] lg:mx-0 md:mx-0 mx-auto bg-black`}
+      className={cn(
+        "block min-w-[260px] max-w-[300px] relative w-[330px] h-[380px] rounded-[12px] lg:mx-0 md:mx-0 mx-auto bg-black",
+        className
+      )}
     >
       <div
-        className={`w-[40px] h-[40px] absolute left-3 top-3 bg-cover rounded-full`}
+        className={`w-[40px] h-[40px] absolute left-3 top-3 bg-cover bg-center rounded-full`}
         style={{ backgroundImage: `url("${logoImage}")` }}
       />
       <div
-        className={`w-full h-[45%] border border-neutral-600 rounded-[12px] p-3 bg-cover bg-top bg-no-repeat`}
+        className={`w-full h-[45%] border border-neutral-600 rounded-[12px] p-3 bg-cover bg-center bg-no-repeat`}
         style={{ backgroundImage: `url(${bannerImage})` }}
       ></div>
       <div
