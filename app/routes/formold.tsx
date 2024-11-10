@@ -5,10 +5,10 @@ import html2canvas from "html2canvas";
 import { Colors } from "~/utils/randomizer/styles/colors";
 import {
   getChain,
+  HypercertMetadata,
   ISOToUNIX,
   isValid,
   mintHypercert,
-  MyMetadata,
 } from "~/actions/hypercerts";
 import { memo, useRef, useState, useEffect } from "react";
 import { prepareAllowlist } from "~/utils/mint-utils";
@@ -79,7 +79,7 @@ function FormOld() {
     impactTimeframeEnd: currentYear.toISOString().slice(0, 10),
   });
 
-  const initialState: MyMetadata = {
+  const initialState: HypercertMetadata = {
     name: "",
     description: "",
     external_url: "",
@@ -98,7 +98,7 @@ function FormOld() {
     rights: ["Public Display"],
     excludedRights: [],
   };
-  const [formValues, setFormValues] = useState<MyMetadata>(initialState);
+  const [formValues, setFormValues] = useState<HypercertMetadata>(initialState);
   const [workScopeStored, setWorkScopeStored] = useState<string[]>([]);
   const [allowRange, setAllowRange] = useState<number>(50);
   const [myworkScope, setWorkScopes] = useState<string>("");
@@ -231,7 +231,10 @@ function FormOld() {
         if (!hyperImage) {
           throw new Error("Hypercert image is invalid");
         }
-        const newvalues: MyMetadata = { ...formValues, image: hyperImage };
+        const newvalues: HypercertMetadata = {
+          ...formValues,
+          image: hyperImage,
+        };
 
         console.log("Submit running");
         const response = await mintHypercert(

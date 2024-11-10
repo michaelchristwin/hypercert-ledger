@@ -32,7 +32,8 @@ function Index() {
             will make with the grant funding.
           </p>
           <button
-            onClick={() => navigate("/mint")}
+            type="button"
+            onClick={() => navigate("/mint", { replace: true })}
             className={`w-[180px] rounded-[7px] hover:bg-opacity-[0.8] flex justify-center items-center h-[50px] mt-[40px] text-[25px] bg-purple-500 text-neutral-700 concert-one`}
           >
             MINT IT NOW

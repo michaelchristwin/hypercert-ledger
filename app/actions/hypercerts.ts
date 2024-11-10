@@ -15,8 +15,7 @@ import {
 } from "@wagmi/core";
 import { TOTAL_UNITS } from "~/utils/mint-utils";
 
-// Client-side minting function that interacts with web3
-export interface MyMetadata {
+export interface HypercertMetadata {
   name: string;
   description: string;
   external_url?: string | undefined;
@@ -40,8 +39,9 @@ export interface MyMetadata {
   rights: string[];
   excludedRights: string[];
 }
+
 export async function mintHypercert(
-  props: MyMetadata,
+  props: HypercertMetadata,
   client: HypercertClient,
   allowList: AllowlistEntry[]
 ) {
@@ -149,10 +149,10 @@ export function getChain(chainId: number) {
   throw new Error(`Chain with id ${chainId} not found`);
 }
 export const ISOToUNIX = (date: Date) => {
-  return Math.floor(new Date(date.toISOString()).getTime() / 1000);
+  return Math.floor(date.getTime() / 1000);
 };
 
-export const isValid = (formValue: MyMetadata) => {
+export const isValid = (formValue: HypercertMetadata) => {
   try {
     const values = [
       formValue.name,

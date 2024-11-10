@@ -1,10 +1,13 @@
+import { DateRange } from "react-day-picker";
 import { cn } from "~/lib/utils";
+import dayjs from "dayjs";
 
 interface ProjectCardProps {
   name: string;
   bannerImage: string;
   logoImage: string;
   className?: string;
+  workTimeFrame?: DateRange;
 }
 
 function ProjectCard({
@@ -12,8 +15,9 @@ function ProjectCard({
   logoImage,
   bannerImage,
   className,
+  workTimeFrame,
 }: ProjectCardProps) {
-  console.log(bannerImage);
+  const { to, from } = workTimeFrame!;
   const tags = [name];
   return (
     <div
@@ -40,9 +44,14 @@ function ProjectCard({
             <p className={`font-semibold text-[13px] text-neutral-700`}>Work</p>
           </div>
           <div className={`flex items-center space-x-[6px] font-semibold`}>
-            <p className={`text-[13px] text-neutral-700`}>NOV 1, 2024</p>
+            <p className={`text-[13px] text-neutral-700`}>
+              {dayjs(from).format("MMM D, YYYY") ||
+                dayjs().format("MMM D, YYYY")}
+            </p>
             <p className={`text-[13px] text-neutral-700 space-x-1`}>&rarr; </p>
-            <p className={`text-[13px] text-neutral-700`}>NOV 30, 2024</p>
+            <p className={`text-[13px] text-neutral-700`}>
+              {dayjs(to).format("MMM D, YYYY") || dayjs().format("MMM D, YYYY")}
+            </p>
           </div>
         </div>
         <div className={`flex w-full flex-wrap mt-[20px] gap-[6px]`}>
