@@ -166,9 +166,11 @@ function MintPage() {
           </div>
         )}
         <button
+          type="button"
           onClick={() =>
             navigate(
-              `/form?chainId=${chain_id}&roundId=${round_id}&address=${account}`
+              `/form?chainId=${chain_id}&roundId=${round_id}&address=${account}`,
+              { replace: true }
             )
           }
           disabled={!(chain_id && round_id && projectDetails.name)}

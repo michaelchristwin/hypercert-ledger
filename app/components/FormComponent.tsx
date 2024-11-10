@@ -3,7 +3,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { Progress } from "~/components/ui/progress";
 import { Trash2, ArrowRight, ArrowLeft } from "lucide-react";
 import { addDays, format } from "date-fns";
-import * as dayjs from "dayjs";
+import dayjs from "dayjs";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import { cn } from "~/lib/utils";
@@ -17,33 +17,33 @@ import {
 import ProjectCard from "./cards/ProjectCard";
 import { useWalletClient } from "wagmi";
 import { HypercertClient } from "@hypercerts-org/sdk";
+import { HypercertMetadata } from "~/actions/hypercerts";
+import { parseListFromString } from "~/lib/parsing";
 
 interface HypercertCreateFormData {
   name: string;
   description: string;
-  externalLink: string;
+  external_url: string;
   logoUrl: string;
-  //logoImage: File | null;
+  properties?:
+    | {
+        trait_type: string;
+        value: string;
+      }[]
+    | undefined;
   bannerUrl: string;
-  //bannerImage: File | null;
-  impactScopes: string[];
-  //impactTimeStart?: string;
-  impactTimeEnd?: string;
-  //| DateIndefinite;
-  workScopes: string;
-  workTimeStart?: string;
-  workTimeEnd?: string;
+  constributors: string;
+  excludedImpactScope: string[];
+  workTimeframeStart: number;
+  workTimeframeEnd: number;
+  impactTimeframeStart: number;
+  impactTimeframeEnd: number;
+  impactScope: string[];
   rights: string[];
+  excludedRights: string[];
   contributors: string;
-  allowlistUrl: string;
-  allowlistPercentage: number;
-  deduplicateAllowlist: boolean;
-  agreeContributorsConsent: boolean;
-  agreeTermsConditions: boolean;
-  // Hidden
-  backgroundColor: string;
-  backgroundVectorArt: string;
-  metadataProperties: string;
+  workScope: string;
+  excludedWorkScope: string[];
 }
 
 function FormComponent({ data }: { data: any }) {
@@ -64,8 +64,6 @@ function FormComponent({ data }: { data: any }) {
       to: addDays(new Date(), 6),
     }
   );
-  const onSubmit: SubmitHandler<HypercertCreateFormData> = (data) =>
-    console.log(data);
   const {
     register,
     handleSubmit,
@@ -73,20 +71,30 @@ function FormComponent({ data }: { data: any }) {
     watch,
     trigger,
     formState: { errors },
-  } = useForm<HypercertCreateFormData>({ mode: "onTouched" });
+  } = useForm<HypercertCreateFormData>({
+    mode: "onTouched",
+    defaultValues: {
+      impactScope: ["all"] as string[],
+      rights: ["Public Display"] as string[],
+      properties: undefined,
+      excludedWorkScope: [],
+      excludedImpactScope: [],
+      excludedRights: [],
+    },
+  });
   const { name, bannerUrl, logoUrl } = watch();
-  const [workScopes, setWorkScopes] = useState<string[]>([]);
+  //const [workScopes, setWorkScopes] = useState<string[]>([]);
   const fieldsToValidate: (
     | "name"
     | "description"
-    | "externalLink"
+    | "external_url"
     | "logoUrl"
     | "bannerUrl"
-    | "workScopes"
+    | "workScope"
     | "contributors"
   )[][] = [
     ["name", "description", "logoUrl", "bannerUrl"],
-    ["workScopes", "contributors"],
+    ["workScope", "contributors"],
   ];
 
   const handleNextClick = async () => {
@@ -103,7 +111,7 @@ function FormComponent({ data }: { data: any }) {
       window.scrollTo(0, 0);
     }
   };
-
+  console.log(hypercertClient);
   // useEffect(() => {
   //   if (workScope) {
   //     const wordsArray = workScope
@@ -114,7 +122,39 @@ function FormComponent({ data }: { data: any }) {
   //   }
   // }, [workScope]);
   // console.log(workScopes);
-
+  const onSubmit: SubmitHandler<HypercertCreateFormData> = (data) => {
+    const {
+      name,
+      description,
+      impactScope,
+      rights,
+      excludedImpactScope,
+      workScope,
+      excludedWorkScope,
+      external_url,
+      constributors,
+      excludedRights,
+    } = data;
+    const metadata: HypercertMetadata = {
+      name,
+      description,
+      external_url,
+      image: "",
+      impactScope,
+      version: "",
+      rights,
+      excludedImpactScope,
+      workTimeframeStart: dayjs(workTimeframe?.from).unix(),
+      workTimeframeEnd: dayjs(workTimeframe?.to).unix(),
+      impactTimeframeStart: dayjs(impactTimeframe?.from).unix(),
+      impactTimeframeEnd: dayjs(impactTimeframe?.to).unix(),
+      workScope: parseListFromString(workScope),
+      excludedWorkScope,
+      excludedRights,
+      contributors: parseListFromString(constributors),
+    };
+    console.log(metadata);
+  };
   useEffect(() => {
     if (data && data.applications && data.applications.length > 0) {
       const application = data.applications[0];
@@ -123,7 +163,7 @@ function FormComponent({ data }: { data: any }) {
       reset({
         name: metadata.title,
         description: metadata.description,
-        externalLink: metadata.website,
+        external_url: metadata.website,
         logoUrl: `https://ipfs.io/ipfs/${metadata.logoImg}`,
         bannerUrl: `https://ipfs.io/ipfs/${metadata.bannerImg}`,
       });
@@ -239,7 +279,7 @@ function FormComponent({ data }: { data: any }) {
                 </label>
                 <input
                   placeholder="https://"
-                  {...register("externalLink")}
+                  {...register("external_url")}
                   className={`w-full h-[40px] rounded-lg border px-2`}
                 />
                 <p className={`text-[#778599] text-[13px]`}>
@@ -431,15 +471,8 @@ function FormComponent({ data }: { data: any }) {
                 </label>
                 <textarea
                   placeholder="Seperate tags with commas"
-                  {...register("workScopes", {
+                  {...register("workScope", {
                     required: true,
-                    validate: {
-                      notEmpty: (value) =>
-                        value
-                          .split(",")
-                          .some((word) => word.trim().length > 0) ||
-                        "Please enter at least one word",
-                    },
                   })}
                   className={`w-full h-[90px] rounded-lg border p-2`}
                 />

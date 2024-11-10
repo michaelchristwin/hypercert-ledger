@@ -5,6 +5,7 @@ import html2canvas from "html2canvas";
 import { Colors } from "~/utils/randomizer/styles/colors";
 import {
   getChain,
+  HypercertMetadata,
   ISOToUNIX,
   isValid,
   mintHypercert,
@@ -24,7 +25,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
-import { HypercertMetadata } from "~/context/metadata-store";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);

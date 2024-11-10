@@ -14,9 +14,31 @@ import {
   WaitForTransactionReceiptReturnType,
 } from "@wagmi/core";
 import { TOTAL_UNITS } from "~/utils/mint-utils";
-import { HypercertMetadata } from "~/context/metadata-store";
 
-// Client-side minting function that interacts with web3
+export interface HypercertMetadata {
+  name: string;
+  description: string;
+  external_url?: string | undefined;
+  image: string;
+  version: string;
+  properties?:
+    | {
+        trait_type: string;
+        value: string;
+      }[]
+    | undefined;
+  impactScope: string[];
+  excludedImpactScope: string[];
+  workScope: string[];
+  excludedWorkScope: string[];
+  workTimeframeStart: number;
+  workTimeframeEnd: number;
+  impactTimeframeStart: number;
+  impactTimeframeEnd: number;
+  contributors: string[];
+  rights: string[];
+  excludedRights: string[];
+}
 
 export async function mintHypercert(
   props: HypercertMetadata,
