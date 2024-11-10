@@ -3,6 +3,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { Progress } from "~/components/ui/progress";
 import { Trash2, ArrowRight, ArrowLeft } from "lucide-react";
 import { addDays, format } from "date-fns";
+import * as dayjs from "dayjs";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import { cn } from "~/lib/utils";
@@ -14,25 +15,57 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import ProjectCard from "./cards/ProjectCard";
+import { useWalletClient } from "wagmi";
+import { HypercertClient } from "@hypercerts-org/sdk";
 
-type Inputs = {
-  title: string;
+interface HypercertCreateFormData {
+  name: string;
   description: string;
-  link?: string;
-  logo: string;
-  bannerImage: string;
-  workScope: string;
+  externalLink: string;
+  logoUrl: string;
+  //logoImage: File | null;
+  bannerUrl: string;
+  //bannerImage: File | null;
+  impactScopes: string[];
+  //impactTimeStart?: string;
+  impactTimeEnd?: string;
+  //| DateIndefinite;
+  workScopes: string;
+  workTimeStart?: string;
+  workTimeEnd?: string;
+  rights: string[];
   contributors: string;
-};
-function FormComponent() {
+  allowlistUrl: string;
+  allowlistPercentage: number;
+  deduplicateAllowlist: boolean;
+  agreeContributorsConsent: boolean;
+  agreeTermsConditions: boolean;
+  // Hidden
+  backgroundColor: string;
+  backgroundVectorArt: string;
+  metadataProperties: string;
+}
+
+function FormComponent({ data }: { data: any }) {
   const tabs = ["General", "Who did what & when", "Mint"];
+  const { data: walletClient } = useWalletClient();
   const httpsUrlPattern = /^https:\/\/.+/;
   const [activeTab, setActivetab] = useState(0);
-  const [date, setDate] = useState<DateRange | undefined>({
-    from: new Date(2024, 10, 8),
-    to: addDays(new Date(2024, 10, 9), 0),
+  const [hypercertClient, setHypercertClient] = useState<
+    HypercertClient | undefined
+  >(undefined);
+  const [workTimeframe, setWorkTimeframe] = useState<DateRange | undefined>({
+    from: new Date(),
+    to: addDays(new Date(), 6),
   });
-  const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
+  const [impactTimeframe, setImpactTimeframe] = useState<DateRange | undefined>(
+    {
+      from: new Date(),
+      to: addDays(new Date(), 6),
+    }
+  );
+  const onSubmit: SubmitHandler<HypercertCreateFormData> = (data) =>
+    console.log(data);
   const {
     register,
     handleSubmit,
@@ -40,20 +73,20 @@ function FormComponent() {
     watch,
     trigger,
     formState: { errors },
-  } = useForm<Inputs>({ mode: "onTouched" });
-  const { bannerImage, title, logo, workScope } = watch();
+  } = useForm<HypercertCreateFormData>({ mode: "onTouched" });
+  const { name, bannerUrl, logoUrl } = watch();
   const [workScopes, setWorkScopes] = useState<string[]>([]);
   const fieldsToValidate: (
-    | "bannerImage"
-    | "title"
-    | "logo"
-    | "workScope"
+    | "name"
     | "description"
-    | "link"
+    | "externalLink"
+    | "logoUrl"
+    | "bannerUrl"
+    | "workScopes"
     | "contributors"
   )[][] = [
-    ["title", "description", "logo", "bannerImage"],
-    ["workScope", "contributors"],
+    ["name", "description", "logoUrl", "bannerUrl"],
+    ["workScopes", "contributors"],
   ];
 
   const handleNextClick = async () => {
@@ -71,17 +104,42 @@ function FormComponent() {
     }
   };
 
-  useEffect(() => {
-    if (workScope) {
-      const wordsArray = workScope
-        .split(",")
-        .map((word) => word.trim())
-        .filter((word) => word.length > 0);
-      setWorkScopes(wordsArray);
-    }
-  }, [workScope]);
-  console.log(workScopes);
+  // useEffect(() => {
+  //   if (workScope) {
+  //     const wordsArray = workScope
+  //       .split(",")
+  //       .map((word) => word.trim())
+  //       .filter((word) => word.length > 0);
+  //     setWorkScopes(wordsArray);
+  //   }
+  // }, [workScope]);
+  // console.log(workScopes);
 
+  useEffect(() => {
+    if (data && data.applications && data.applications.length > 0) {
+      const application = data.applications[0];
+      console.log("Effect ran");
+      const { metadata } = application.project;
+      reset({
+        name: metadata.title,
+        description: metadata.description,
+        externalLink: metadata.website,
+        logoUrl: `https://ipfs.io/ipfs/${metadata.logoImg}`,
+        bannerUrl: `https://ipfs.io/ipfs/${metadata.bannerImg}`,
+      });
+    }
+  }, [data]);
+  useEffect(() => {
+    if (!walletClient) return;
+    const myClient = new HypercertClient({
+      walletClient: walletClient,
+      environment:
+        process.env.NODE_ENV === "development" ? "test" : "production",
+    });
+
+    setHypercertClient(myClient);
+    console.log("Hypercert client set");
+  }, [walletClient]);
   return (
     <div className={`w-fit justify-center h-full flex space-x-[40px]`}>
       <div className={`w-[500px] block mt-[20px]`}>
@@ -130,17 +188,17 @@ function FormComponent() {
             <>
               <fieldset className={`w-full space-y-1`}>
                 <label
-                  htmlFor="title"
+                  htmlFor="name"
                   className={`text-[15px] font-bold text-purple-500`}
                 >
                   Title
                 </label>
                 <input
-                  {...register("title", { required: true })}
-                  aria-invalid={errors.title ? true : false}
+                  {...register("name", { required: true })}
+                  aria-invalid={errors.name ? true : false}
                   className={`w-full h-[40px] rounded-lg border px-2`}
                 />
-                {errors.title?.type === "required" && (
+                {errors.name?.type === "required" && (
                   <p className={`mt-2 text-red-600 text-[12px]`}>
                     We need a title for your hypercert
                   </p>
@@ -174,14 +232,14 @@ function FormComponent() {
               </fieldset>
               <fieldset className={`w-full space-y-1`}>
                 <label
-                  htmlFor="link"
+                  htmlFor="externalLink"
                   className={`text-[15px] font-bold text-purple-500`}
                 >
                   Link (optional)
                 </label>
                 <input
                   placeholder="https://"
-                  {...register("link")}
+                  {...register("externalLink")}
                   className={`w-full h-[40px] rounded-lg border px-2`}
                 />
                 <p className={`text-[#778599] text-[13px]`}>
@@ -190,14 +248,14 @@ function FormComponent() {
               </fieldset>
               <fieldset className={`w-full space-y-1`}>
                 <label
-                  htmlFor="logo"
+                  htmlFor="logoUrl"
                   className={`text-[15px] font-bold text-purple-500`}
                 >
                   Logo
                 </label>
                 <input
                   placeholder="https://"
-                  {...register("logo", {
+                  {...register("logoUrl", {
                     required: "Logo URL is required",
                     pattern: {
                       value: httpsUrlPattern,
@@ -215,12 +273,12 @@ function FormComponent() {
                       },
                     },
                   })}
-                  aria-invalid={errors.logo ? true : false}
+                  aria-invalid={errors.logoUrl ? true : false}
                   className={`w-full h-[40px] rounded-lg border px-2`}
                 />
-                {errors.logo && (
+                {errors.logoUrl && (
                   <p className={`mt-2 text-red-600 text-[12px]`}>
-                    {errors.logo.message}
+                    {errors.logoUrl.message}
                   </p>
                 )}
                 <p className={`text-[#778599] text-[13px]`}>
@@ -229,14 +287,14 @@ function FormComponent() {
               </fieldset>
               <fieldset className={`w-full space-y-1`}>
                 <label
-                  htmlFor="bannerImage"
+                  htmlFor="bannerUrl"
                   className={`text-[15px] font-bold text-purple-500`}
                 >
                   Banner image
                 </label>
                 <input
                   placeholder="https://"
-                  {...register("bannerImage", {
+                  {...register("bannerUrl", {
                     required: "Banner URL is required",
                     pattern: {
                       value: httpsUrlPattern,
@@ -254,12 +312,12 @@ function FormComponent() {
                       },
                     },
                   })}
-                  aria-invalid={errors.bannerImage ? true : false}
+                  aria-invalid={errors.bannerUrl ? true : false}
                   className={`w-full h-[40px] rounded-lg border px-2`}
                 />
-                {errors.bannerImage && (
+                {errors.bannerUrl && (
                   <p className={`mt-2 text-red-600 text-[12px]`}>
-                    {errors.bannerImage.message}
+                    {errors.bannerUrl.message}
                   </p>
                 )}
                 <p className={`text-[#778599] text-[13px]`}>
@@ -271,29 +329,29 @@ function FormComponent() {
           {activeTab === 1 && (
             <>
               <fieldset className={`w-full space-y-1`}>
-                <label htmlFor="date" className={``}>
+                <label htmlFor="workTimeframe" className={``}>
                   Time of work
                 </label>
                 <div className={`block`}>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
-                        id="date"
+                        id="workTimeframe"
                         variant={"outline"}
                         className={cn(
                           "w-[300px] justify-start text-left font-normal",
-                          !date && "text-muted-foreground"
+                          !workTimeframe && "text-muted-foreground"
                         )}
                       >
                         <CalendarIcon />
-                        {date?.from ? (
-                          date.to ? (
+                        {workTimeframe?.from ? (
+                          workTimeframe.to ? (
                             <>
-                              {format(date.from, "LLL dd, y")} -{" "}
-                              {format(date.to, "LLL dd, y")}
+                              {format(workTimeframe.from, "LLL dd, y")} -{" "}
+                              {format(workTimeframe.to, "LLL dd, y")}
                             </>
                           ) : (
-                            format(date.from, "LLL dd, y")
+                            format(workTimeframe.from, "LLL dd, y")
                           )
                         ) : (
                           <span>Pick a date</span>
@@ -304,9 +362,9 @@ function FormComponent() {
                       <Calendar
                         initialFocus
                         mode="range"
-                        defaultMonth={date?.from}
-                        selected={date}
-                        onSelect={setDate}
+                        defaultMonth={workTimeframe?.from}
+                        selected={workTimeframe}
+                        onSelect={setWorkTimeframe}
                         numberOfMonths={2}
                       />
                     </PopoverContent>
@@ -314,6 +372,53 @@ function FormComponent() {
                 </div>
                 <p className={`text-[#778599] text-[13px]`}>
                   The start and end date of the work represented by the
+                  hypercert
+                </p>
+              </fieldset>
+              <fieldset className={`w-full space-y-1`}>
+                <label htmlFor="impactTimeFrame" className={``}>
+                  Time of impact
+                </label>
+                <div className={`block`}>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        id="impactTimeFrame"
+                        variant={"outline"}
+                        className={cn(
+                          "w-[300px] justify-start text-left font-normal",
+                          !impactTimeframe && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon />
+                        {impactTimeframe?.from ? (
+                          impactTimeframe.to ? (
+                            <>
+                              {format(impactTimeframe.from, "LLL dd, y")} -{" "}
+                              {format(impactTimeframe.to, "LLL dd, y")}
+                            </>
+                          ) : (
+                            format(impactTimeframe.from, "LLL dd, y")
+                          )
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        initialFocus
+                        mode="range"
+                        defaultMonth={impactTimeframe?.from}
+                        selected={impactTimeframe}
+                        onSelect={setImpactTimeframe}
+                        numberOfMonths={2}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <p className={`text-[#778599] text-[13px]`}>
+                  The start and end date of the impact represented by the
                   hypercert
                 </p>
               </fieldset>
@@ -326,7 +431,7 @@ function FormComponent() {
                 </label>
                 <textarea
                   placeholder="Seperate tags with commas"
-                  {...register("workScope", {
+                  {...register("workScopes", {
                     required: true,
                     validate: {
                       notEmpty: (value) =>
@@ -404,10 +509,11 @@ function FormComponent() {
       </div>
       <div className={`w-[350px] relative`}>
         <ProjectCard
-          name={title}
-          logoImage={logo}
-          bannerImage={bannerImage}
+          name={name}
+          logoImage={logoUrl}
+          bannerImage={bannerUrl}
           className={`absolute top-[40%] translate-y-[-40%]`}
+          workTimeFrame={workTimeframe as DateRange}
         />
       </div>
     </div>

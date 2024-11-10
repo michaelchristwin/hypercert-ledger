@@ -166,7 +166,11 @@ function MintPage() {
           </div>
         )}
         <button
-          onClick={() => navigate("/form")}
+          onClick={() =>
+            navigate(
+              `/form?chainId=${chain_id}&roundId=${round_id}&address=${account}`
+            )
+          }
           disabled={!(chain_id && round_id && projectDetails.name)}
           className={`text-neutral-700 hover:bg-opacity-[0.8] disabled:opacity-[0.5] disabled:bg-gray-300 disabled:cursor-not-allowed bg-purple-500 rounded-lg mx-auto mt-[50px] flex justify-center items-center p-2`}
         >

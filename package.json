@@ -28,11 +28,14 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "daysjs": "^1.0.2",
     "framer-motion": "^11.11.11",
     "graphql-request": "^7.1.1",
     "html2canvas": "^1.4.1",
     "isbot": "^4.1.0",
+    "loadash": "^1.0.0",
     "lucide-react": "^0.454.0",
+    "qs": "^6.13.0",
     "react": "^18.2.0",
     "react-day-picker": "8.10.1",
     "react-dom": "^18.2.0",
@@ -41,7 +44,8 @@
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
     "viem": "^2.21.37",
-    "wagmi": "^2.12.25"
+    "wagmi": "^2.12.25",
+    "zustand": "^5.0.1"
   },
   "devDependencies": {
     "@remix-run/dev": "^2.13.1",
