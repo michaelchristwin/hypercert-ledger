@@ -40,7 +40,9 @@ function Form() {
   //@ts-expect-error"ddd"
   const { data } = dataRes;
   return (
-    <div className={`w-full pt-[130px] h-fit py-[40px] flex justify-center`}>
+    <div
+      className={`w-full lg:pt-[130px] md:pt-[100px] pt-[70px] h-fit pb-[40px] flex justify-center`}
+    >
       <FormComponent data={data} />
     </div>
   );

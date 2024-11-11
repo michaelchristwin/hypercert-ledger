@@ -1,6 +1,8 @@
 import { DateRange } from "react-day-picker";
 import { cn } from "~/lib/utils";
 import dayjs from "dayjs";
+import { forwardRef, useMemo } from "react";
+import { parseListFromString } from "~/lib/parsing";
 
 interface ProjectCardProps {
   name: string;
@@ -8,19 +10,28 @@ interface ProjectCardProps {
   logoImage: string;
   className?: string;
   workTimeFrame?: DateRange;
+  workScope?: string;
 }
 
-function ProjectCard({
-  name,
-  logoImage,
-  bannerImage,
-  className,
-  workTimeFrame,
-}: ProjectCardProps) {
-  const { to, from } = workTimeFrame!;
-  const tags = [name];
+const ProjectCard = forwardRef(function (
+  {
+    name,
+    logoImage,
+    bannerImage,
+    className,
+    workTimeFrame,
+    workScope,
+  }: ProjectCardProps,
+  ref?
+) {
+  const workTags = useMemo(() => {
+    if (workScope) {
+      return parseListFromString(workScope);
+    }
+  }, [workScope]);
   return (
     <div
+      ref={ref as React.Ref<HTMLDivElement>}
       className={cn(
         "block min-w-[260px] max-w-[300px] relative w-[330px] h-[380px] rounded-[12px] lg:mx-0 md:mx-0 mx-auto bg-black",
         className
@@ -45,28 +56,32 @@ function ProjectCard({
           </div>
           <div className={`flex items-center space-x-[6px] font-semibold`}>
             <p className={`text-[13px] text-neutral-700`}>
-              {dayjs(from).format("MMM D, YYYY") ||
-                dayjs().format("MMM D, YYYY")}
+              {workTimeFrame
+                ? dayjs(workTimeFrame.from).format("MMM D, YYYY")
+                : dayjs().format("MMM D, YYYY")}
             </p>
             <p className={`text-[13px] text-neutral-700 space-x-1`}>&rarr; </p>
             <p className={`text-[13px] text-neutral-700`}>
-              {dayjs(to).format("MMM D, YYYY") || dayjs().format("MMM D, YYYY")}
+              {workTimeFrame
+                ? dayjs(workTimeFrame.to).format("MMM D, YYYY")
+                : dayjs().format("MMM D, YYYY")}
             </p>
           </div>
         </div>
         <div className={`flex w-full flex-wrap mt-[20px] gap-[6px]`}>
-          {tags.map((v, i) => (
-            <div
-              key={i}
-              className={`border rounded-[6px] truncate w-fit max-w-[65px] h-fit px-[6px] py-[2px] inline-block border-black items-center text-[12px]`}
-            >
-              {v}
-            </div>
-          ))}
+          {workTags &&
+            workTags.map((v, i) => (
+              <div
+                key={i}
+                className={`border rounded-[6px] truncate w-fit max-w-[65px] h-fit px-[6px] py-[2px] inline-block border-black items-center text-[12px]`}
+              >
+                {v}
+              </div>
+            ))}
         </div>
       </div>
     </div>
   );
-}
+});
 
 export default ProjectCard;

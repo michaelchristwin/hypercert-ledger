@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { Progress } from "~/components/ui/progress";
 import { Trash2, ArrowRight, ArrowLeft } from "lucide-react";
@@ -19,6 +19,9 @@ import { useWalletClient } from "wagmi";
 import { HypercertClient } from "@hypercerts-org/sdk";
 import { HypercertMetadata } from "~/actions/hypercerts";
 import { parseListFromString } from "~/lib/parsing";
+import html2canvas from "html2canvas";
+
+type Result<T, E = Error> = [E, null] | [null, T];
 
 interface HypercertCreateFormData {
   name: string;
@@ -50,6 +53,7 @@ function FormComponent({ data }: { data: any }) {
   const tabs = ["General", "Who did what & when", "Mint"];
   const { data: walletClient } = useWalletClient();
   const httpsUrlPattern = /^https:\/\/.+/;
+  const cardRef = useRef<HTMLDivElement | undefined>(undefined);
   const [activeTab, setActivetab] = useState(0);
   const [hypercertClient, setHypercertClient] = useState<
     HypercertClient | undefined
@@ -82,8 +86,8 @@ function FormComponent({ data }: { data: any }) {
       excludedRights: [],
     },
   });
-  const { name, bannerUrl, logoUrl } = watch();
-  //const [workScopes, setWorkScopes] = useState<string[]>([]);
+  const { name, bannerUrl, logoUrl, workScope } = watch();
+
   const fieldsToValidate: (
     | "name"
     | "description"
@@ -112,17 +116,13 @@ function FormComponent({ data }: { data: any }) {
     }
   };
   console.log(hypercertClient);
-  // useEffect(() => {
-  //   if (workScope) {
-  //     const wordsArray = workScope
-  //       .split(",")
-  //       .map((word) => word.trim())
-  //       .filter((word) => word.length > 0);
-  //     setWorkScopes(wordsArray);
-  //   }
-  // }, [workScope]);
-  // console.log(workScopes);
-  const onSubmit: SubmitHandler<HypercertCreateFormData> = (data) => {
+
+  const onSubmit: SubmitHandler<HypercertCreateFormData> = async (data) => {
+    const [error, image] = await exportAsImage(cardRef);
+    if (error) {
+      console.error(error);
+      return;
+    }
     const {
       name,
       description,
@@ -139,7 +139,7 @@ function FormComponent({ data }: { data: any }) {
       name,
       description,
       external_url,
-      image: "",
+      image: image,
       impactScope,
       version: "",
       rights,
@@ -180,38 +180,64 @@ function FormComponent({ data }: { data: any }) {
     setHypercertClient(myClient);
     console.log("Hypercert client set");
   }, [walletClient]);
+
+  const exportAsImage = async (
+    ref: React.MutableRefObject<HTMLDivElement | undefined>
+  ): Promise<Result<string>> => {
+    if (!ref.current) {
+      return [new Error("Image is invalid"), null];
+    } else {
+      try {
+        const canvas = await html2canvas(ref.current, {
+          logging: true,
+          backgroundColor: null,
+          imageTimeout: 0,
+        });
+        const image = canvas.toDataURL("image/png", 1.0);
+        return [null, image];
+      } catch (e) {
+        return [e instanceof Error ? e : new Error("Unknown error"), null];
+      }
+    }
+  };
   return (
-    <div className={`w-fit justify-center h-full flex space-x-[40px]`}>
-      <div className={`w-[500px] block mt-[20px]`}>
+    <div
+      className={`w-full flex flex-col-reverse items-center lg:flex-row md:flex-row lg:items-start md:items-start lg:space-x-[40px] md:space-x-[40px] lg:p-4 md:p-4 p-2 gap-y-4`}
+    >
+      <div
+        className={`w-full max-w-[500px] lg:w-[500px] md:w-[500px] flex flex-col items-center lg:mt-[20px] md:mt-[20px] mt-[10px]`}
+      >
         <div className={`w-full h-fit space-y-3`}>
           <Progress
             value={33.3 * (activeTab + 1)}
             className={`w-[95%] block mx-auto h-[8px]`}
           />
-          <div className={`flex items-center justify-between px-[30px]`}>
+          <div
+            className={`flex items-center justify-between lg:px-[30px] md:px-[30px] px-[0px] w-full`}
+          >
             {tabs.map((tab, i) => (
               <div
-                className={`inline-flex items-center gap-x-3 py-2 px-3 rounded-lg ${
+                className={`lg:inline-flex md:inline-flex block items-center h-fit lg:gap-x-3 md:gap-x-3 gap-x-1 py-2 lg:px-3 md:px-3 px-2 rounded-lg ${
                   activeTab === i && "bg-[#f1f5f9]"
                 }`}
                 key={tab}
               >
                 <div
-                  className={`flex justify-center items-center w-[28px] h-[20px] ${
+                  className={`flex justify-center items-center w-[28px] h-[20px] mx-auto ${
                     activeTab === i && "bg-purple-500 border-0"
-                  } rounded-[10px] border`}
+                  } rounded-full border`}
                 >
                   <p
-                    className={`text-[14px] text-[#778599] ${
+                    className={`px-2.5 py-0.5 text-xs text-[#778599] ${
                       activeTab === i && "text-white"
-                    } font-semibold`}
+                    } font-bold`}
                   >
                     {i + 1}
                   </p>
                 </div>
                 <p
-                  className={`text-[16px] ${
-                    activeTab === i && "font-bold text-neutral-700"
+                  className={`lg:text-[16px] md:text-[16px] text-[15px] ${
+                    activeTab === i && "font-semibold text-neutral-700"
                   } text-[#778599]`}
                 >
                   {tab}
@@ -222,7 +248,7 @@ function FormComponent({ data }: { data: any }) {
         </div>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className={`w-full p-3 space-y-5 mt-[20px]`}
+          className={`w-full max-w-[450px] p- space-y-5 mt-[20px]`}
         >
           {activeTab === 0 && (
             <>
@@ -531,7 +557,7 @@ function FormComponent({ data }: { data: any }) {
             )}
             {activeTab + 1 === tabs.length && (
               <button
-                type="button"
+                type="submit"
                 className={`bg-purple-500 hover:opacity-[0.8] active:translate-y-[2px] h-[40px] w-[100px] flex items-center text-white justify-center rounded-lg`}
               >
                 Mint
@@ -540,13 +566,17 @@ function FormComponent({ data }: { data: any }) {
           </div>
         </form>
       </div>
-      <div className={`w-[350px] relative`}>
+      <div
+        className={`w-full max-w-[350px] flex justify-center mt-8 lg:mt-0 md:mt-0`}
+      >
         <ProjectCard
+          ref={cardRef}
           name={name}
           logoImage={logoUrl}
           bannerImage={bannerUrl}
-          className={`absolute top-[40%] translate-y-[-40%]`}
+          className={`lg:absolute md:absolute relative lg:top-[40%] md:top-[40%] top-0 lg:translate-y-[-40%] md:translate-y-[-40%] translate-y-[0%]`}
           workTimeFrame={workTimeframe as DateRange}
+          workScope={workScope}
         />
       </div>
     </div>

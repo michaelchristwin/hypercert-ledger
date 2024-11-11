@@ -6,7 +6,6 @@ import { Colors } from "~/utils/randomizer/styles/colors";
 import {
   getChain,
   HypercertMetadata,
-  ISOToUNIX,
   isValid,
   mintHypercert,
 } from "~/actions/hypercerts";
@@ -79,6 +78,9 @@ function FormOld() {
     impactTimeframeEnd: currentYear.toISOString().slice(0, 10),
   });
 
+  const ISOToUNIX = (date: Date) => {
+    return Math.floor(date.getTime() / 1000);
+  };
   const initialState: HypercertMetadata = {
     name: "",
     description: "",

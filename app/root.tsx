@@ -80,7 +80,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <Navbar />
           {isLoading && <LoadingOverlay />}
           <div
-            className={`lg:px-[150px] md:px-[120px] px-[90px] min-h-screen w-full bg-white text-black`}
+            className={`lg:px-[150px] md:px-[120px] px-[30px] min-h-screen h-fit w-full bg-white text-black`}
           >
             {children}
           </div>

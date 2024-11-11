@@ -1,10 +1,7 @@
-"use client";
-
 import { Chain } from "viem";
 import { forwardRef } from "react";
 import { impactCertProps } from "~/utils/randomizer/props";
 import { Patterns } from "~/utils/randomizer/styles/patterns";
-import { Colors } from "~/utils/randomizer/styles/colors";
 
 export interface HyperCertCardProps {
   name: string;
@@ -29,9 +26,9 @@ const MyHypercert = forwardRef(function HyperCertCard(
     seed,
     color,
   }: HyperCertCardProps,
-  ref
+  ref?
 ) {
-  const { patternIndex, colorIndex } = impactCertProps(seed);
+  const { patternIndex } = impactCertProps(seed);
 
   return (
     <div
