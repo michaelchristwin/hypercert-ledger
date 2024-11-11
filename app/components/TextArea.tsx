@@ -1,12 +1,12 @@
-import { MyMetadata } from "@/actions/hypercerts";
+import { HypercertMetadata } from "~/actions/hypercerts";
 
 interface TextAreaProps {
   name: string;
   displayText: string;
   setDisplayText: React.Dispatch<React.SetStateAction<string>>;
   setStoredValues: React.Dispatch<React.SetStateAction<string[]>>;
-  formValues: MyMetadata;
-  setFormValues: React.Dispatch<React.SetStateAction<MyMetadata>>;
+  formValues: HypercertMetadata;
+  setFormValues: React.Dispatch<React.SetStateAction<HypercertMetadata>>;
   label: string;
   required?: boolean;
   placeolder?: string;

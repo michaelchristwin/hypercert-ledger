@@ -1,7 +1,12 @@
-function CardOutline({ msg }: { msg?: string }) {
+import { cn } from "~/lib/utils";
+
+function CardOutline({ msg, className }: { msg?: string; className?: string }) {
   return (
     <div
-      className={`block min-w-[260px] border max-w-[300px] relative w-[330px] h-[380px] rounded-[12px] lg:mx-0 md:mx-0 mx-auto`}
+      className={cn(
+        `block min-w-[260px] border max-w-[300px] relative w-[330px] h-[380px] rounded-[12px] lg:mx-0 md:mx-0 mx-auto`,
+        className
+      )}
     >
       <div className={`w-full h-[45%] border rounded-[12px] p-3`}></div>
       <div className={`h-[55%] p-3 rounded-[12px] border`}>

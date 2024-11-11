@@ -39,11 +39,13 @@ const ProjectCard = forwardRef(function (
     >
       <div
         className={`w-[40px] h-[40px] absolute left-3 top-3 bg-cover bg-center rounded-full`}
-        style={{ backgroundImage: `url("${logoImage}")` }}
+        style={{ backgroundImage: logoImage ? `url("${logoImage}")` : "none" }}
       />
       <div
         className={`w-full h-[45%] border border-neutral-600 rounded-[12px] p-3 bg-cover bg-center bg-no-repeat`}
-        style={{ backgroundImage: `url(${bannerImage})` }}
+        style={{
+          backgroundImage: bannerImage ? `url(${bannerImage})` : "none",
+        }}
       ></div>
       <div
         className={`h-[55%] bg-white p-3 rounded-[12px] border border-neutral-600`}
@@ -73,9 +75,9 @@ const ProjectCard = forwardRef(function (
             workTags.map((v, i) => (
               <div
                 key={i}
-                className={`border rounded-[6px] truncate w-fit max-w-[65px] h-fit px-[6px] py-[2px] inline-block border-black items-center text-[12px]`}
+                className={`border rounded-[6px] truncate min-w-[40px] max-w-[65px] h-[19px] px-[6px] inline-flex justify-center items-center border-black text-[12px]`}
               >
-                {v}
+                <p className="text-[12px] m-0">{v}</p>
               </div>
             ))}
         </div>
