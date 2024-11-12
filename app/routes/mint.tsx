@@ -115,7 +115,7 @@ function MintPage() {
   const navigate = useNavigate();
   return (
     <div
-      className={`w-full flex flex-col items-center lg:flex-row md:flex-row lg:items-start md:items-start lg:mx-auto md:mx-auto mx-0 lg:pt-[150px] md:pt-[150px] pt-[90px] gap-y-[40px] pb-[90px] h-fit justify-between`}
+      className={`lg:w-[70%] md:w-[80%] w-full flex flex-col items-center lg:flex-row md:flex-row lg:items-start md:items-start lg:mx-auto md:mx-auto mx-0 lg:pt-[150px] md:pt-[150px] pt-[90px] gap-y-[40px] pb-[90px] h-fit justify-between`}
     >
       <div className={`lg:w-[350px] md:w-[350px] w-[300px]`}>
         <p className={`text-neutral-700 font-semibold text-[20px] mb-[33px]`}>
@@ -169,8 +169,7 @@ function MintPage() {
           type="button"
           onClick={() =>
             navigate(
-              `/form?chainId=${chain_id}&roundId=${round_id}&address=${account}`,
-              { replace: true }
+              `/form?chainId=${chain_id}&roundId=${round_id}&address=${account}`
             )
           }
           disabled={!(chain_id && round_id && projectDetails.name)}

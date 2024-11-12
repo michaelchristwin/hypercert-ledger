@@ -1,6 +1,8 @@
 import { useLoaderData } from "@remix-run/react";
-import { json, LoaderFunctionArgs } from "@vercel/remix";
+import { LoaderFunctionArgs } from "@vercel/remix";
 import FormComponent from "~/components/FormComponent";
+import Stepper from "~/components/Stepper";
+import useProgressStore from "~/context/progress-store";
 import { fetchData } from "~/utils/indexer/graph.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -9,13 +11,22 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const roundId = url.searchParams.get("roundId");
   const address = url.searchParams.get("address");
   if (!chainId || isNaN(Number(chainId))) {
-    return json({ error: "Invalid or missing chainId" }, { status: 400 });
+    return Response.json(
+      { error: "Invalid or missing chainId" },
+      { status: 400 }
+    );
   }
   if (!roundId) {
-    return json({ error: "Invalid or missing roundId" }, { status: 400 });
+    return Response.json(
+      { error: "Invalid or missing roundId" },
+      { status: 400 }
+    );
   }
   if (!address) {
-    return json({ error: "Invalid or missing address" }, { status: 400 });
+    return Response.json(
+      { error: "Invalid or missing address" },
+      { status: 400 }
+    );
   }
   const account =
     process.env.NODE_ENV === "development"
@@ -28,7 +39,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     creator: account,
   });
 
-  return json({ data });
+  return Response.json({ data });
 };
 
 function Form() {
@@ -37,13 +48,15 @@ function Form() {
     const { error } = dataRes;
     console.error(error);
   }
-  //@ts-expect-error"ddd"
   const { data } = dataRes;
+  const { isOpen, setIsOpen, operations } = useProgressStore();
+
   return (
     <div
       className={`w-full lg:pt-[130px] md:pt-[100px] pt-[70px] h-fit pb-[40px] flex justify-center`}
     >
       <FormComponent data={data} />
+      <Stepper open={isOpen} onOpenChange={setIsOpen} operations={operations} />
     </div>
   );
 }

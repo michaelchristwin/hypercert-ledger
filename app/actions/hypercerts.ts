@@ -8,6 +8,7 @@ import {
 } from "@hypercerts-org/sdk";
 import { config, ProjectChains } from "~/web3modal";
 import { parseEventLogs, decodeEventLog } from "viem";
+import useProgressStore from "~/context/progress-store";
 import {
   waitForTransactionReceipt,
   getAccount,
@@ -45,6 +46,9 @@ export async function mintHypercert(
   client: HypercertClient,
   allowList: AllowlistEntry[]
 ) {
+  const updateOperationStatus =
+    useProgressStore.getState().updateOperationStatus;
+  const setCurrentStep = useProgressStore.getState().setCurrentStep;
   const { data, errors } = formatHypercertData(props);
 
   const res = {
@@ -58,8 +62,10 @@ export async function mintHypercert(
   if (!data) {
     throw errors;
   }
-
+  updateOperationStatus("1", "success");
   console.log("Create allowlist");
+  setCurrentStep("2");
+  updateOperationStatus("2", "loading");
   res.allowlistTxHash = await client.createAllowlist(
     allowList,
     data,
@@ -70,11 +76,15 @@ export async function mintHypercert(
   if (!res.allowlistTxHash) {
     throw new Error("Method Failed");
   }
-
+  updateOperationStatus("2", "success");
+  setCurrentStep("3");
+  updateOperationStatus("3", "loading");
   const receipt = await waitForTransactionReceipt(config, {
     hash: res.allowlistTxHash,
   });
-
+  updateOperationStatus("3", "success");
+  setCurrentStep("4");
+  updateOperationStatus("4", "loading");
   const logs = parseLog(receipt);
   const { address } = getAccount(config);
   const details = decodeEventLog({
@@ -117,7 +127,9 @@ export async function mintHypercert(
   if (!tx) {
     throw new Error("Mint claim fraction failed");
   }
-
+  updateOperationStatus("4", "success");
+  setCurrentStep("5");
+  updateOperationStatus("5", "loading");
   const secondReciept = await waitForTransactionReceipt(config, {
     hash: tx,
   });
@@ -125,7 +137,7 @@ export async function mintHypercert(
   if (secondReciept.status === "reverted") {
     throw new Error("Transaction reverted");
   }
-
+  updateOperationStatus("5", "success");
   res.claimsTxHash = tx;
 
   return res;

@@ -22,6 +22,7 @@ import { parseListFromString } from "~/lib/parsing";
 import html2canvas from "html2canvas";
 import { prepareAllowlist } from "~/utils/mint-utils";
 import { Slider } from "~/components/ui/slider";
+import useProgressStore from "~/context/progress-store";
 
 type Result<T, E = Error> = [E, null] | [null, T];
 
@@ -55,6 +56,8 @@ function FormComponent({ data }: { data: any }) {
   const { data: walletClient } = useWalletClient();
   const httpsUrlPattern = /^https:\/\/.+/;
   const { address } = useAccount();
+  const { setIsOpen, setCurrentStep, updateOperationStatus } =
+    useProgressStore();
   const cardRef = useRef<HTMLDivElement | undefined>(undefined);
   const [activeTab, setActivetab] = useState(0);
   const [distribution, setDistribution] = useState(50);
@@ -107,7 +110,7 @@ function FormComponent({ data }: { data: any }) {
   const hypercertClient = useMemo(() => {
     if (!walletClient) return;
     return new HypercertClient({
-      walletClient: walletClient,
+      walletClient: walletClient as any,
       environment:
         process.env.NODE_ENV === "development" ? "test" : "production",
     });
@@ -167,6 +170,9 @@ function FormComponent({ data }: { data: any }) {
       excludedRights,
       contributors: c,
     };
+    setIsOpen(true);
+    setCurrentStep("1");
+    updateOperationStatus("1", "loading");
     const response = await mintHypercert(
       metadata,
       hypercertClient,
@@ -216,7 +222,7 @@ function FormComponent({ data }: { data: any }) {
   };
   return (
     <div
-      className={`w-full flex flex-col-reverse items-center lg:flex-row md:flex-row lg:items-start md:items-start lg:space-x-[40px] md:space-x-[40px] lg:p-4 md:p-4 p-2 gap-y-4`}
+      className={`w-full justify-center flex flex-col-reverse items-center lg:flex-row md:flex-row lg:items-start md:items-start lg:space-x-[40px] md:space-x-[40px] lg:p-4 md:p-4 p-2 gap-y-4`}
     >
       <div
         className={`w-full max-w-[500px] lg:w-[500px] md:w-[500px] flex flex-col items-center lg:mt-[20px] md:mt-[20px] mt-[10px]`}

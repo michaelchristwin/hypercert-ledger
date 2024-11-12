@@ -84,9 +84,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
           >
             {children}
           </div>
-          <ScrollRestoration />
-          <Scripts />
         </AppKitProvider>
+        <ScrollRestoration />
+        <Scripts />
         <Footer />
       </body>
     </html>
