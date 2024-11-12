@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { Progress } from "~/components/ui/progress";
 import { Trash2, ArrowRight, ArrowLeft } from "lucide-react";
@@ -15,10 +15,16 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import ProjectCard from "./cards/ProjectCard";
-import { useWalletClient } from "wagmi";
-import { HypercertClient } from "@hypercerts-org/sdk";
-import { HypercertMetadata } from "~/actions/hypercerts";
+import { useAccount, useWalletClient } from "wagmi";
+import { AllowlistEntry, HypercertClient } from "@hypercerts-org/sdk";
+import { HypercertMetadata, mintHypercert } from "~/actions/hypercerts";
 import { parseListFromString } from "~/lib/parsing";
+import html2canvas from "html2canvas";
+import { prepareAllowlist } from "~/utils/mint-utils";
+import { Slider } from "~/components/ui/slider";
+import useProgressStore from "~/context/progress-store";
+
+type Result<T, E = Error> = [E, null] | [null, T];
 
 interface HypercertCreateFormData {
   name: string;
@@ -32,7 +38,6 @@ interface HypercertCreateFormData {
       }[]
     | undefined;
   bannerUrl: string;
-  constributors: string;
   excludedImpactScope: string[];
   workTimeframeStart: number;
   workTimeframeEnd: number;
@@ -41,7 +46,7 @@ interface HypercertCreateFormData {
   impactScope: string[];
   rights: string[];
   excludedRights: string[];
-  contributors: string;
+
   workScope: string;
   excludedWorkScope: string[];
 }
@@ -50,10 +55,12 @@ function FormComponent({ data }: { data: any }) {
   const tabs = ["General", "Who did what & when", "Mint"];
   const { data: walletClient } = useWalletClient();
   const httpsUrlPattern = /^https:\/\/.+/;
+  const { address } = useAccount();
+  const { setIsOpen, setCurrentStep, updateOperationStatus } =
+    useProgressStore();
+  const cardRef = useRef<HTMLDivElement | undefined>(undefined);
   const [activeTab, setActivetab] = useState(0);
-  const [hypercertClient, setHypercertClient] = useState<
-    HypercertClient | undefined
-  >(undefined);
+  const [distribution, setDistribution] = useState(50);
   const [workTimeframe, setWorkTimeframe] = useState<DateRange | undefined>({
     from: new Date(),
     to: addDays(new Date(), 6),
@@ -73,17 +80,9 @@ function FormComponent({ data }: { data: any }) {
     formState: { errors },
   } = useForm<HypercertCreateFormData>({
     mode: "onTouched",
-    defaultValues: {
-      impactScope: ["all"] as string[],
-      rights: ["Public Display"] as string[],
-      properties: undefined,
-      excludedWorkScope: [],
-      excludedImpactScope: [],
-      excludedRights: [],
-    },
   });
-  const { name, bannerUrl, logoUrl } = watch();
-  //const [workScopes, setWorkScopes] = useState<string[]>([]);
+  const { name, bannerUrl, logoUrl, workScope } = watch();
+
   const fieldsToValidate: (
     | "name"
     | "description"
@@ -91,14 +90,10 @@ function FormComponent({ data }: { data: any }) {
     | "logoUrl"
     | "bannerUrl"
     | "workScope"
-    | "contributors"
-  )[][] = [
-    ["name", "description", "logoUrl", "bannerUrl"],
-    ["workScope", "contributors"],
-  ];
+  )[][] = [["name", "description", "logoUrl", "bannerUrl"], ["workScope"]];
 
   const handleNextClick = async () => {
-    const isValid = await trigger(fieldsToValidate[0]);
+    const isValid = await trigger(fieldsToValidate[activeTab]);
     if (isValid && activeTab >= 0 && activeTab < tabs.length) {
       setActivetab((p) => p + 1);
       window.scrollTo(0, 0);
@@ -111,18 +106,27 @@ function FormComponent({ data }: { data: any }) {
       window.scrollTo(0, 0);
     }
   };
-  console.log(hypercertClient);
-  // useEffect(() => {
-  //   if (workScope) {
-  //     const wordsArray = workScope
-  //       .split(",")
-  //       .map((word) => word.trim())
-  //       .filter((word) => word.length > 0);
-  //     setWorkScopes(wordsArray);
-  //   }
-  // }, [workScope]);
-  // console.log(workScopes);
-  const onSubmit: SubmitHandler<HypercertCreateFormData> = (data) => {
+
+  const hypercertClient = useMemo(() => {
+    if (!walletClient) return;
+    return new HypercertClient({
+      walletClient: walletClient as any,
+      environment:
+        process.env.NODE_ENV === "development" ? "test" : "production",
+    });
+  }, [walletClient]);
+  // console.log(hypercertClient);
+
+  const onSubmit: SubmitHandler<HypercertCreateFormData> = async (formData) => {
+    if (!hypercertClient) {
+      console.error("Client Error");
+      return;
+    }
+    const [error, image] = await exportAsImage(cardRef);
+    if (error) {
+      console.error(error);
+      return;
+    }
     const {
       name,
       description,
@@ -132,14 +136,27 @@ function FormComponent({ data }: { data: any }) {
       workScope,
       excludedWorkScope,
       external_url,
-      constributors,
       excludedRights,
-    } = data;
+    } = formData;
+    const { allowList, recipientUnits } = prepareAllowlist(
+      data.applications[0],
+      distribution
+    );
+    const newAllowlist: AllowlistEntry[] = [
+      ...allowList,
+      {
+        address: address as `0x${string}`,
+        units: BigInt(recipientUnits),
+      },
+    ];
+    const c = newAllowlist.map((v) => {
+      return v.address;
+    });
     const metadata: HypercertMetadata = {
       name,
       description,
       external_url,
-      image: "",
+      image: image,
       impactScope,
       version: "",
       rights,
@@ -151,9 +168,17 @@ function FormComponent({ data }: { data: any }) {
       workScope: parseListFromString(workScope),
       excludedWorkScope,
       excludedRights,
-      contributors: parseListFromString(constributors),
+      contributors: c,
     };
-    console.log(metadata);
+    setIsOpen(true);
+    setCurrentStep("1");
+    updateOperationStatus("1", "loading");
+    const response = await mintHypercert(
+      metadata,
+      hypercertClient,
+      newAllowlist
+    );
+    console.log(response);
   };
   useEffect(() => {
     if (data && data.applications && data.applications.length > 0) {
@@ -166,52 +191,73 @@ function FormComponent({ data }: { data: any }) {
         external_url: metadata.website,
         logoUrl: `https://ipfs.io/ipfs/${metadata.logoImg}`,
         bannerUrl: `https://ipfs.io/ipfs/${metadata.bannerImg}`,
+        impactScope: ["all"],
+        rights: ["Public Display"],
+        properties: undefined,
+        excludedWorkScope: [],
+        excludedImpactScope: [],
+        excludedRights: [],
       });
     }
   }, [data]);
-  useEffect(() => {
-    if (!walletClient) return;
-    const myClient = new HypercertClient({
-      walletClient: walletClient,
-      environment:
-        process.env.NODE_ENV === "development" ? "test" : "production",
-    });
 
-    setHypercertClient(myClient);
-    console.log("Hypercert client set");
-  }, [walletClient]);
+  const exportAsImage = async (
+    ref: React.MutableRefObject<HTMLDivElement | undefined>
+  ): Promise<Result<string>> => {
+    if (!ref.current) {
+      return [new Error("Image is invalid"), null];
+    } else {
+      try {
+        const canvas = await html2canvas(ref.current, {
+          logging: true,
+          useCORS: true,
+          backgroundColor: null,
+        });
+        const image = canvas.toDataURL("image/png", 1.0);
+        return [null, image];
+      } catch (e) {
+        return [e instanceof Error ? e : new Error("Unknown error"), null];
+      }
+    }
+  };
   return (
-    <div className={`w-fit justify-center h-full flex space-x-[40px]`}>
-      <div className={`w-[500px] block mt-[20px]`}>
+    <div
+      className={`w-full justify-center flex flex-col-reverse items-center lg:flex-row md:flex-row lg:items-start md:items-start lg:space-x-[40px] md:space-x-[40px] lg:p-4 md:p-4 p-2 gap-y-4`}
+    >
+      <div
+        className={`w-full max-w-[500px] lg:w-[500px] md:w-[500px] flex flex-col items-center lg:mt-[20px] md:mt-[20px] mt-[10px]`}
+      >
         <div className={`w-full h-fit space-y-3`}>
           <Progress
             value={33.3 * (activeTab + 1)}
-            className={`w-[95%] block mx-auto h-[8px]`}
+            className={`w-[93%] block mx-auto h-[8px]`}
           />
-          <div className={`flex items-center justify-between px-[30px]`}>
+          <div
+            className={`flex items-center justify-between lg:px-[30px] md:px-[30px] px-[0px] w-full`}
+          >
             {tabs.map((tab, i) => (
               <div
-                className={`inline-flex items-center gap-x-3 py-2 px-3 rounded-lg ${
+                className={`lg:inline-flex md:block block items-center h-fit lg:gap-x-3 md:gap-x-3 gap-x-1 py-2 lg:px-3 md:px-3 px-2 rounded-lg ${
                   activeTab === i && "bg-[#f1f5f9]"
                 }`}
                 key={tab}
               >
                 <div
-                  className={`flex justify-center items-center w-[28px] h-[20px] ${
+                  className={`flex justify-center items-center w-[28px] h-[20px] mx-auto ${
                     activeTab === i && "bg-purple-500 border-0"
-                  } rounded-[10px] border`}
+                  } rounded-full border`}
                 >
                   <p
-                    className={`text-[14px] text-[#778599] ${
+                    className={`px-2.5 py-0.5 text-xs text-[#778599] ${
                       activeTab === i && "text-white"
-                    } font-semibold`}
+                    } font-bold`}
                   >
                     {i + 1}
                   </p>
                 </div>
                 <p
-                  className={`text-[16px] ${
-                    activeTab === i && "font-bold text-neutral-700"
+                  className={`lg:text-[16px] md:text-[16px] text-[15px] ${
+                    activeTab === i && "font-semibold text-neutral-700"
                   } text-[#778599]`}
                 >
                   {tab}
@@ -222,7 +268,7 @@ function FormComponent({ data }: { data: any }) {
         </div>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className={`w-full p-3 space-y-5 mt-[20px]`}
+          className={`w-full max-w-[450px] p- space-y-5 mt-[20px]`}
         >
           {activeTab === 0 && (
             <>
@@ -472,29 +518,46 @@ function FormComponent({ data }: { data: any }) {
                 <textarea
                   placeholder="Seperate tags with commas"
                   {...register("workScope", {
-                    required: true,
+                    required:
+                      "Please ensure all tags are filled in and no longer than 50 characters",
                   })}
                   className={`w-full h-[90px] rounded-lg border p-2`}
                 />
+                {errors.workScope && (
+                  <p className={`mt-2 text-red-600 text-[12px]`}>
+                    {errors.workScope.message}
+                  </p>
+                )}
                 <p className={`text-[#778599] text-[13px]`}>
                   Tags are used to categorize your project. (Max: 20)
                 </p>
               </fieldset>
+
               <fieldset className={`w-full space-y-1`}>
                 <label
-                  htmlFor="contributors"
+                  htmlFor="distribution"
                   className={`text-[15px] font-bold text-purple-500`}
                 >
-                  Contributors
+                  Percentage distributed via allow List
                 </label>
-                <textarea
-                  placeholder="Seperate contributors with commas"
-                  {...register("contributors", { required: true })}
-                  className={`w-full h-[90px] rounded-lg border p-2`}
-                />
-                <p className={`text-[#778599] text-[13px]`}>
-                  Tags are used to categorize your project. (Max: 20)
-                </p>
+                <div
+                  className={`inline-flex justify-between items-center w-full h-fit`}
+                >
+                  <Slider
+                    id="distribution"
+                    value={[distribution]}
+                    max={100}
+                    step={1}
+                    min={1}
+                    onValueChange={(v) => setDistribution(v[0])}
+                    className={`w-[90%]`}
+                  />
+                  <div
+                    className={`inline-flex items-center justify-center border border-neutral-700 rounded-full h-[30px] w-[30px]`}
+                  >
+                    <span>{distribution}</span>
+                  </div>
+                </div>
               </fieldset>
             </>
           )}
@@ -504,7 +567,7 @@ function FormComponent({ data }: { data: any }) {
               <button
                 onClick={handlePreviousClick}
                 type="button"
-                className={`hover:bg-[#e7eff3] hover:border-0 active:translate-y-[2px] h-[40px] w-[100px] border flex items-center text-neutral-700 justify-center space-x-2 rounded-lg`}
+                className={`hover:bg-[#e7eff3] hover:border-0 active:translate-y-[2px] h-[40px] lg:w-[100px] md:w-[100px] w-[90px] border flex items-center text-neutral-700 justify-center space-x-2 rounded-lg`}
               >
                 <ArrowLeft size={15} />
                 <p>Previous</p>
@@ -513,7 +576,7 @@ function FormComponent({ data }: { data: any }) {
             <button
               onClick={() => reset()}
               type="button"
-              className={`bg-purple-500 hover:opacity-[0.8] active:translate-y-[2px] h-[40px] w-[100px] flex items-center text-white justify-center space-x-2 rounded-lg`}
+              className={`bg-purple-500 hover:opacity-[0.8] active:translate-y-[2px] h-[40px] lg:w-[100px] md:w-[100px] w-[90px] flex items-center text-white justify-center space-x-2 rounded-lg`}
             >
               <Trash2 size={15} />
               <p>Reset</p>
@@ -523,7 +586,7 @@ function FormComponent({ data }: { data: any }) {
               <button
                 onClick={handleNextClick}
                 type="button"
-                className={`bg-purple-500 hover:opacity-[0.8] active:translate-y-[2px] h-[40px] w-[100px] flex items-center text-white justify-center space-x-2 rounded-lg`}
+                className={`bg-purple-500 hover:opacity-[0.8] active:translate-y-[2px] h-[40px] lg:w-[100px] md:w-[100px] w-[90px] flex items-center text-white justify-center space-x-2 rounded-lg`}
               >
                 <p>Next</p>
                 <ArrowRight size={15} />
@@ -531,8 +594,8 @@ function FormComponent({ data }: { data: any }) {
             )}
             {activeTab + 1 === tabs.length && (
               <button
-                type="button"
-                className={`bg-purple-500 hover:opacity-[0.8] active:translate-y-[2px] h-[40px] w-[100px] flex items-center text-white justify-center rounded-lg`}
+                type="submit"
+                className={`bg-purple-500 hover:opacity-[0.8] active:translate-y-[2px] h-[40px] lg:w-[100px] md:w-[100px] w-[90px] flex items-center text-white justify-center rounded-lg`}
               >
                 Mint
               </button>
@@ -540,13 +603,17 @@ function FormComponent({ data }: { data: any }) {
           </div>
         </form>
       </div>
-      <div className={`w-[350px] relative`}>
+      <div
+        className={`w-full max-w-[350px] flex justify-center mt-8 lg:mt-0 md:mt-0`}
+      >
         <ProjectCard
+          ref={cardRef}
           name={name}
           logoImage={logoUrl}
           bannerImage={bannerUrl}
-          className={`absolute top-[40%] translate-y-[-40%]`}
+          className={`lg:absolute md:absolute relative lg:top-[40%] md:top-[40%] top-0 lg:translate-y-[-40%] md:translate-y-[-40%] translate-y-[0%]`}
           workTimeFrame={workTimeframe as DateRange}
+          workScope={workScope}
         />
       </div>
     </div>

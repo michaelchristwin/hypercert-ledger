@@ -10,7 +10,7 @@ function Navbar() {
 
   return (
     <nav
-      className={`flex w-full h-[60px] lg:px-[150px] md:px-[120px] px-[90px] items-center justify-between z-20 fixed top-0 bg-white/10 backdrop-blur-sm bg-opacity-10 mt-[10px]`}
+      className={`flex w-full h-[60px] lg:px-[150px] md:px-[120px] px-[30px] items-center justify-between z-20 fixed top-0 bg-white/10 backdrop-blur-sm bg-opacity-10 mt-[10px]`}
     >
       <Link to={`/`} className={`flex shrink-0 items-center space-x-1.5`}>
         <img

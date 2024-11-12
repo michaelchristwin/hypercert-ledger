@@ -115,16 +115,16 @@ function MintPage() {
   const navigate = useNavigate();
   return (
     <div
-      className={`flex justify-between w-[900px] mx-auto pt-[90px] h-[90vh] items-center`}
+      className={`lg:w-[70%] md:w-[80%] w-full flex flex-col items-center lg:flex-row md:flex-row lg:items-start md:items-start lg:mx-auto md:mx-auto mx-0 lg:pt-[150px] md:pt-[150px] pt-[90px] gap-y-[40px] pb-[90px] h-fit justify-between`}
     >
-      <div className={`w-[350px]`}>
+      <div className={`lg:w-[350px] md:w-[350px] w-[300px]`}>
         <p className={`text-neutral-700 font-semibold text-[20px] mb-[33px]`}>
           Enter your round details
         </p>
 
         <Select onValueChange={onYearChange} value={year}>
           <SelectTrigger
-            className={`lg:w-[350px] md:w-[350px] border border-neutral-700 w-[270px] h-[50px] text-purple-500`}
+            className={`w-full border border-neutral-700 h-[50px] text-purple-500`}
           >
             <SelectValue className={``} placeholder="Select Gitcoin round" />
           </SelectTrigger>
@@ -136,7 +136,7 @@ function MintPage() {
         </Select>
         <Select value={name} onValueChange={onRoundChange} disabled={!year}>
           <SelectTrigger
-            className={`lg:w-[350px] md:w-[350px] text-purple-500 border border-neutral-700 w-[270px] h-[50px] mt-[30px] ${
+            className={`w-full text-purple-500 border border-neutral-700 h-[50px] mt-[30px] ${
               !year ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
@@ -153,7 +153,7 @@ function MintPage() {
         </Select>
         {!isConnected && (
           <div
-            className={`flex items-center justify-between p-3 rounded-lg border bg-blue-100 border-blue-200 lg:w-[350px] md:w-[350px] w-[270px] h-[35px] mt-3`}
+            className={`flex items-center justify-between p-3 rounded-lg border bg-blue-100 border-blue-200 w-full h-[35px] mt-3`}
           >
             <div className="flex items-center space-x-2">
               <span className={`text-blue-800`}>
@@ -169,8 +169,7 @@ function MintPage() {
           type="button"
           onClick={() =>
             navigate(
-              `/form?chainId=${chain_id}&roundId=${round_id}&address=${account}`,
-              { replace: true }
+              `/form?chainId=${chain_id}&roundId=${round_id}&address=${account}`
             )
           }
           disabled={!(chain_id && round_id && projectDetails.name)}

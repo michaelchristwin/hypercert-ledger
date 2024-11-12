@@ -1,5 +1,4 @@
 import { createAppKit } from "@reown/appkit/react";
-
 import { http, WagmiProvider } from "wagmi";
 import { arbitrum, optimism, sepolia, celo } from "@reown/appkit/networks";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -16,9 +15,9 @@ if (!projectId) {
 
 // 2. Create a metadata object - optional
 const metadata = {
-  name: "AppKit",
-  description: "AppKit Example",
-  url: "https://example.com", // origin must match your domain & subdomain
+  name: "Hyperminter",
+  description: "A tool for minting project based Hypercerts onchain.",
+  url: "https://hyperminter.xyz",
   icons: ["https://avatars.githubusercontent.com/u/179229932"],
 };
 
