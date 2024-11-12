@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogTitle } from "~/components/ui/dialog";
-import { Loader2, CheckCircle2, XCircle, CircleDot } from "lucide-react";
+import { CheckCircle2, XCircle, CircleDot, Loader } from "lucide-react";
 
 export type Operation = {
   id: string;
@@ -31,7 +31,7 @@ const Stepper = ({ open, operations, onOpenChange }: OperationStepperProps) => {
               <div key={operation.id} className="flex items-start space-x-3">
                 <div className="flex-shrink-0 pt-1">
                   {operation.status === "loading" && (
-                    <Loader2 className="h-5 w-5 animate-spin text-purple-500" />
+                    <Loader className="h-5 w-5 animate-spin text-purple-500" />
                   )}
                   {operation.status === "success" && (
                     <CheckCircle2 className="h-5 w-5 text-green-500" />

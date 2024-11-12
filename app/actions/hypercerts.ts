@@ -16,6 +16,8 @@ import {
 } from "@wagmi/core";
 import { TOTAL_UNITS } from "~/utils/mint-utils";
 
+type Result<T, E = Error> = [E, null] | [null, T];
+
 export interface HypercertMetadata {
   name: string;
   description: string;
@@ -45,7 +47,12 @@ export async function mintHypercert(
   props: HypercertMetadata,
   client: HypercertClient,
   allowList: AllowlistEntry[]
-) {
+): Promise<
+  Result<{
+    claimsTxHash: `0x${string}` | undefined;
+    allowlistTxHash: `0x${string}` | undefined;
+  }>
+> {
   const updateOperationStatus =
     useProgressStore.getState().updateOperationStatus;
   const setCurrentStep = useProgressStore.getState().setCurrentStep;
@@ -55,12 +62,9 @@ export async function mintHypercert(
     claimsTxHash: undefined as `0x${string}` | undefined,
     allowlistTxHash: undefined as `0x${string}` | undefined,
   };
-
-  if (client === undefined) {
-    throw new Error("Client is undefined");
-  }
   if (!data) {
-    throw errors;
+    updateOperationStatus("1", "error");
+    return [new Error("Metadata is null", { cause: errors }), null];
   }
   updateOperationStatus("1", "success");
   console.log("Create allowlist");
@@ -72,9 +76,9 @@ export async function mintHypercert(
     BigInt(TOTAL_UNITS),
     TransferRestrictions.FromCreatorOnly
   );
-
   if (!res.allowlistTxHash) {
-    throw new Error("Method Failed");
+    updateOperationStatus("2", "error");
+    return [new Error("Failed to create allowlist"), null];
   }
   updateOperationStatus("2", "success");
   setCurrentStep("3");
@@ -82,6 +86,10 @@ export async function mintHypercert(
   const receipt = await waitForTransactionReceipt(config, {
     hash: res.allowlistTxHash,
   });
+  if (receipt.status === "reverted") {
+    updateOperationStatus("3", "error");
+    return [new Error("Create allowlist transaction reverted"), null];
+  }
   updateOperationStatus("3", "success");
   setCurrentStep("4");
   updateOperationStatus("4", "loading");
@@ -94,7 +102,7 @@ export async function mintHypercert(
   });
 
   if (!details.args) {
-    throw new Error("details.args is undefined");
+    return [new Error("details.args is undefined"), null];
   }
   //@ts-expect-error"lol"
   const claim_Id = details.args.claimID;
@@ -112,11 +120,10 @@ export async function mintHypercert(
       break;
     }
   }
-
   if (!defArgs) {
-    throw new Error("Arguments are undefined");
+    updateOperationStatus("4", "error");
+    return [new Error("Arguments are undefined"), null];
   }
-
   const { proofs, units, claimId } = defArgs;
   const tx = await client.mintClaimFractionFromAllowlist(
     claimId,
@@ -125,7 +132,8 @@ export async function mintHypercert(
   );
 
   if (!tx) {
-    throw new Error("Mint claim fraction failed");
+    updateOperationStatus("4", "error");
+    return [new Error("Failed to mint claim"), null];
   }
   updateOperationStatus("4", "success");
   setCurrentStep("5");
@@ -135,12 +143,13 @@ export async function mintHypercert(
   });
 
   if (secondReciept.status === "reverted") {
-    throw new Error("Transaction reverted");
+    updateOperationStatus("5", "error");
+    return [new Error("Mint claim transaction reverted"), null];
   }
   updateOperationStatus("5", "success");
   res.claimsTxHash = tx;
 
-  return res;
+  return [null, res];
 }
 
 function parseLog(receipt: WaitForTransactionReceiptReturnType) {
@@ -160,44 +169,3 @@ export function getChain(chainId: number) {
   }
   throw new Error(`Chain with id ${chainId} not found`);
 }
-
-export const isValid = (formValue: HypercertMetadata) => {
-  try {
-    const values = [
-      formValue.name,
-      formValue.description,
-      formValue.workScope,
-      formValue.contributors,
-      formValue.rights,
-      formValue.workTimeframeEnd,
-      formValue.workTimeframeStart,
-      formValue.impactScope.length,
-      formValue.impactTimeframeEnd,
-      formValue.impactTimeframeStart,
-      formValue.version,
-    ];
-
-    const isValid = values.every((item) => item);
-
-    if (!isValid) {
-      const invalidProperty =
-        Object.keys(formValue)[values.findIndex((item) => !item)];
-      throw new Error(`${invalidProperty} is invalid`);
-    }
-
-    return isValid;
-  } catch (err) {
-    console.error("Validation Error", err);
-    throw err;
-  }
-};
-
-export const formatDate = (isoString: string) => {
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  })
-    .format(new Date(isoString))
-    .toUpperCase();
-};

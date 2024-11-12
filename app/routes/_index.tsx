@@ -8,10 +8,10 @@ function Index() {
     <motion.main
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className={`block h-full w-full pt-[20px] lg:pt-[20px]`}
+      className={`block h-full lg:w-full md:w-full w-fit pt-[80px] lg:py-[20px] md:py-[20px]`}
     >
       <div
-        className={`lg:flex md:flex block w-full h-[100vh] justify-between items-center space-y-3`}
+        className={`lg:flex md:flex block w-full lg:h-[100vh] md:h-[100vh] h-fit lg:pb-0 md:pb-0 pb-[80px] justify-between items-center space-y-3`}
       >
         {/* Info section with stagger animation */}
         <motion.div
@@ -34,7 +34,7 @@ function Index() {
           <button
             type="button"
             onClick={() => navigate("/mint")}
-            className={`w-[180px] rounded-[7px] hover:bg-opacity-[0.8] flex justify-center items-center h-[50px] mt-[40px] text-[25px] bg-purple-500 text-neutral-700 concert-one`}
+            className={`w-[180px] rounded-[7px] lg:mx-0 md:mx-0 mx-auto hover:bg-opacity-[0.8] flex justify-center items-center h-[50px] mt-[40px] text-[25px] bg-purple-500 text-neutral-700 concert-one`}
           >
             MINT IT NOW
           </button>
