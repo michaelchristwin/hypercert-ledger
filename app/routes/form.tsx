@@ -3,7 +3,7 @@ import { LoaderFunctionArgs } from "@vercel/remix";
 import FormComponent from "~/components/FormComponent";
 import Stepper from "~/components/Stepper";
 import useProgressStore from "~/context/progress-store";
-import { fetchData } from "~/utils/indexer/graph.server";
+import { getApplications } from "~/utils/indexer/graph.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
@@ -33,7 +33,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       ? "0xdc2a4bf46ef158f86274c02bd7f027f31da9ebc1"
       : address;
 
-  const data = await fetchData({
+  const data = await getApplications({
     chainId: Number(chainId),
     id: roundId,
     creator: account,

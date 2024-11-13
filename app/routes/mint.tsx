@@ -1,4 +1,4 @@
-import { json, useLoaderData, useNavigate } from "@remix-run/react";
+import { useLoaderData, useNavigate } from "@remix-run/react";
 import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -10,7 +10,7 @@ import {
 } from "~/components/ui/select";
 import { useAccount } from "wagmi";
 import CardSkeleton from "~/components/cards/CardSkeleton";
-import { fetchData } from "~/utils/indexer/graph.client";
+import { getApplications } from "~/utils/indexer/graph.client";
 import CardOutline from "~/components/cards/CardOutline";
 import { Info } from "lucide-react";
 import ProjectCard from "~/components/cards/ProjectCard";
@@ -35,7 +35,7 @@ interface RoundData {
 export const loader = async () => {
   const RoundsData: Round[] = (await import(`~/rounds-data.json`))
     .default as Round[];
-  return json({ RoundsData });
+  return Response.json({ RoundsData });
 };
 
 function MintPage() {
@@ -47,7 +47,7 @@ function MintPage() {
     chain_id: undefined,
     seed: "",
   });
-  const { program, name, chain_id, round_id } = round;
+  const { name, chain_id, round_id } = round;
   const { RoundsData } = useLoaderData<typeof loader>();
   const onYearChange = (value: string) => {
     setYear(value);
@@ -59,7 +59,6 @@ function MintPage() {
       seed: "",
     });
   };
-  console.log(program, chain_id, round_id);
   const { address, isConnected } = useAccount();
   const account =
     process.env.NODE_ENV === "development"
@@ -71,35 +70,41 @@ function MintPage() {
     bannerImage: "",
   });
   const data = useMemo(() => {
-    return RoundsData.filter((r) => r.program === year);
+    return RoundsData.filter((r: Round) => r.program === year);
   }, [RoundsData, year]);
 
   const onRoundChange = (value: string) => {
-    const round = data.find((item) => item.name === value);
+    const round = data.find((item: Round) => item.name === value);
     if (round) {
       setRound(round);
     }
   };
+  const isDisabled = useMemo(() => {
+    return Boolean(chain_id && round_id && projectDetails.name);
+  }, [chain_id, round_id, projectDetails]);
   const {
-    data: pData,
+    data: queryResult,
     fetchStatus,
     status,
   } = useQuery({
     queryKey: ["applications", round_id, chain_id, account],
     queryFn: () =>
-      fetchData({
+      getApplications({
         id: round_id?.toString() || "",
         chainId: chain_id || 0,
         creator: account || "",
       }),
     enabled: Boolean(round_id && chain_id && account),
   });
-  console.log(pData);
+
   useEffect(() => {
-    //@ts-expect-error"type unnown"
-    if (pData && pData.applications && pData.applications.length > 0) {
-      //@ts-expect-error"type unnown"
-      const application = pData.applications[0];
+    if (queryResult) {
+      const [error, data] = queryResult;
+      if (error) {
+        console.error(error);
+        return;
+      }
+      const application = data.applications[0];
       const { metadata } = application.project;
 
       setProjectDetails((p) => ({
@@ -111,11 +116,11 @@ function MintPage() {
     } else {
       setProjectDetails({ name: "", logoImage: "", bannerImage: "" });
     }
-  }, [pData]);
+  }, [queryResult]);
   const navigate = useNavigate();
   return (
     <div
-      className={`lg:w-[70%] md:w-[80%] w-full flex flex-col items-center lg:flex-row md:flex-row lg:items-start md:items-start lg:mx-auto md:mx-auto mx-0 lg:pt-[150px] md:pt-[150px] pt-[90px] gap-y-[40px] pb-[90px] h-fit justify-between`}
+      className={`lg:w-[80%] md:w-[80%] w-full flex flex-col items-center lg:flex-row md:flex-row lg:items-start md:items-start lg:mx-auto md:mx-auto mx-0 lg:pt-[150px] md:pt-[150px] pt-[90px] gap-y-[40px] pb-[90px] h-fit justify-between`}
     >
       <div className={`lg:w-[350px] md:w-[350px] w-[300px]`}>
         <p className={`text-neutral-700 font-semibold text-[20px] mb-[33px]`}>
@@ -144,7 +149,7 @@ function MintPage() {
           </SelectTrigger>
           <SelectContent>
             {data !== undefined &&
-              data.map((item, i) => (
+              data.map((item: any, i: number) => (
                 <SelectItem key={i} value={item.name}>
                   {item.name}
                 </SelectItem>
@@ -160,7 +165,7 @@ function MintPage() {
                 <Info size={18} />
               </span>
               <span className={`text-blue-800 font-medium`}>
-                Connect your payout wallet
+                Connect wallet used to create application
               </span>
             </div>
           </div>
@@ -172,7 +177,7 @@ function MintPage() {
               `/form?chainId=${chain_id}&roundId=${round_id}&address=${account}`
             )
           }
-          disabled={!(chain_id && round_id && projectDetails.name)}
+          disabled={!isDisabled}
           className={`text-neutral-700 hover:bg-opacity-[0.8] disabled:opacity-[0.5] disabled:bg-gray-300 disabled:cursor-not-allowed bg-purple-500 rounded-lg mx-auto mt-[50px] flex justify-center items-center p-2`}
         >
           Mint Hypercert
