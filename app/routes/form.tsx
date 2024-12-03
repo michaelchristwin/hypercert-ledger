@@ -33,11 +33,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       ? "0xdc2a4bf46ef158f86274c02bd7f027f31da9ebc1"
       : address;
 
-  const data = await getApplications({
+  const [error, data] = await getApplications({
     chainId: Number(chainId),
     id: roundId,
     creator: account,
   });
+  if (error) {
+    return Response.json({ error: "Error fetching data" }, { status: 400 });
+  }
 
   return Response.json({ data });
 };

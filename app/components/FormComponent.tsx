@@ -14,6 +14,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
+import { Textarea } from "~/components/ui/textarea";
 import ProjectCard from "./cards/ProjectCard";
 import { useAccount, useWalletClient } from "wagmi";
 import { AllowlistEntry, HypercertClient } from "@hypercerts-org/sdk";
@@ -300,7 +301,7 @@ function FormComponent({ data }: { data: any }) {
                 >
                   Description
                 </label>
-                <textarea
+                <Textarea
                   {...register("description", { required: true })}
                   className={`w-full h-[90px] rounded-lg border p-2`}
                   aria-invalid={
