@@ -1,9 +1,8 @@
 import { motion } from "framer-motion";
-import { useNavigate, Link } from "@remix-run/react";
+import { Link } from "@remix-run/react";
 import HeroCard from "~/components/cards/HeroCard";
 
 function Index() {
-  const navigate = useNavigate();
   return (
     <motion.main
       initial={{ opacity: 0 }}

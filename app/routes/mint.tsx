@@ -36,7 +36,9 @@ export const loader = async () => {
   try {
     const roundsModule = await import(`~/rounds-data.json`);
     const RoundsData: Round[] = roundsModule.default;
-    return Response.json({ RoundsData });
+    return {
+      RoundsData: RoundsData,
+    };
   } catch (error) {
     console.error("Dynamic import error:", error);
     return Response.json(

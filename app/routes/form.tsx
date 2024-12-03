@@ -42,7 +42,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     return Response.json({ error: "Error fetching data" }, { status: 400 });
   }
 
-  return Response.json({ data });
+  return { data: data };
 };
 
 function Form() {
