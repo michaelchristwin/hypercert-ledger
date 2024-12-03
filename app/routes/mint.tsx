@@ -33,9 +33,17 @@ interface RoundData {
 }
 
 export const loader = async () => {
-  const RoundsData: Round[] = (await import(`~/rounds-data.json`))
-    .default as Round[];
-  return Response.json({ RoundsData });
+  try {
+    const roundsModule = await import(`~/rounds-data.json`);
+    const RoundsData: Round[] = roundsModule.default;
+    return Response.json({ RoundsData });
+  } catch (error) {
+    console.error("Dynamic import error:", error);
+    return Response.json(
+      { error: "Failed to load rounds data" },
+      { status: 500 }
+    );
+  }
 };
 
 function MintPage() {
@@ -117,6 +125,7 @@ function MintPage() {
       setProjectDetails({ name: "", logoImage: "", bannerImage: "" });
     }
   }, [queryResult]);
+
   const navigate = useNavigate();
   return (
     <div
@@ -173,9 +182,10 @@ function MintPage() {
         <button
           type="button"
           onClick={() =>
-            navigate(
-              `/form?chainId=${chain_id}&roundId=${round_id}&address=${account}`
-            )
+            navigate({
+              pathname: "/form",
+              search: `?chainId=${chain_id}&roundId=${round_id}&address=${account}`,
+            })
           }
           disabled={!isDisabled}
           className={`text-neutral-700 hover:bg-opacity-[0.8] disabled:opacity-[0.5] disabled:bg-gray-300 disabled:cursor-not-allowed bg-purple-500 rounded-lg mx-auto mt-[50px] flex justify-center items-center p-2`}

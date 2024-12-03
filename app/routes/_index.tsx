@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useNavigate } from "@remix-run/react";
+import { useNavigate, Link } from "@remix-run/react";
 import HeroCard from "~/components/cards/HeroCard";
 
 function Index() {
@@ -31,13 +31,12 @@ function Index() {
             Mint a Hypercert to make an onchain claim of the impact your project
             will make with the grant funding.
           </p>
-          <button
-            type="button"
-            onClick={() => navigate("/mint")}
+          <Link
+            to={`/mint`}
             className={`w-[180px] rounded-[7px] lg:mx-0 md:mx-0 mx-auto hover:bg-opacity-[0.8] flex justify-center items-center h-[50px] mt-[40px] text-[25px] bg-purple-500 text-neutral-700 concert-one`}
           >
             MINT IT NOW
-          </button>
+          </Link>
         </motion.div>
         <HeroCard />
       </div>
