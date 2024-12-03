@@ -92,6 +92,7 @@ function MintPage() {
   const isDisabled = useMemo(() => {
     return Boolean(chain_id && round_id && projectDetails.name);
   }, [chain_id, round_id, projectDetails]);
+
   const {
     data: queryResult,
     fetchStatus,
@@ -110,21 +111,25 @@ function MintPage() {
   useEffect(() => {
     if (queryResult) {
       const [error, data] = queryResult;
+
       if (error) {
         console.error(error);
+        setProjectDetails({ name: "", logoImage: "", bannerImage: "" });
         return;
       }
-      const application = data.applications[0];
-      const { metadata } = application.project;
 
-      setProjectDetails((p) => ({
-        ...p,
-        name: metadata.title,
-        logoImage: `https://ipfs.io/ipfs/${metadata.logoImg}`,
-        bannerImage: `https://ipfs.io/ipfs/${metadata.bannerImg}`,
-      }));
-    } else {
-      setProjectDetails({ name: "", logoImage: "", bannerImage: "" });
+      const application = data?.applications?.[0];
+      const metadata = application?.project?.metadata;
+
+      setProjectDetails({
+        name: metadata?.title || "",
+        logoImage: metadata?.logoImg
+          ? `https://ipfs.io/ipfs/${metadata.logoImg}`
+          : "",
+        bannerImage: metadata?.bannerImg
+          ? `https://ipfs.io/ipfs/${metadata.bannerImg}`
+          : "",
+      });
     }
   }, [queryResult]);
 
