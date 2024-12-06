@@ -90,8 +90,8 @@ function MintPage() {
     }
   };
   const isDisabled = useMemo(() => {
-    return Boolean(chain_id && round_id && projectDetails.name);
-  }, [chain_id, round_id, projectDetails]);
+    return Boolean(chain_id && round_id && projectDetails.name && isConnected);
+  }, [chain_id, round_id, projectDetails, isConnected]);
 
   const {
     data: queryResult,
