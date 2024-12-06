@@ -21,7 +21,7 @@ function Navbar() {
         />
         <p
           className="lg:inline-block md:inline-block hidden text-[20px] md:text-[25px] lg:text-[28px]
-          text-white concert-one text-center whitespace-nowrap"
+          text-white font-concert-one font-normal text-center whitespace-nowrap"
         >
           <span className={`text-purple-500`}>hyper</span>
           <span className={`text-neutral-700`}>minter</span>

@@ -16,6 +16,8 @@ export default {
           "Segoe UI Symbol",
           "Noto Color Emoji",
         ],
+        "concert-one": ["Concert One", "sans-serif"],
+        "ibm-plex": ["IBM Plex Mono", "monospace"],
       },
       colors: {
         appPrimary: "rgb(var(--app-primary))",

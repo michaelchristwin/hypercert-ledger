@@ -20,7 +20,7 @@ function Index() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className={`text-purple-500 concert-one lg:text-[4.5em] md:text-[3em] text-[2.5em] font-extrabold`}
+            className={`text-purple-500 font-concert-one lg:text-[4.5em] md:text-[3em] text-[2.5em] font-normal`}
           >
             MINT YOUR HYPERCERTS
           </motion.p>
@@ -32,7 +32,7 @@ function Index() {
           </p>
           <Link
             to={`/mint`}
-            className={`w-[180px] rounded-[7px] lg:mx-0 md:mx-0 mx-auto hover:bg-opacity-[0.8] flex justify-center items-center h-[50px] mt-[40px] text-[25px] bg-purple-500 text-neutral-700 concert-one`}
+            className={`w-[180px] rounded-[7px] lg:mx-0 md:mx-0 mx-auto hover:bg-opacity-[0.8] flex justify-center items-center h-[50px] mt-[40px] text-[25px] bg-purple-500 text-neutral-700 font-concert-one font-normal`}
           >
             MINT IT NOW
           </Link>
