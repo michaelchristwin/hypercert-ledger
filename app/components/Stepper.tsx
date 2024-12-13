@@ -54,9 +54,14 @@ const Stepper = ({ open, operations, onOpenChange }: OperationStepperProps) => {
               </div>
             ))}
           </div>
-          {isComplete && (
+          {isComplete ? (
             <p className="text-sm text-center text-gray-500">
               All operations completed
+            </p>
+          ) : (
+            <p className="text-sm text-center text-gray-500 italic">
+              Minting may take a minute. You will sign 2 transactions - Create
+              allowlist and Minting.
             </p>
           )}
         </div>

@@ -11,6 +11,7 @@ interface ProjectCardProps {
   className?: string;
   workTimeFrame?: DateRange;
   workScope?: string;
+  shortDescription?: string;
 }
 
 const ProjectCard = forwardRef(function (
@@ -21,6 +22,7 @@ const ProjectCard = forwardRef(function (
     className,
     workTimeFrame,
     workScope,
+    shortDescription,
   }: ProjectCardProps,
   ref?
 ) {
@@ -33,7 +35,7 @@ const ProjectCard = forwardRef(function (
     <div
       ref={ref as React.Ref<HTMLDivElement>}
       className={cn(
-        "block min-w-[260px] max-w-[300px] relative w-[330px] h-[380px] rounded-[12px] lg:mx-0 md:mx-0 mx-auto bg-black",
+        "flex flex-col min-w-[260px] max-w-[300px] relative w-[330px] h-[380px] rounded-[12px] lg:mx-0 md:mx-0 mx-auto bg-black",
         className
       )}
     >
@@ -42,15 +44,22 @@ const ProjectCard = forwardRef(function (
         style={{ backgroundImage: logoImage ? `url("${logoImage}")` : "none" }}
       />
       <div
-        className={`w-full h-[45%] border border-neutral-600 rounded-[12px] p-3 bg-cover bg-center bg-no-repeat`}
+        className={`w-full h-[35%] border border-neutral-600 rounded-[12px] p-3 bg-cover bg-center bg-no-repeat`}
         style={{
           backgroundImage: bannerImage ? `url(${bannerImage})` : "none",
         }}
       ></div>
       <div
-        className={`h-[55%] bg-white p-3 rounded-[12px] border border-neutral-600`}
+        className={`flex-1 bg-white p-3 rounded-[12px] border border-neutral-600`}
       >
-        <p className={`font-bold text-[20px] text-neutral-700`}>{name}</p>
+        <div className={`min-h-[90px]`}>
+          <p className={`font-bold text-[20px] text-neutral-700`}>{name}</p>
+          {shortDescription && (
+            <p className={`text-[12px] text-neutral-600 py-[2px]`}>
+              {shortDescription}
+            </p>
+          )}
+        </div>
         <div className="h-px bg-neutral-600 mt-[50px]" />
         <div className={`flex justify-between w-full`}>
           <div className={`block`}>
@@ -70,7 +79,7 @@ const ProjectCard = forwardRef(function (
             </p>
           </div>
         </div>
-        <div className={`flex w-full flex-wrap mt-[20px] gap-[6px]`}>
+        <div className={`flex w-full flex-wrap py-[20px] gap-[6px]`}>
           {workTags &&
             workTags.map((v, i) => (
               <div
