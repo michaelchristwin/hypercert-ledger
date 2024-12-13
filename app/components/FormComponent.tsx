@@ -1,20 +1,21 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { Progress } from "~/components/ui/progress";
 import { Trash2, ArrowRight, ArrowLeft } from "lucide-react";
 import { addDays, format } from "date-fns";
 import dayjs from "dayjs";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import { cn } from "~/lib/utils";
-import { Button } from "~/components/ui/button";
-import { Calendar } from "~/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
+import { Button } from "~/components/ui/button";
+import { Calendar } from "~/components/ui/calendar";
+import { Progress } from "~/components/ui/progress";
 import { Textarea } from "~/components/ui/textarea";
+import { Slider } from "~/components/ui/slider";
 import ProjectCard from "./cards/ProjectCard";
 import { useAccount, useWalletClient } from "wagmi";
 import { AllowlistEntry, HypercertClient } from "@hypercerts-org/sdk";
@@ -22,13 +23,13 @@ import { HypercertMetadata, mintHypercert } from "~/actions/hypercerts";
 import { parseListFromString } from "~/lib/parsing";
 import html2canvas from "html2canvas";
 import { prepareAllowlist } from "~/utils/mint-utils";
-import { Slider } from "~/components/ui/slider";
 import useProgressStore from "~/context/progress-store";
 
 type Result<T, E = Error> = [E, null] | [null, T];
 
 interface HypercertCreateFormData {
   name: string;
+  short_description: string;
   description: string;
   external_url: string;
   logoUrl: string;
@@ -82,16 +83,20 @@ function FormComponent({ data }: { data: any }) {
   } = useForm<HypercertCreateFormData>({
     mode: "onTouched",
   });
-  const { name, bannerUrl, logoUrl, workScope } = watch();
+  const { name, bannerUrl, logoUrl, workScope, short_description } = watch();
 
   const fieldsToValidate: (
     | "name"
     | "description"
+    | "short_description"
     | "external_url"
     | "logoUrl"
     | "bannerUrl"
     | "workScope"
-  )[][] = [["name", "description", "logoUrl", "bannerUrl"], ["workScope"]];
+  )[][] = [
+    ["name", "short_description", "description", "logoUrl", "bannerUrl"],
+    ["workScope"],
+  ];
 
   const handleNextClick = async () => {
     const isValid = await trigger(fieldsToValidate[activeTab]);
@@ -130,6 +135,7 @@ function FormComponent({ data }: { data: any }) {
     }
     const {
       name,
+      short_description,
       description,
       impactScope,
       rights,
@@ -155,7 +161,7 @@ function FormComponent({ data }: { data: any }) {
     });
     const metadata: HypercertMetadata = {
       name,
-      description,
+      description: description + "\n" + short_description,
       external_url,
       image: image,
       impactScope,
@@ -294,6 +300,34 @@ function FormComponent({ data }: { data: any }) {
                   Keep it short but descriptive
                 </p>
               </fieldset>
+
+              <fieldset className={`w-full space-y-1`}>
+                <label
+                  htmlFor="short_description"
+                  className={`text-[15px] font-bold text-purple-500`}
+                >
+                  Short Description of Work
+                </label>
+                <Textarea
+                  {...register("short_description", {
+                    required: true,
+                  })}
+                  maxLength={100}
+                  className={`w-full h-[70px] rounded-lg border p-2`}
+                  aria-invalid={
+                    errors.short_description?.type === "required" ? true : false
+                  }
+                />
+                {errors.short_description?.type === "required" && (
+                  <p className={`mt-2 text-red-600 text-[12px]`}>
+                    We need a description for your work
+                  </p>
+                )}
+                <p className={`text-[#778599] text-[13px]`}>
+                  Give a short description of your work
+                </p>
+              </fieldset>
+
               <fieldset className={`w-full space-y-1`}>
                 <label
                   htmlFor="description"
@@ -549,7 +583,7 @@ function FormComponent({ data }: { data: any }) {
                     value={[distribution]}
                     max={100}
                     step={1}
-                    min={1}
+                    min={0}
                     onValueChange={(v) => setDistribution(v[0])}
                     className={`w-[90%]`}
                   />
@@ -608,6 +642,7 @@ function FormComponent({ data }: { data: any }) {
         className={`w-full max-w-[350px] flex justify-center mt-8 lg:mt-0 md:mt-0`}
       >
         <ProjectCard
+          shortDescription={short_description}
           ref={cardRef}
           name={name}
           logoImage={logoUrl}
