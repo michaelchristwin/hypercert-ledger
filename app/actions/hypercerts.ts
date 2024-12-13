@@ -57,7 +57,7 @@ export async function mintHypercert(
     useProgressStore.getState().updateOperationStatus;
   const setCurrentStep = useProgressStore.getState().setCurrentStep;
   const { data, errors } = formatHypercertData(props);
-
+  const setTxHash = useProgressStore.getState().setTxHash;
   const res = {
     claimsTxHash: undefined as `0x${string}` | undefined,
     allowlistTxHash: undefined as `0x${string}` | undefined,
@@ -148,6 +148,7 @@ export async function mintHypercert(
   }
   updateOperationStatus("5", "success");
   res.claimsTxHash = tx;
+  setTxHash(tx);
 
   return [null, res];
 }

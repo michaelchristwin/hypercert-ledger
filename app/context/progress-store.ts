@@ -12,6 +12,7 @@ interface State {
   isOpen: boolean;
   operations: Operation[];
   currentStepId: string;
+  txHash: string;
 }
 
 interface Actions {
@@ -19,6 +20,7 @@ interface Actions {
   setCurrentStep: (id: string) => void;
   updateOperationStatus: (id: string, status: OperationStatus) => void;
   resetOperations: () => void;
+  setTxHash: (hash: string) => void;
 }
 
 const initialOperations: Operation[] = [
@@ -51,20 +53,20 @@ const initialOperations: Operation[] = [
 
 const useProgressStore = create<State & Actions>((set) => ({
   isOpen: false,
+  txHash: "",
   operations: initialOperations,
   currentStepId: "1",
-
   setIsOpen: (state) => set({ isOpen: state }),
-
   setCurrentStep: (id) => set({ currentStepId: id }),
-
+  setTxHash(hash) {
+    set({ txHash: hash });
+  },
   updateOperationStatus: (id, status) =>
     set((state) => ({
       operations: state.operations.map((op) =>
         op.id === id ? { ...op, status } : op
       ),
     })),
-
   resetOperations: () =>
     set({
       operations: initialOperations,
