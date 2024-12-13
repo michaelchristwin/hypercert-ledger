@@ -72,7 +72,7 @@ function MintPage() {
   const { address, isConnected } = useAccount();
   const account =
     process.env.NODE_ENV === "development"
-      ? "0xdc2a4bf46ef158f86274c02bd7f027f31da9ebc1"
+      ? "0xe3F4F3aD70C1190EC480554bbc3Ed30285aE0610"
       : address;
   const [projectDetails, setProjectDetails] = useState({
     name: "",
@@ -103,7 +103,7 @@ function MintPage() {
       getApplications({
         id: round_id?.toString() || "",
         chainId: chain_id || 0,
-        creator: account || "",
+        creator: account?.toLowerCase() || "",
       }),
     enabled: Boolean(round_id && chain_id && account),
   });

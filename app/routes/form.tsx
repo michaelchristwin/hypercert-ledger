@@ -30,13 +30,13 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   }
   const account =
     process.env.NODE_ENV === "development"
-      ? "0xdc2a4bf46ef158f86274c02bd7f027f31da9ebc1"
+      ? "0xe3F4F3aD70C1190EC480554bbc3Ed30285aE0610"
       : address;
 
   const [error, data] = await getApplications({
     chainId: Number(chainId),
     id: roundId,
-    creator: account,
+    creator: account.toLowerCase(),
   });
   if (error) {
     return Response.json({ error: "Error fetching data" }, { status: 400 });
