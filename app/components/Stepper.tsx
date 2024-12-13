@@ -1,5 +1,8 @@
 import { Dialog, DialogContent, DialogTitle } from "~/components/ui/dialog";
 import { CheckCircle2, XCircle, CircleDot, Loader } from "lucide-react";
+import { useAccount } from "wagmi";
+import { Link } from "@remix-run/react";
+import useProgressStore from "~/context/progress-store";
 
 export type Operation = {
   id: string;
@@ -18,7 +21,8 @@ const Stepper = ({ open, operations, onOpenChange }: OperationStepperProps) => {
   const isComplete = operations.every(
     (op) => op.status === "success" || op.status === "error"
   );
-
+  const { chain } = useAccount();
+  const { txHash } = useProgressStore();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -56,12 +60,20 @@ const Stepper = ({ open, operations, onOpenChange }: OperationStepperProps) => {
           </div>
           {isComplete ? (
             <p className="text-sm text-center text-gray-500">
-              All operations completed
+              All operations completed:{` `}
+              <Link
+                className={`hover:underline text-blue-600`}
+                to={`${chain?.blockExplorers?.default.url}/tx/${txHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Check explorer here
+              </Link>
             </p>
           ) : (
             <p className="text-sm text-center text-gray-500 italic">
-              Minting may take a minute. You will sign 2 transactions - Create
-              allowlist and Minting.
+              Minting may take a minute. Do not close this window. You will sign
+              2 transactions - Create allowlist and Minting.
             </p>
           )}
         </div>
