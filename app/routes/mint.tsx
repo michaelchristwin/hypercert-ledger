@@ -197,7 +197,7 @@ function MintPage() {
           disabled={!isDisabled}
           className={`text-neutral-700 hover:bg-opacity-[0.8] disabled:opacity-[0.5] disabled:bg-gray-300 disabled:cursor-not-allowed bg-purple-500 rounded-lg mx-auto mt-[50px] flex justify-center items-center p-2`}
         >
-          Mint Hypercert
+          Edit Hypercert
         </button>
       </div>
       {fetchStatus === "idle" && status === "pending" && <CardOutline />}
