@@ -46,3 +46,20 @@ export function prepareAllowlist(application: any, allowPercentage: number) {
 
   return { allowList, recipientUnits };
 }
+
+export function jsonToCsv(jsonArray: AllowlistEntry[], delimiter = ",") {
+  // Get CSV headers
+  const headers = Object.keys(jsonArray[0]).join(delimiter);
+
+  // Get CSV rows
+  const rows = jsonArray.map((row) =>
+    Object.values(row)
+      .map((value) => (typeof value === "bigint" ? value.toString() : value)) // Handle BigInt
+      .join(delimiter)
+  );
+
+  // Combine headers and rows
+  const csvContent = [headers, ...rows].join("\n");
+
+  return csvContent;
+}

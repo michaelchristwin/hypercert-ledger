@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { Trash2, ArrowRight, ArrowLeft } from "lucide-react";
 import { addDays, format } from "date-fns";
@@ -22,7 +22,7 @@ import { AllowlistEntry, HypercertClient } from "@hypercerts-org/sdk";
 import { HypercertMetadata, mintHypercert } from "~/actions/hypercerts";
 import { parseListFromString } from "~/lib/parsing";
 import html2canvas from "html2canvas";
-import { prepareAllowlist } from "~/utils/mint-utils";
+import { prepareAllowlist, jsonToCsv } from "~/utils/mint-utils";
 import useProgressStore from "~/context/progress-store";
 
 type Result<T, E = Error> = [E, null] | [null, T];
@@ -123,6 +123,21 @@ function FormComponent({ data }: { data: any }) {
   }, [walletClient]);
   // console.log(hypercertClient);
 
+  const newAllowlist = useMemo(() => {
+    const { allowList, recipientUnits } = prepareAllowlist(
+      data.applications[0],
+      distribution
+    );
+    const newAllowlist: AllowlistEntry[] = [
+      ...allowList,
+      {
+        address: address as `0x${string}`,
+        units: BigInt(recipientUnits),
+      },
+    ];
+    return newAllowlist;
+  }, [data.applications[0], distribution]);
+
   const onSubmit: SubmitHandler<HypercertCreateFormData> = async (formData) => {
     if (!hypercertClient) {
       console.error("Client Error");
@@ -145,17 +160,7 @@ function FormComponent({ data }: { data: any }) {
       external_url,
       excludedRights,
     } = formData;
-    const { allowList, recipientUnits } = prepareAllowlist(
-      data.applications[0],
-      distribution
-    );
-    const newAllowlist: AllowlistEntry[] = [
-      ...allowList,
-      {
-        address: address as `0x${string}`,
-        units: BigInt(recipientUnits),
-      },
-    ];
+
     const c = newAllowlist.map((v) => {
       return v.address;
     });
@@ -227,6 +232,20 @@ function FormComponent({ data }: { data: any }) {
       }
     }
   };
+
+  const downloadAllowlist = useCallback(() => {
+    const csvContent = jsonToCsv(newAllowlist);
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "allowlist.csv";
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }, [newAllowlist]);
   return (
     <div
       className={`w-full justify-center flex flex-col-reverse items-center lg:flex-row md:flex-row lg:items-start md:items-start lg:space-x-[40px] md:space-x-[40px] lg:p-4 md:p-4 p-2 gap-y-4`}
@@ -594,6 +613,13 @@ function FormComponent({ data }: { data: any }) {
                   </div>
                 </div>
               </fieldset>
+              <button
+                type="button"
+                onClick={downloadAllowlist}
+                className={`bg-purple-500 hover:opacity-[0.8] active:translate-y-[2px] h-[40px] w-fit px-2 flex items-center text-white justify-center space-x-2 rounded-[6px]`}
+              >
+                Download Allowlist
+              </button>
             </>
           )}
           {activeTab === 2 && <></>}
